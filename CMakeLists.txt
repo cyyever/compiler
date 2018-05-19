@@ -1,0 +1,46 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.9)
+
+PROJECT(MyCompilerLib)
+
+INCLUDE(cmake/all.cmake)
+
+FILE(GLOB SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.cpp)
+FILE(GLOB HRDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.hpp)
+
+FIND_PACKAGE(doctest REQUIRED)
+
+ADD_LIBRARY(MyCompilerLib SHARED ${SOURCE})
+SET_TARGET_PROPERTIES(MyCompilerLib PROPERTIES PUBLIC_HEADER "${HRDS}")
+
+TARGET_LINK_LIBRARIES(MyCompilerLib PRIVATE doctest::doctest)
+
+FIND_PACKAGE(MyComputationLib REQUIRED)
+TARGET_LINK_LIBRARIES(MyCompilerLib PRIVATE MyComputationLib)
+
+if(CMAKE_BUILD_TYPE STREQUAL Release)
+  TARGET_COMPILE_DEFINITIONS(MyCompilerLib PRIVATE DOCTEST_CONFIG_DISABLE)
+endif()
+
+# test
+add_subdirectory(test)
+
+option(BUILD_FUZZING "Build fuzzing" OFF)
+
+if(BUILD_FUZZING)
+  add_subdirectory(fuzz_test)
+endif()
+
+# install lib
+INSTALL(TARGETS MyCompilerLib EXPORT ${PROJECT_NAME}Targets
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  PUBLIC_HEADER DESTINATION include/cyy/compiler
+  COMPONENT library
+  INCLUDES DESTINATION include
+  )
+
+# install cmake config file
+INSTALL(EXPORT ${PROJECT_NAME}Targets
+  FILE ${PROJECT_NAME}Config.cmake
+  DESTINATION lib/cmake/${PROJECT_NAME})
