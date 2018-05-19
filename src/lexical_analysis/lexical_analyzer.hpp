@@ -11,10 +11,11 @@
 #include <string>
 #include <vector>
 
-#include "automaton.hpp"
-#include "lang.hpp"
+#include <cyy/computation/automaton.hpp>
+#include <cyy/computation/lang.hpp>
 
-namespace cyy::computation {
+namespace cyy::compiler {
+  using namespace cyy::computation;
 
 class lexical_analyzer {
 public:
@@ -66,4 +67,4 @@ private:
   std::optional<NFA> nfa_opt;
   std::map<uint64_t, symbol_type> pattern_final_states;
 };
-} // namespace cyy::computation
+}

@@ -1,19 +1,19 @@
 /*!
- * \file lexical_analyzer.hpp
+ * \file lexical_analyzer.cpp
  *
  * \author cyy
  * \date 2018-03-04
  */
 
-#include <cassert>
-
 #define DOCTEST_CONFIG_IMPLEMENT
 #include <doctest.h>
 
-#include "lexical_analyzer.hpp"
-#include "regex.hpp"
+#include <cassert>
+#include <cyy/computation/regex.hpp>
 
-namespace cyy::computation {
+#include "lexical_analyzer.hpp"
+
+namespace cyy::compiler {
 
 void lexical_analyzer::make_NFA() {
   if (nfa_opt) {
@@ -105,4 +105,4 @@ std::pair<int, lexical_analyzer::token> lexical_analyzer::scan() {
   return {-1, {}};
 }
 
-} // namespace cyy::computation
+}
