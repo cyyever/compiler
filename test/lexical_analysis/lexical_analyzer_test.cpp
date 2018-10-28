@@ -32,83 +32,83 @@ TEST_CASE("scan") {
   analyzer.append_pattern('*', U"\\*");
   analyzer.append_pattern('=', U"=");
 
-  analyzer.set_input_stream(symbol_istringstream(U"position = initial + rate * 60"));
+  analyzer.set_input_stream(
+      symbol_istringstream(U"position = initial + rate * 60"));
 
-  auto res= analyzer.scan();
-  REQUIRE(res.index()==0);
-  auto token=std::get<0>(res);
-  REQUIRE(token.name==static_cast<symbol_type>(common_token::id));
-  REQUIRE(token.attribute.lexeme==U"position");
+  auto res = analyzer.scan();
+  REQUIRE(res.index() == 0);
+  auto token = std::get<0>(res);
+  REQUIRE(token.name == static_cast<symbol_type>(common_token::id));
+  REQUIRE(token.lexeme == U"position");
 
-  res= analyzer.scan();
-  REQUIRE(res.index()==0);
-  token=std::get<0>(res);
-  REQUIRE(token.name==static_cast<symbol_type>( common_token::whitespace));
-  REQUIRE(token.attribute.lexeme==U" ");
+  res = analyzer.scan();
+  REQUIRE(res.index() == 0);
+  token = std::get<0>(res);
+  REQUIRE(token.name == static_cast<symbol_type>(common_token::whitespace));
+  REQUIRE(token.lexeme == U" ");
 
-  res= analyzer.scan();
-  REQUIRE(res.index()==0);
-  token=std::get<0>(res);
-  REQUIRE(token.name=='=');
-  REQUIRE(token.attribute.lexeme==U"=");
+  res = analyzer.scan();
+  REQUIRE(res.index() == 0);
+  token = std::get<0>(res);
+  REQUIRE(token.name == '=');
+  REQUIRE(token.lexeme == U"=");
 
-  res= analyzer.scan();
-  REQUIRE(res.index()==0);
-  token=std::get<0>(res);
-  REQUIRE(token.name==static_cast<symbol_type>( common_token::whitespace));
-  REQUIRE(token.attribute.lexeme==U" ");
-  res= analyzer.scan();
-  REQUIRE(res.index()==0);
-  token=std::get<0>(res);
-  REQUIRE(token.name==static_cast<symbol_type>(common_token::id));
-  REQUIRE(token.attribute.lexeme==U"initial");
+  res = analyzer.scan();
+  REQUIRE(res.index() == 0);
+  token = std::get<0>(res);
+  REQUIRE(token.name == static_cast<symbol_type>(common_token::whitespace));
+  REQUIRE(token.lexeme == U" ");
+  res = analyzer.scan();
+  REQUIRE(res.index() == 0);
+  token = std::get<0>(res);
+  REQUIRE(token.name == static_cast<symbol_type>(common_token::id));
+  REQUIRE(token.lexeme == U"initial");
 
-  res= analyzer.scan();
-  REQUIRE(res.index()==0);
-  token=std::get<0>(res);
-  REQUIRE(token.name==static_cast<symbol_type>( common_token::whitespace));
-  REQUIRE(token.attribute.lexeme==U" ");
+  res = analyzer.scan();
+  REQUIRE(res.index() == 0);
+  token = std::get<0>(res);
+  REQUIRE(token.name == static_cast<symbol_type>(common_token::whitespace));
+  REQUIRE(token.lexeme == U" ");
 
-  res= analyzer.scan();
-  REQUIRE(res.index()==0);
-  token=std::get<0>(res);
-  REQUIRE(token.name=='+');
-  REQUIRE(token.attribute.lexeme==U"+");
+  res = analyzer.scan();
+  REQUIRE(res.index() == 0);
+  token = std::get<0>(res);
+  REQUIRE(token.name == '+');
+  REQUIRE(token.lexeme == U"+");
 
-  res= analyzer.scan();
-  REQUIRE(res.index()==0);
-  token=std::get<0>(res);
-  REQUIRE(token.name==static_cast<symbol_type>( common_token::whitespace));
-  REQUIRE(token.attribute.lexeme==U" ");
+  res = analyzer.scan();
+  REQUIRE(res.index() == 0);
+  token = std::get<0>(res);
+  REQUIRE(token.name == static_cast<symbol_type>(common_token::whitespace));
+  REQUIRE(token.lexeme == U" ");
 
-  res= analyzer.scan();
-  REQUIRE(res.index()==0);
-  token=std::get<0>(res);
-  REQUIRE(token.name==static_cast<symbol_type>(common_token::id));
-  REQUIRE(token.attribute.lexeme==U"rate");
+  res = analyzer.scan();
+  REQUIRE(res.index() == 0);
+  token = std::get<0>(res);
+  REQUIRE(token.name == static_cast<symbol_type>(common_token::id));
+  REQUIRE(token.lexeme == U"rate");
 
-  res= analyzer.scan();
-  REQUIRE(res.index()==0);
-  token=std::get<0>(res);
-  REQUIRE(token.name==static_cast<symbol_type>( common_token::whitespace));
-  REQUIRE(token.attribute.lexeme==U" ");
+  res = analyzer.scan();
+  REQUIRE(res.index() == 0);
+  token = std::get<0>(res);
+  REQUIRE(token.name == static_cast<symbol_type>(common_token::whitespace));
+  REQUIRE(token.lexeme == U" ");
 
-  res= analyzer.scan();
-  REQUIRE(res.index()==0);
-  token=std::get<0>(res);
-  REQUIRE(token.name=='*');
-  REQUIRE(token.attribute.lexeme==U"*");
+  res = analyzer.scan();
+  REQUIRE(res.index() == 0);
+  token = std::get<0>(res);
+  REQUIRE(token.name == '*');
+  REQUIRE(token.lexeme == U"*");
 
-  res= analyzer.scan();
-  REQUIRE(res.index()==0);
-  token=std::get<0>(res);
-  REQUIRE(token.name==static_cast<symbol_type>( common_token::whitespace));
-  REQUIRE(token.attribute.lexeme==U" ");
+  res = analyzer.scan();
+  REQUIRE(res.index() == 0);
+  token = std::get<0>(res);
+  REQUIRE(token.name == static_cast<symbol_type>(common_token::whitespace));
+  REQUIRE(token.lexeme == U" ");
 
-  res= analyzer.scan();
-  REQUIRE(res.index()==0);
-  token=std::get<0>(res);
-  REQUIRE(token.name==static_cast<symbol_type>( common_token::digit));
-  REQUIRE(token.attribute.lexeme==U"60");
-
+  res = analyzer.scan();
+  REQUIRE(res.index() == 0);
+  token = std::get<0>(res);
+  REQUIRE(token.name == static_cast<symbol_type>(common_token::digit));
+  REQUIRE(token.lexeme == U"60");
 }

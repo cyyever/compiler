@@ -21,13 +21,13 @@ using namespace cyy::computation;
 class lexical_analyzer {
 public:
   struct token_attribute {
-    size_t line_no;
-    size_t column_no;
-    symbol_string lexeme;
+    size_t line_no{1};
+    size_t column_no{1};
   };
 
   struct token {
     symbol_type name;
+    symbol_string lexeme;
     token_attribute attribute;
   };
 
@@ -41,19 +41,17 @@ public:
   }
 
   void set_input_stream(symbol_istringstream &&is) {
-    cur_line = 1;
-    cur_column = 1;
     input_stream = std::move(is);
   }
 
+  void reset_input() { last_token = {}; }
+
   //! \brief scan the input stream,return first token
   //! \return
-  //	when successed,return 0 and the token
-  //	when no token in remain input,return 1 and null token
-  //	when EOF was seen,return -1 and null token
-  //	when failed,return -2 and null token
-  //! \note when no successed, stream is not consumed
-  std::variant<token,int> scan();
+  //	when successed,return token
+  //	when no token in remain input,return 1
+  //	when failed,return -1
+  std::variant<token, int> scan();
 
 private:
   void make_NFA();
@@ -61,11 +59,9 @@ private:
 private:
   std::string alphabet_name;
   std::vector<std::pair<symbol_type, symbol_string>> patterns;
-  size_t cur_line{1};
-  size_t cur_column{1};
+  token last_token;
 
   symbol_istringstream input_stream;
-  symbol_string rest_input;
   std::optional<NFA> nfa_opt;
   std::map<uint64_t, symbol_type> pattern_final_states;
 };
