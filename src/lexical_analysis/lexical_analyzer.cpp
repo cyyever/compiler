@@ -5,11 +5,16 @@
  * \date 2018-03-04
  */
 
+#pragma warning(push)
+#if __has_include(<CppCoreCheck\Warnings.h>)
+#include <CppCoreCheck\Warnings.h>
+#pragma warning(disable : ALL_CPPCORECHECK_WARNINGS)
+#endif
 #define DOCTEST_CONFIG_IMPLEMENT
 #include <doctest.h>
-
+#pragma warning(pop)
 #include <cassert>
-#include <cyy/computation/regex.hpp>
+#include <cyy/computation/regular_lang/regex.hpp>
 
 #include "lexical_analyzer.hpp"
 
@@ -44,7 +49,7 @@ void lexical_analyzer::make_NFA() {
   nfa_opt = std::move(nfa);
 }
 
-std::pair<int, lexical_analyzer::token> lexical_analyzer::scan() {
+std::variant<int, lexical_analyzer::token> lexical_analyzer::scan() {
   make_NFA();
   symbol_string lexeme;
   size_t max_lexeme_size = 0;
@@ -89,20 +94,20 @@ std::pair<int, lexical_analyzer::token> lexical_analyzer::scan() {
         t.attribute.line_no = line_no;
         t.attribute.column_no = column_no;
         t.attribute.lexeme = std::move(lexeme);
-        return {0, t};
+        return {t};
       }
     }
     assert(0);
   }
 
   if (!input_stream && !input_stream.eof()) {
-    return {-2, {}};
+    return {-2};
   }
 
   if (!lexeme.empty()) {
-    return {1, {}};
+    return {1};
   }
-  return {-1, {}};
+  return {-1};
 }
 
-}
+} // namespace cyy::compiler

@@ -9,13 +9,14 @@
 
 #include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
-#include <cyy/computation/automaton.hpp>
-#include <cyy/computation/lang.hpp>
+#include <cyy/computation/lang/lang.hpp>
+#include <cyy/computation/regular_lang/nfa.hpp>
 
 namespace cyy::compiler {
-  using namespace cyy::computation;
+using namespace cyy::computation;
 
 class lexical_analyzer {
 public:
@@ -52,7 +53,7 @@ public:
   //	when EOF was seen,return -1 and null token
   //	when failed,return -2 and null token
   //! \note when no successed, stream is not consumed
-  std::pair<int, token> scan();
+  std::variant<int, token> scan();
 
 private:
   void make_NFA();
@@ -67,4 +68,4 @@ private:
   std::optional<NFA> nfa_opt;
   std::map<uint64_t, symbol_type> pattern_final_states;
 };
-}
+} // namespace cyy::compiler
