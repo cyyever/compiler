@@ -16,4 +16,9 @@ public:
   using invalid_argument::invalid_argument;
 };
 
+class unexisted_grammar_symbol_attribute : public std::invalid_argument {
+public:
+  using invalid_argument::invalid_argument;
+};
+
 } // namespace cyy::compiler::exception
