@@ -29,10 +29,12 @@ void lexical_analyzer::make_NFA() {
     throw std::runtime_error("no pattern");
   }
 
+  pattern_final_states.clear();
+  rest_input.clear();
+
   std::shared_ptr<ALPHABET> alphabet =
       ::cyy::computation::ALPHABET::get(alphabet_name);
 
-  pattern_final_states.clear();
 
   NFA nfa({0}, alphabet_name, 0, {}, {});
 
@@ -46,29 +48,38 @@ void lexical_analyzer::make_NFA() {
     start_state = final_state + 1;
   }
   REQUIRE(nfa.get_final_states().size() == patterns.size());
-  nfa_opt = std::move(nfa);
+  nfa_opt=std::move(nfa);
 }
 
-std::variant<int, lexical_analyzer::token> lexical_analyzer::scan() {
+std::variant< lexical_analyzer::token,int> lexical_analyzer::scan() {
   make_NFA();
   symbol_string lexeme;
   size_t max_lexeme_size = 0;
   std::set<uint64_t> prev_final_set;
 
-  auto cur_set = nfa_opt->get_start_epsilon_closure();
+  auto cur_set= nfa_opt->get_start_epsilon_closure();
 
   auto line_no = cur_line;
   auto column_no = cur_column;
 
   while (true) {
     symbol_type c = 0;
+    if(!rest_input.empty()) {
+      c=rest_input.front();
+      rest_input.erase(rest_input.begin());
+    }
+    else {
     input_stream.get(c);
 
     if (!input_stream) {
       break;
     }
+    }
 
     cur_set = nfa_opt->move(cur_set, c);
+
+
+    std::cout<<"c is"<<(char)c<<std::endl;
     lexeme.push_back(c);
 
     if (c == '\n') {
@@ -84,7 +95,11 @@ std::variant<int, lexical_analyzer::token> lexical_analyzer::scan() {
     }
   }
 
-  if (max_lexeme_size) {
+  std::cout<<"max_lexeme_size="<<max_lexeme_size<<std::endl;
+  if (max_lexeme_size>0) {
+    if(max_lexeme_size<lexeme.size()) {
+      rest_input.insert(rest_input.end(),lexeme.begin()+max_lexeme_size,lexeme.end());
+    }
     lexeme.resize(max_lexeme_size);
 
     token t;

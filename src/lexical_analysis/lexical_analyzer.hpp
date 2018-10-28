@@ -53,7 +53,7 @@ public:
   //	when EOF was seen,return -1 and null token
   //	when failed,return -2 and null token
   //! \note when no successed, stream is not consumed
-  std::variant<int, token> scan();
+  std::variant<token,int> scan();
 
 private:
   void make_NFA();
@@ -65,6 +65,7 @@ private:
   size_t cur_column{1};
 
   symbol_istringstream input_stream;
+  symbol_string rest_input;
   std::optional<NFA> nfa_opt;
   std::map<uint64_t, symbol_type> pattern_final_states;
 };
