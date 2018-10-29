@@ -65,8 +65,11 @@ protected:
 
 protected:
   std::map<attribute_name_type, attribute_value_type> all_attributes;
+  std::map<CFG::production_type,std::set<semantic_rule> > all_rules;
+  /*
   std::map<attribute_name_type, std::set<attribute_name_type>>
       attribute_dependency;
+      */
 
 private:
   const std::shared_ptr<CFG> cfg;
