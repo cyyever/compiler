@@ -65,8 +65,6 @@ std::variant<lexical_analyzer::token, int> lexical_analyzer::scan() {
     }
 
     cur_set = nfa_opt->move(cur_set, c);
-
-    std::cout << "c is" << (char)c << std::endl;
     last_token.lexeme.push_back(c);
 
     if (c == '\n') {

@@ -35,5 +35,9 @@ void SDD::add_synthesized_attribute(const CFG::production_type &production,
       throw exception::unexisted_grammar_symbol_attribute("");
     }
   }
+
+  attribute_dependency[rule.attribute].insert(
+      std::move_iterator(rule.arguments.begin()),
+      std::move_iterator(rule.arguments.end()));
 }
 } // namespace cyy::compiler
