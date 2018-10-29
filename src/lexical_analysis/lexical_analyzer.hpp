@@ -38,6 +38,7 @@ public:
   void append_pattern(const symbol_type &token_name, symbol_string pattern) {
     patterns.emplace_back(token_name, std::move(pattern));
     nfa_opt.reset();
+    reset_input();
   }
 
   void set_input_stream(symbol_istringstream &&is) {
@@ -47,8 +48,7 @@ public:
   void reset_input() { last_token = {}; }
 
   //! \brief scan the input stream,return first token
-  //! \return
-  //	when successed,return token
+  //! \return when successed,return token
   //	when no token in remain input,return 1
   //	when failed,return -1
   std::variant<token, int> scan();
@@ -60,7 +60,6 @@ private:
   std::string alphabet_name;
   std::vector<std::pair<symbol_type, symbol_string>> patterns;
   token last_token;
-
   symbol_istringstream input_stream;
   std::optional<NFA> nfa_opt;
   std::map<uint64_t, symbol_type> pattern_final_states;
