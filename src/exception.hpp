@@ -11,7 +11,22 @@
 
 namespace cyy::compiler::exception {
 
+class io_error: public std::runtime_error {
+public:
+  using runtime_error::runtime_error;
+};
+
+class  invalid_semantic_rule: public std::invalid_argument {
+public:
+  using invalid_argument::invalid_argument;
+};
+
 class unexisted_production : public std::invalid_argument {
+public:
+  using invalid_argument::invalid_argument;
+};
+
+class semantic_rule_confliction: public std::invalid_argument {
 public:
   using invalid_argument::invalid_argument;
 };

@@ -7,6 +7,7 @@
 
 #include <cassert>
 #include <cyy/computation/regular_lang/regex.hpp>
+#include <cyy/computation/regular_lang/dfa.hpp>
 
 #include "lexical_analyzer.hpp"
 
@@ -61,7 +62,7 @@ void lexical_analyzer::make_NFA() {
   dfa_opt = std::move(dfa);
 }
 
-std::variant<lexical_analyzer::token, int> lexical_analyzer::scan() {
+std::variant<token, int> lexical_analyzer::scan() {
   make_NFA();
 
   auto cur_state = dfa_opt->get_start_state();
@@ -82,7 +83,6 @@ std::variant<lexical_analyzer::token, int> lexical_analyzer::scan() {
       cur_attribute.column_no++;
     }
 
-    std::cout<<"c="<<(char)c<<std::endl;
     if(!cur_state_opt) {
       break;
     }
@@ -94,7 +94,6 @@ std::variant<lexical_analyzer::token, int> lexical_analyzer::scan() {
                               last_view.size() - cur_view.size());
       last_view = cur_view;
       cur_token.name = pattern_final_states[cur_state];
-      std::cout<<"name is "<<(int)cur_token.name<<std::endl;
     }
   }
 

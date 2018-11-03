@@ -35,8 +35,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
 	analyzer.append_pattern('=', U"=");
 	inited=true;
 	}
-	analyzer.reset_input();
-	analyzer.set_input_stream(  symbol_istringstream (source_code) );
+	analyzer.set_source_code(  symbol_istringstream (source_code) );
 	analyzer.scan();
   } catch (const std::invalid_argument &) {
   }

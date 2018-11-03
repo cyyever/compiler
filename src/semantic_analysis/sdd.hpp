@@ -18,6 +18,7 @@
 #include <cyy/computation/contex_free_lang/cfg.hpp>
 #include <cyy/computation/lang/lang.hpp>
 
+#include "../token/token.hpp"
 namespace cyy::compiler {
 using namespace cyy::computation;
 class SDD {
@@ -38,11 +39,12 @@ public:
 
   virtual ~SDD() = default;
 
-  virtual void run() = 0;
+  virtual void run(token_string_view view)=0;
 
 protected:
-  void add_synthesized_attribute(const CFG::production_type &production,
-                                 const semantic_rule &rule);
+  void add_synthesized_attribute(const CFG::production_type& production,
+                                 semantic_rule rule);
+  std::map<attribute_name_type,std::vector<attribute_name_type>> get_attribute_dependency() const;
   static bool
   is_attribute_of_grammar_symbol(const grammar_symbol_type &grammar_symbol,
                                  const attribute_name_type &attribute_name) {
@@ -63,15 +65,10 @@ protected:
     return grammar_symbol == attribute_name;
   }
 
+
 protected:
   std::map<attribute_name_type, attribute_value_type> all_attributes;
   std::map<CFG::production_type,std::set<semantic_rule> > all_rules;
-  /*
-  std::map<attribute_name_type, std::set<attribute_name_type>>
-      attribute_dependency;
-      */
-
-private:
   const std::shared_ptr<CFG> cfg;
 };
 } // namespace cyy::compiler

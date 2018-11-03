@@ -13,24 +13,14 @@
 #include <vector>
 
 #include <cyy/computation/lang/lang.hpp>
-#include <cyy/computation/regular_lang/nfa.hpp>
+#include <cyy/computation/regular_lang/dfa.hpp>
+
+#include "../token/token.hpp"
 
 namespace cyy::compiler {
 using namespace cyy::computation;
 
 class lexical_analyzer {
-public:
-  struct token_attribute {
-    size_t line_no{1};
-    size_t column_no{1};
-  };
-
-  struct token {
-    symbol_type name;
-    symbol_string lexeme;
-    token_attribute attribute;
-  };
-
 public:
   explicit lexical_analyzer(const std::string &alphabet_name_)
       : alphabet_name(alphabet_name_) {}
@@ -75,4 +65,6 @@ private:
   std::optional<DFA> dfa_opt;
   std::map<uint64_t, symbol_type> pattern_final_states;
 };
+
+
 } // namespace cyy::compiler
