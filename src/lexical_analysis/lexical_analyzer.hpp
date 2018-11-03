@@ -37,24 +37,24 @@ public:
 
   void append_pattern(const symbol_type &token_name, symbol_string pattern) {
     patterns.emplace_back(token_name, std::move(pattern));
-    nfa_opt.reset();
+    dfa_opt.reset();
     reset_input();
   }
 
-  bool set_input_stream(symbol_istream &&is) {
-    input_stream = symbol_string(std::istreambuf_iterator<symbol_type>(is),
+  bool set_source_code(symbol_istream &&is) {
+    source_code = symbol_string(std::istreambuf_iterator<symbol_type>(is),
                                  std::istreambuf_iterator<symbol_type>{});
     if (is.bad() || is.fail()) {
       std::cerr << "read symbol stream failed";
       return false;
     }
-    last_view = input_stream;
+    last_view = source_code;
     reset_input();
     return true;
   }
 
   void reset_input() {
-    last_view = input_stream;
+    last_view = source_code;
     last_attribute = {};
   }
 
@@ -70,9 +70,9 @@ private:
   std::string alphabet_name;
   std::vector<std::pair<symbol_type, symbol_string>> patterns;
   token_attribute last_attribute;
-  symbol_string input_stream;
+  symbol_string source_code;
   symbol_string_view last_view;
-  std::optional<NFA> nfa_opt;
+  std::optional<DFA> dfa_opt;
   std::map<uint64_t, symbol_type> pattern_final_states;
 };
 } // namespace cyy::compiler

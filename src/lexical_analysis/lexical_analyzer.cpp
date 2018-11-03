@@ -13,7 +13,7 @@
 namespace cyy::compiler {
 
 void lexical_analyzer::make_NFA() {
-  if (nfa_opt) {
+  if (dfa_opt) {
     return;
   }
 
@@ -38,13 +38,33 @@ void lexical_analyzer::make_NFA() {
     start_state = final_state + 1;
   }
   assert(nfa.get_final_states().size() == patterns.size());
-  nfa_opt = std::move(nfa);
+
+  auto [dfa,state_mapping]=nfa.to_DFA_with_mapping();
+ 
+  decltype(pattern_final_states) pattern_DFA_final_states;
+
+  for(auto const &[dfa_state,nfa_states]:state_mapping) {
+    if(!dfa.is_final_state(dfa_state)) {
+      continue;
+    }
+
+    for(auto nfa_state:nfa_states) {
+      //use first pattern
+      if(pattern_final_states.count(nfa_state)) {
+	pattern_DFA_final_states[dfa_state]=pattern_final_states[nfa_state];
+	break;
+      }
+    }
+  }
+  pattern_final_states=std::move(pattern_DFA_final_states);
+
+  dfa_opt = std::move(dfa);
 }
 
 std::variant<lexical_analyzer::token, int> lexical_analyzer::scan() {
   make_NFA();
 
-  auto cur_set = nfa_opt->get_start_epsilon_closure();
+  auto cur_state = dfa_opt->get_start_state();
   auto cur_view = last_view;
   auto cur_attribute = last_attribute;
 
@@ -53,7 +73,7 @@ std::variant<lexical_analyzer::token, int> lexical_analyzer::scan() {
   while (!cur_view.empty()) {
     symbol_type c = cur_view.front();
     cur_view.remove_prefix(1);
-    cur_set = nfa_opt->move(cur_set, c);
+    auto cur_state_opt = dfa_opt->move(cur_state, c);
 
     if (c == '\n') {
       cur_attribute.line_no++;
@@ -62,20 +82,19 @@ std::variant<lexical_analyzer::token, int> lexical_analyzer::scan() {
       cur_attribute.column_no++;
     }
 
-    if (nfa_opt->contain_final_state(cur_set)) {
+    std::cout<<"c="<<(char)c<<std::endl;
+    if(!cur_state_opt) {
+      break;
+    }
+    cur_state=cur_state_opt.value();
+
+    if (dfa_opt->is_final_state(cur_state)) {
       last_attribute = cur_attribute;
       cur_token.lexeme.append(last_view.data(),
                               last_view.size() - cur_view.size());
       last_view = cur_view;
-      for (auto const &[final_state, token_name] : pattern_final_states) {
-        if (cur_set.count(final_state)) {
-          cur_token.name = token_name;
-          break;
-        }
-      }
-    }
-    if (cur_set.empty()) {
-      break;
+      cur_token.name = pattern_final_states[cur_state];
+      std::cout<<"name is "<<(int)cur_token.name<<std::endl;
     }
   }
 
