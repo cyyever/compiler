@@ -54,7 +54,7 @@ TEST_CASE("scan") {
     stmt += lexeme;
   }
 
-  analyzer.set_input_stream(symbol_istringstream(stmt));
+  REQUIRE(analyzer.set_source_code(symbol_istringstream(stmt)));
 
   size_t column_no = 1;
   for (auto const &[lexeme, name] : tokens) {
