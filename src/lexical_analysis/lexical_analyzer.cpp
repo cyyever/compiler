@@ -43,60 +43,46 @@ void lexical_analyzer::make_NFA() {
 
 std::variant<lexical_analyzer::token, int> lexical_analyzer::scan() {
   make_NFA();
-  std::set<uint64_t> prev_final_set;
 
   auto cur_set = nfa_opt->get_start_epsilon_closure();
+  auto cur_view = last_view;
+  auto cur_attribute = last_attribute;
 
   token cur_token;
-
-  symbol_string rest_input = std::move(last_token.lexeme);
-  std::reverse(rest_input.begin(), rest_input.end());
-  while (true) {
-    symbol_type c = 0;
-    if (!rest_input.empty()) {
-      c = rest_input.back();
-      rest_input.pop_back();
-    } else {
-      input_stream.get(c);
-
-      if (!input_stream) {
-        break;
-      }
-    }
-
+  cur_token.attribute = cur_attribute;
+  while (!cur_view.empty()) {
+    symbol_type c = cur_view.front();
+    cur_view.remove_prefix(1);
     cur_set = nfa_opt->move(cur_set, c);
-    last_token.lexeme.push_back(c);
 
     if (c == '\n') {
-      last_token.attribute.line_no++;
-      last_token.attribute.column_no = 1;
+      cur_attribute.line_no++;
+      cur_attribute.column_no = 1;
     } else {
-      last_token.attribute.column_no++;
+      cur_attribute.column_no++;
     }
 
     if (nfa_opt->contain_final_state(cur_set)) {
-      prev_final_set = cur_set;
-      cur_token.attribute = last_token.attribute;
-      cur_token.lexeme += last_token.lexeme;
-      last_token.lexeme.clear();
+      last_attribute = cur_attribute;
+      cur_token.lexeme.append(last_view.data(),
+                              last_view.size() - cur_view.size());
+      last_view = cur_view;
+      for (auto const &[final_state, token_name] : pattern_final_states) {
+        if (cur_set.count(final_state)) {
+          cur_token.name = token_name;
+          break;
+        }
+      }
+    }
+    if (cur_set.empty()) {
+      break;
     }
   }
 
   if (!cur_token.lexeme.empty()) {
-    for (auto const &[final_state, token_name] : pattern_final_states) {
-      if (prev_final_set.count(final_state)) {
-        cur_token.name = token_name;
-        return {cur_token};
-      }
-    }
-    assert(0);
+    return {cur_token};
   }
-
-  if (input_stream.eof()) {
-    return {1};
-  }
-
-  return {-1};
+  return {1};
 }
 
 } // namespace cyy::compiler

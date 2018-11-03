@@ -41,16 +41,26 @@ public:
     reset_input();
   }
 
-  void set_input_stream(symbol_istringstream &&is) {
-    input_stream = std::move(is);
+  bool set_input_stream(symbol_istream &&is) {
+    input_stream = symbol_string(std::istreambuf_iterator<symbol_type>(is),
+                                 std::istreambuf_iterator<symbol_type>{});
+    if (is.bad() || is.fail()) {
+      std::cerr << "read symbol stream failed";
+      return false;
+    }
+    last_view = input_stream;
+    reset_input();
+    return true;
   }
 
-  void reset_input() { last_token = {}; }
+  void reset_input() {
+    last_view = input_stream;
+    last_attribute = {};
+  }
 
   //! \brief scan the input stream,return first token
   //! \return when successed,return token
   //	when no token in remain input,return 1
-  //	when failed,return -1
   std::variant<token, int> scan();
 
 private:
@@ -59,8 +69,9 @@ private:
 private:
   std::string alphabet_name;
   std::vector<std::pair<symbol_type, symbol_string>> patterns;
-  token last_token;
-  symbol_istringstream input_stream;
+  token_attribute last_attribute;
+  symbol_string input_stream;
+  symbol_string_view last_view;
   std::optional<NFA> nfa_opt;
   std::map<uint64_t, symbol_type> pattern_final_states;
 };

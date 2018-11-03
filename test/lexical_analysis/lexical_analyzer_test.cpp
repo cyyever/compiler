@@ -12,9 +12,11 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest.h>
 #include <iostream>
+#include <utility>
+
+#include <cyy/computation/lang/common_tokens.hpp>
 
 #include "../../src/lexical_analysis/lexical_analyzer.hpp"
-#include <cyy/computation/lang/common_tokens.hpp>
 
 using namespace cyy::computation;
 using namespace cyy::compiler;
@@ -32,83 +34,37 @@ TEST_CASE("scan") {
   analyzer.append_pattern('*', U"\\*");
   analyzer.append_pattern('=', U"=");
 
-  analyzer.set_input_stream(
-      symbol_istringstream(U"position = initial + rate * 60"));
+  std::vector<std::pair<symbol_string, symbol_type>> tokens;
+  tokens.emplace_back(U"position", static_cast<symbol_type>(common_token::id));
+  tokens.emplace_back(U" ", static_cast<symbol_type>(common_token::whitespace));
+  tokens.emplace_back(U"=", '=');
+  tokens.emplace_back(U" ", static_cast<symbol_type>(common_token::whitespace));
+  tokens.emplace_back(U"initial", static_cast<symbol_type>(common_token::id));
+  tokens.emplace_back(U" ", static_cast<symbol_type>(common_token::whitespace));
+  tokens.emplace_back(U"+", '+');
+  tokens.emplace_back(U" ", static_cast<symbol_type>(common_token::whitespace));
+  tokens.emplace_back(U"rate", static_cast<symbol_type>(common_token::id));
+  tokens.emplace_back(U" ", static_cast<symbol_type>(common_token::whitespace));
+  tokens.emplace_back(U"*", '*');
+  tokens.emplace_back(U" ", static_cast<symbol_type>(common_token::whitespace));
+  tokens.emplace_back(U"60", static_cast<symbol_type>(common_token::digit));
 
-  auto res = analyzer.scan();
-  REQUIRE(res.index() == 0);
-  auto token = std::get<0>(res);
-  REQUIRE(token.name == static_cast<symbol_type>(common_token::id));
-  REQUIRE(token.lexeme == U"position");
+  symbol_string stmt;
+  for (auto const &[lexeme, _] : tokens) {
+    stmt += lexeme;
+  }
 
-  res = analyzer.scan();
-  REQUIRE(res.index() == 0);
-  token = std::get<0>(res);
-  REQUIRE(token.name == static_cast<symbol_type>(common_token::whitespace));
-  REQUIRE(token.lexeme == U" ");
+  analyzer.set_input_stream(symbol_istringstream(stmt));
 
-  res = analyzer.scan();
-  REQUIRE(res.index() == 0);
-  token = std::get<0>(res);
-  REQUIRE(token.name == '=');
-  REQUIRE(token.lexeme == U"=");
-
-  res = analyzer.scan();
-  REQUIRE(res.index() == 0);
-  token = std::get<0>(res);
-  REQUIRE(token.name == static_cast<symbol_type>(common_token::whitespace));
-  REQUIRE(token.lexeme == U" ");
-  res = analyzer.scan();
-  REQUIRE(res.index() == 0);
-  token = std::get<0>(res);
-  REQUIRE(token.name == static_cast<symbol_type>(common_token::id));
-  REQUIRE(token.lexeme == U"initial");
-
-  res = analyzer.scan();
-  REQUIRE(res.index() == 0);
-  token = std::get<0>(res);
-  REQUIRE(token.name == static_cast<symbol_type>(common_token::whitespace));
-  REQUIRE(token.lexeme == U" ");
-
-  res = analyzer.scan();
-  REQUIRE(res.index() == 0);
-  token = std::get<0>(res);
-  REQUIRE(token.name == '+');
-  REQUIRE(token.lexeme == U"+");
-
-  res = analyzer.scan();
-  REQUIRE(res.index() == 0);
-  token = std::get<0>(res);
-  REQUIRE(token.name == static_cast<symbol_type>(common_token::whitespace));
-  REQUIRE(token.lexeme == U" ");
-
-  res = analyzer.scan();
-  REQUIRE(res.index() == 0);
-  token = std::get<0>(res);
-  REQUIRE(token.name == static_cast<symbol_type>(common_token::id));
-  REQUIRE(token.lexeme == U"rate");
-
-  res = analyzer.scan();
-  REQUIRE(res.index() == 0);
-  token = std::get<0>(res);
-  REQUIRE(token.name == static_cast<symbol_type>(common_token::whitespace));
-  REQUIRE(token.lexeme == U" ");
-
-  res = analyzer.scan();
-  REQUIRE(res.index() == 0);
-  token = std::get<0>(res);
-  REQUIRE(token.name == '*');
-  REQUIRE(token.lexeme == U"*");
-
-  res = analyzer.scan();
-  REQUIRE(res.index() == 0);
-  token = std::get<0>(res);
-  REQUIRE(token.name == static_cast<symbol_type>(common_token::whitespace));
-  REQUIRE(token.lexeme == U" ");
-
-  res = analyzer.scan();
-  REQUIRE(res.index() == 0);
-  token = std::get<0>(res);
-  REQUIRE(token.name == static_cast<symbol_type>(common_token::digit));
-  REQUIRE(token.lexeme == U"60");
+  size_t column_no = 1;
+  for (auto const &[lexeme, name] : tokens) {
+    auto res = analyzer.scan();
+    REQUIRE(res.index() == 0);
+    auto token = std::get<0>(res);
+    REQUIRE(token.name == name);
+    REQUIRE(token.lexeme == lexeme);
+    REQUIRE(token.attribute.line_no == 1);
+    REQUIRE(token.attribute.column_no == column_no);
+    column_no += lexeme.size();
+  }
 }
