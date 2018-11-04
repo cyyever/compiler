@@ -5,10 +5,11 @@
  * \author cyy
  * \date 2018-10-28
  */
-
-#include "s_attributed_sdd.hpp"
-#include "../exception.hpp"
 #include <algorithm>
+#include <cassert>
+
+#include "../exception.hpp"
+#include "s_attributed_sdd.hpp"
 
 namespace cyy::compiler {
 
@@ -20,17 +21,48 @@ void S_attributed_SDD::run(token_string_view view) {
     token_names.push_back(token.name);
   }
 
+  all_attributes.clear();
+
   std::dynamic_pointer_cast<LR_grammar>(cfg)->parse(
-      token_names, [this](auto const &production) {
+      token_names, [&view, this](auto const &production) {
         auto it = all_rules.find(production);
         if (it == all_rules.end()) {
           return;
         }
+
+        auto old_view = view;
+
+        // right most derivation
+        auto const &body = production->second;
+        size_t terminal_count =
+            std::count_if(body.begin(), body.end(), [](auto grammal_symbol) {
+              return grammal_symbol.is_terminal();
+            });
+
+        token_string_view production_view(
+            view.data() + view.size() - terminal_count, terminal_count);
+
+        view.remove_suffix(terminal_count);
+
         auto const &rules = it->second;
         for (auto const &rule : rules) {
+          std::vector<const attribute_value_type &> argument_values;
           for (auto const &argument : rule.arguments) {
-            // if(auto
+            if (argument.is_nonterminal()) {
+              argument_values.emplace_back(all_attributes[argument]);
+            } else {
+              while (!production_view.empty()) {
+                if (production_view.front().name == argument) {
+                  argument_values.emplace_back(production_view.front().lexeme);
+                  production_view.remove_prefix(1);
+                  break;
+                }
+                production_view.remove_prefix(1);
+              }
+            }
           }
+          assert(argument_values.size() == rule.arguments.size());
+          rule.action(all_attributes[rule.attribute], arguments);
         }
       });
 }
