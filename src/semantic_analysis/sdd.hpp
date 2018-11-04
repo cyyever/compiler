@@ -26,7 +26,7 @@ public:
   using attribute_name_type = cyy::computation::grammar_symbol_type;
   using attribute_value_type = std::any;
   using semantic_action_type = std::function<void(
-      attribute_value_type &, const std::vector<const attribute_value_type &> &)>;
+      attribute_value_type &, const std::vector<std::reference_wrapper<const attribute_value_type >> &)>;
 
   struct semantic_rule {
     attribute_name_type attribute;

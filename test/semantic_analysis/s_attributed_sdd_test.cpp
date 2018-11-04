@@ -19,5 +19,5 @@ using namespace cyy::computation;
 using namespace cyy::compiler;
 
 TEST_CASE("run") {
-  S_attributed_SDD sdd(nullptr);
+	 S_attributed_SDD sdd(nullptr);
 }

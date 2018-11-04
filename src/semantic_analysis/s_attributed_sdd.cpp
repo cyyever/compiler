@@ -6,6 +6,7 @@
  * \date 2018-10-28
  */
 #include <algorithm>
+#include <functional>
 #include <cassert>
 
 #include "../exception.hpp"
@@ -30,10 +31,8 @@ void S_attributed_SDD::run(token_string_view view) {
           return;
         }
 
-        auto old_view = view;
-
         // right most derivation
-        auto const &body = production->second;
+        auto const &body = production.second;
         size_t terminal_count =
             std::count_if(body.begin(), body.end(), [](auto grammal_symbol) {
               return grammal_symbol.is_terminal();
@@ -46,23 +45,27 @@ void S_attributed_SDD::run(token_string_view view) {
 
         auto const &rules = it->second;
         for (auto const &rule : rules) {
-          std::vector<const attribute_value_type &> argument_values;
+          std::vector<std::reference_wrapper<const attribute_value_type>> argument_values;
+	  std::vector<std::any> temp_arguments;
+	  auto temp_view=production_view;
           for (auto const &argument : rule.arguments) {
-            if (argument.is_nonterminal()) {
-              argument_values.emplace_back(all_attributes[argument]);
+		  auto terminal_ptr=argument.get_terminal_ptr();
+		  if (!terminal_ptr) {
+			         argument_values.emplace_back(all_attributes[argument]);
             } else {
-              while (!production_view.empty()) {
-                if (production_view.front().name == argument) {
-                  argument_values.emplace_back(production_view.front().lexeme);
-                  production_view.remove_prefix(1);
+              while (!temp_view.empty()) {
+                if (temp_view.front().name == *terminal_ptr) {
+			temp_arguments.emplace_back(temp_view.front().lexeme);
+			argument_values.emplace_back(temp_arguments.back());
+                  temp_view.remove_prefix(1);
                   break;
                 }
-                production_view.remove_prefix(1);
+                temp_view.remove_prefix(1);
               }
             }
           }
           assert(argument_values.size() == rule.arguments.size());
-          rule.action(all_attributes[rule.attribute], arguments);
+          rule.action(all_attributes[rule.attribute], argument_values);
         }
       });
 }
