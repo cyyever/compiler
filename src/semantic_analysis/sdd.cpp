@@ -27,34 +27,49 @@ void SDD::add_synthesized_attribute(const CFG::production_type &production,
     throw exception::unexisted_production("");
   }
 
-  auto nonterminal_ptr = rule.attribute.get_nonterminal_ptr();
-  if (!nonterminal_ptr) {
-    throw exception::invalid_semantic_rule("rule for terminal");
-  }
   auto it = all_rules.find(production);
   if (it != all_rules.end()) {
     if (it->second.count(rule)) {
-      throw exception::semantic_rule_confliction(*nonterminal_ptr);
+      throw exception::semantic_rule_confliction(rule.attribute);
     }
   }
 
-  if (is_attribute_of_grammar_symbol(production.first, rule.attribute)) {
-    throw exception::unexisted_grammar_symbol_attribute("");
+  if (is_attribute_of_nonterminal(production.first, rule.attribute)) {
+    throw exception::unexisted_grammar_symbol_attribute(rule.attribute);
   }
+
+  size_t terminal_cnt = std::count_if(
+      production.second.begin(), production.second.end(),
+      [](auto &grammar_symbol) { return grammar_symbol.is_terminal(); });
 
   for (auto const &argument : rule.arguments) {
-    bool flag = false;
-    for (auto const &body_grammar_symbol : production.second) {
-      if (is_attribute_of_grammar_symbol(body_grammar_symbol, argument)) {
-        flag = true;
-        break;
+    bool is_nonterminal_attribute =
+        (argument.find_first_of('.') != std::string::npos);
+    if (!is_nonterminal_attribute) {
+      size_t nonterminal_position = 0;
+      if (argument.size() > 1 && argument[0] == '$') {
+        for (size_t i = 1; i < argument.size(); i++) {
+          if (argument[i] < '0' || argument[i] > '9') {
+            throw exception::unexisted_grammar_symbol_attribute(rule.attribute);
+          }
+          nonterminal_position = nonterminal_position * 10 + argument[i] - '0';
+        }
       }
+      if (nonterminal_position == 0 || nonterminal_position > terminal_cnt) {
+        throw exception::unexisted_grammar_symbol_attribute(rule.attribute);
+      }
+      continue;
     }
-    if (!flag && is_attribute_of_grammar_symbol(production.first, argument)) {
-      flag = true;
-    }
-    if (!flag) {
-      throw exception::unexisted_grammar_symbol_attribute("");
+
+    if (!std::any_of(production.second.begin(), production.second.end(),
+                     [&argument](auto &grammar_symbol) {
+                       return grammar_symbol.is_nonterminal() &&
+                              is_attribute_of_nonterminal(
+                                  *grammar_symbol.get_nonterminal_ptr(),
+                                  argument);
+                     })) {
+
+      throw exception::unexisted_grammar_symbol_attribute(argument);
     }
   }
   all_rules[production].emplace(std::move(rule));
@@ -70,5 +85,17 @@ SDD::get_attribute_dependency() const {
     }
   }
   return dependency;
+}
+
+bool SDD::is_attribute_of_nonterminal(
+    const grammar_symbol_type::nonterminal_type &nonterminal,
+    const attribute_name_type &attribute_name) {
+
+  if (attribute_name.size() <= nonterminal.size()) {
+    return false;
+  }
+  const auto pos = attribute_name.find_first_of(nonterminal);
+
+  return pos == 0 && attribute_name[nonterminal.size()] == '.';
 }
 } // namespace cyy::compiler

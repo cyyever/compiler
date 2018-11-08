@@ -23,10 +23,11 @@ namespace cyy::compiler {
 using namespace cyy::computation;
 class SDD {
 public:
-  using attribute_name_type = cyy::computation::grammar_symbol_type;
+  using attribute_name_type = std::string;
   using attribute_value_type = std::any;
   using semantic_action_type = std::function<void(
-      attribute_value_type &, const std::vector<std::reference_wrapper<const attribute_value_type >> &)>;
+      attribute_value_type &,
+      const std::vector<std::reference_wrapper<const attribute_value_type>> &)>;
 
   struct semantic_rule {
     attribute_name_type attribute;
@@ -46,25 +47,9 @@ protected:
                                  semantic_rule rule);
   std::map<attribute_name_type, std::vector<attribute_name_type>>
   get_attribute_dependency() const;
-  static bool
-  is_attribute_of_grammar_symbol(const grammar_symbol_type &grammar_symbol,
-                                 const attribute_name_type &attribute_name) {
-    auto nonterminal_ptr = grammar_symbol.get_nonterminal_ptr();
-    if (nonterminal_ptr) {
-      auto name_ptr = attribute_name.get_nonterminal_ptr();
-      if (!name_ptr) {
-        return false;
-      }
-      if (name_ptr->size() <= nonterminal_ptr->size()) {
-        return false;
-      }
-      const auto pos = name_ptr->find_first_of(*nonterminal_ptr);
-
-      return pos != std::string::npos &&
-             (*name_ptr)[nonterminal_ptr->size()] == '.';
-    }
-    return grammar_symbol == attribute_name;
-  }
+  static bool is_attribute_of_nonterminal(
+      const grammar_symbol_type::nonterminal_type &nonterminal,
+      const attribute_name_type &attribute_name);
 
 protected:
   std::map<attribute_name_type, attribute_value_type> all_attributes;

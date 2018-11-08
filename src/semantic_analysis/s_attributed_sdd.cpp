@@ -6,8 +6,8 @@
  * \date 2018-10-28
  */
 #include <algorithm>
-#include <functional>
 #include <cassert>
+#include <functional>
 
 #include "../exception.hpp"
 #include "s_attributed_sdd.hpp"
@@ -45,24 +45,23 @@ void S_attributed_SDD::run(token_string_view view) {
 
         auto const &rules = it->second;
         for (auto const &rule : rules) {
-          std::vector<std::reference_wrapper<const attribute_value_type>> argument_values;
-	  std::vector<std::any> temp_arguments;
-	  auto temp_view=production_view;
+          std::vector<std::reference_wrapper<const attribute_value_type>>
+              argument_values;
+          std::vector<std::any> temp_arguments;
+          auto temp_view = production_view;
           for (auto const &argument : rule.arguments) {
-		  auto terminal_ptr=argument.get_terminal_ptr();
-		  if (!terminal_ptr) {
-			         argument_values.emplace_back(all_attributes[argument]);
-            } else {
-              while (!temp_view.empty()) {
-                if (temp_view.front().name == *terminal_ptr) {
-			temp_arguments.emplace_back(temp_view.front().lexeme);
-			argument_values.emplace_back(temp_arguments.back());
-                  temp_view.remove_prefix(1);
-                  break;
-                }
-                temp_view.remove_prefix(1);
-              }
+	    if (argument.size() > 1 && argument[0] == '$') {
+	      size_t nonterminal_position=0;
+	      for (size_t i = 1; i < argument.size(); i++) {
+		nonterminal_position = nonterminal_position * 10 + argument[i] - '0';
+	      }
+
+	      temp_arguments.emplace_back(temp_view[nonterminal_position].lexeme);
+	      argument_values.emplace_back(temp_arguments.back());
             }
+	    else {
+	      argument_values.emplace_back(all_attributes[argument]);
+	    }
           }
           assert(argument_values.size() == rule.arguments.size());
           rule.action(all_attributes[rule.attribute], argument_values);
@@ -75,32 +74,33 @@ void S_attributed_SDD::check_dependency() const {
   auto attribute_dependency = get_attribute_dependency();
 
   const auto check_attribute_dependency =
-      [&passed_attributes, &attribute_dependency](
-          auto &&self, const attribute_name_type &attribute) {
-        if (attribute.is_terminal()) {
-          return true;
-        }
-        if (passed_attributes.count(attribute)) {
-          return true;
-        }
-        auto it = attribute_dependency.find(attribute);
-        if (it != attribute_dependency.end()) {
-          return false;
-        }
-        for (const auto &dependent_attribute : it->second) {
-          if (!self(self, dependent_attribute)) {
-            return false;
-          }
-        }
-        passed_attributes.insert(attribute);
-        return true;
-      };
+    [&passed_attributes, &attribute_dependency](
+	auto &&self, const attribute_name_type &attribute) {
+
+
+      bool is_nonterminal_attribute = (attribute.find_first_of('.') != std::string::npos);
+      if (!is_nonterminal_attribute) {
+	return true;
+      }
+      if (passed_attributes.count(attribute)) {
+	return true;
+      }
+      auto it = attribute_dependency.find(attribute);
+      if (it != attribute_dependency.end()) {
+	return false;
+      }
+      for (const auto &dependent_attribute : it->second) {
+	if (!self(self, dependent_attribute)) {
+	  return false;
+	}
+      }
+      passed_attributes.insert(attribute);
+      return true;
+    };
 
   for (const auto &[attribute, _] : attribute_dependency) {
     if (!check_attribute_dependency(check_attribute_dependency, attribute)) {
-      throw cyy::compiler::exception::orphan_grammar_symbol_attribute(
-          std::get<cyy::computation::grammar_symbol_type::nonterminal_type>(
-              attribute));
+      throw cyy::compiler::exception::orphan_grammar_symbol_attribute(attribute);
     }
   }
 }
