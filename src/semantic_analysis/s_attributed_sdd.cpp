@@ -15,14 +15,14 @@
 
 namespace cyy::compiler {
 
-void S_attributed_SDD::run(token_string_view view) {
-	if(view.empty()) {
-		std::cerr<<"token_string_view is empty"<<std::endl;
+void S_attributed_SDD::run(token_span span) {
+	if(span.empty()) {
+		std::cerr<<"span is empty"<<std::endl;
 		return ;
 	}
 
   symbol_string token_names;
-  for (auto const &token : view) {
+  for (auto const &token : span) {
     token_names.push_back(token.name);
   }
 
@@ -30,7 +30,7 @@ void S_attributed_SDD::run(token_string_view view) {
       all_attributes;
 
   dynamic_cast<const LR_grammar &>(cfg).parse(
-      token_names, [&all_attributes, &view, this](auto const &production) {
+      token_names, [&all_attributes, &span, this](auto const &production) {
         auto it = all_rules.find(production);
         if (it == all_rules.end()) {
           return;
@@ -43,10 +43,10 @@ void S_attributed_SDD::run(token_string_view view) {
               return grammal_symbol.is_terminal();
             });
 
-        const token_string_view production_view(
-            view.data() + view.size() - terminal_count, terminal_count);
+        const token_span production_span(
+            span.data() + span.size() - terminal_count, terminal_count);
 
-        view.remove_suffix(terminal_count);
+	span=span.subspan(0,span.size()-terminal_count);
 
         auto const &rules = it->second;
         for (auto const &rule : rules) {
@@ -57,9 +57,12 @@ void S_attributed_SDD::run(token_string_view view) {
             auto terminal_index =get_terminal_index(argument);
             if (terminal_index) {
               temp_arguments.emplace_back(
-                  production_view[terminal_index.value()]);
+                  production_span.at(terminal_index.value()-1));
               argument_values.emplace_back(temp_arguments.back());
             } else {
+		    if(!all_attributes.count(argument)) {
+			    std::cerr<<"no attribute for "<<argument<<std::endl;
+		    }
               argument_values.emplace_back(all_attributes[argument]);
             }
           }

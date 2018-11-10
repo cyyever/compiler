@@ -31,7 +31,7 @@ public:
 
   virtual ~SDD() = default;
 
-  virtual void run(token_string_view view) = 0;
+  virtual void run(token_span span) = 0;
 
   using semantic_action_type = std::function<void(
       std::any &, const std::vector<std::reference_wrapper<const std::any>> &)>;

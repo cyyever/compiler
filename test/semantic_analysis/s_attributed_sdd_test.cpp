@@ -36,7 +36,8 @@ TEST_CASE("run") {
 		    "L.val",
 		    {"E.val"},
 		    []( std::any &result, const std::vector<std::reference_wrapper<const std::any>> &arguments)  {
-		    result=arguments.at(0);
+		    result=arguments.at(0).get();
+		    std::cout<<std::any_cast<int>(result)<<std::endl;
 		    }
 		    }) ;
 
@@ -46,8 +47,9 @@ TEST_CASE("run") {
 		    "E.val",
 		    {"E.val","T.val"},
 		    []( std::any &result, const std::vector<std::reference_wrapper<const std::any>> &arguments)  {
-		    auto E_val=std::any_cast<int>(arguments.at(0));
-		    auto T_val=std::any_cast<int>(arguments.at(1));
+		    std::cout<<"aaaaaa "<<arguments[0].get().type().name()<<std::endl;
+		    auto E_val=std::any_cast<int>(arguments.at(0).get());
+		    auto T_val=std::any_cast<int>(arguments.at(1).get());
 		    result=E_val+T_val;
 		    }
 		    });
@@ -57,7 +59,7 @@ TEST_CASE("run") {
 		    "E.val",
 		    {"T.val"},
 		    []( std::any &result, const std::vector<std::reference_wrapper<const std::any>> &arguments)  {
-		    result=arguments.at(0);
+		    result=arguments.at(0).get();
 		    }
 		    });
     production_vector.emplace_back("T",CFG::production_body_type 
@@ -67,8 +69,8 @@ TEST_CASE("run") {
 		    "T.val",
 		    {"T.val","F.val"},
 		    []( std::any &result, const std::vector<std::reference_wrapper<const std::any>> &arguments)  {
-		    auto T_val=std::any_cast<int>(arguments.at(0));
-		    auto F_val=std::any_cast<int>(arguments.at(1));
+		    auto T_val=std::any_cast<int>(arguments.at(0).get());
+		    auto F_val=std::any_cast<int>(arguments.at(1).get());
 		    result=T_val*F_val;
 		    }
 		    });
@@ -79,7 +81,7 @@ TEST_CASE("run") {
 		    "T.val",
 		    {"F.val"},
 		    []( std::any &result, const std::vector<std::reference_wrapper<const std::any>> &arguments)  {
-		    result=arguments.at(0);
+		    result=arguments.at(0).get();
 		    }
 		    });
 
@@ -90,7 +92,7 @@ TEST_CASE("run") {
 		    "F.val",
 		    {"E.val"},
 		    []( std::any &result, const std::vector<std::reference_wrapper<const std::any>> &arguments)  {
-		    result=arguments.at(0);
+		    result=arguments.at(0).get();
 		    }
 		    });
 
@@ -102,7 +104,13 @@ TEST_CASE("run") {
 		    "F.val",
 		    {"$1"},
 		    []( std::any &result, const std::vector<std::reference_wrapper<const std::any>> &arguments)  {
-		    result=static_cast<char>(std::any_cast<token>(arguments.at(0)).lexeme[0])-'0';
+		    std::cout<<"lexeme is "<< static_cast<char>(std::any_cast<token>(arguments.at(0)).lexeme[0])<<std::endl;
+		    int digit=static_cast<char>(std::any_cast<token>(arguments.at(0)).lexeme[0])-'0';
+		    std::cout<<"digit is "<<digit <<std::endl;
+		    result=digit;
+
+
+		    std::cout<<result.type().name()<<std::endl;
 		    }
 		    });
 
@@ -124,18 +132,15 @@ TEST_CASE("run") {
 
     }
 
-    token_string tokens;
-    /*
+    std::vector<token> tokens;
     tokens.push_back(token{'(',U"(",{}});
     tokens.push_back(token{digit,U"1",{}});
     tokens.push_back(token{'+',U"+",{}});
     tokens.push_back(token{digit,U"2",{}});
     tokens.push_back(token{')',U")",{}});
-    tokens.push_back(token{'*',U"*",{}});
-    tokens.push_back(token{digit,U"3",{}});
+ //   tokens.push_back(token{'*',U"*",{}});
+  //  tokens.push_back(token{digit,U"3",{}});
 
-    //sdd.run(tokens);
-    
-   */
+    sdd.run(tokens);
 
 }

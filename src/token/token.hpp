@@ -8,6 +8,7 @@
 
 
 #include <cyy/computation/lang/lang.hpp>
+#include <gsl/span>
 
 namespace cyy::compiler {
 using namespace cyy::computation;
@@ -24,6 +25,5 @@ using namespace cyy::computation;
   };
 
 using token_istream = std::basic_istream<token>;
-using token_string = std::basic_string<token>;
-using token_string_view = std::basic_string_view<token>;
+using token_span =gsl::span<token>;
 } // namespace cyy::compiler
