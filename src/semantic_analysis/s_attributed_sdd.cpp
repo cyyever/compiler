@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cassert>
 #include <functional>
+#include <set>
 
 #include "../exception.hpp"
 #include "s_attributed_sdd.hpp"
@@ -38,69 +39,64 @@ void S_attributed_SDD::run(token_string_view view) {
               return grammal_symbol.is_terminal();
             });
 
-        token_string_view production_view(
+        const token_string_view production_view(
             view.data() + view.size() - terminal_count, terminal_count);
 
         view.remove_suffix(terminal_count);
 
         auto const &rules = it->second;
         for (auto const &rule : rules) {
-          std::vector<std::reference_wrapper<const attribute_value_type>>
+          std::vector<std::reference_wrapper<const attribute_type::value_type>>
               argument_values;
           std::vector<std::any> temp_arguments;
-          auto temp_view = production_view;
           for (auto const &argument : rule.arguments) {
-	    if (argument.size() > 1 && argument[0] == '$') {
-	      size_t nonterminal_position=0;
-	      for (size_t i = 1; i < argument.size(); i++) {
-		nonterminal_position = nonterminal_position * 10 + argument[i] - '0';
-	      }
-
-	      temp_arguments.emplace_back(temp_view[nonterminal_position].lexeme);
-	      argument_values.emplace_back(temp_arguments.back());
+            auto terminal_index = attribute_type::get_terminal_index(argument);
+            if (terminal_index) {
+              temp_arguments.emplace_back(
+                  production_view[terminal_index.value()]);
+              argument_values.emplace_back(temp_arguments.back());
+            } else {
+              argument_values.emplace_back(all_attributes[argument]);
             }
-	    else {
-	      argument_values.emplace_back(all_attributes[argument]);
-	    }
           }
           assert(argument_values.size() == rule.arguments.size());
-          rule.action(all_attributes[rule.attribute], argument_values);
+          rule.action(all_attributes[rule.result_attribute], argument_values);
         }
       });
 }
 
 void S_attributed_SDD::check_dependency() const {
-  std::set<attribute_name_type> passed_attributes;
+  std::set<attribute_type::name_type> passed_attributes;
   auto attribute_dependency = get_attribute_dependency();
 
   const auto check_attribute_dependency =
-    [&passed_attributes, &attribute_dependency](
-	auto &&self, const attribute_name_type &attribute) {
-
-
-      bool is_nonterminal_attribute = (attribute.find_first_of('.') != std::string::npos);
-      if (!is_nonterminal_attribute) {
-	return true;
-      }
-      if (passed_attributes.count(attribute)) {
-	return true;
-      }
-      auto it = attribute_dependency.find(attribute);
-      if (it != attribute_dependency.end()) {
-	return false;
-      }
-      for (const auto &dependent_attribute : it->second) {
-	if (!self(self, dependent_attribute)) {
-	  return false;
-	}
-      }
-      passed_attributes.insert(attribute);
-      return true;
-    };
+      [&passed_attributes, &attribute_dependency](
+          auto &&self, const attribute_type::name_type &attribute) {
+        const bool is_nonterminal_attribute =
+            (attribute.find_first_of('.') != std::string::npos);
+        if (!is_nonterminal_attribute) {
+          return true;
+        }
+        if (passed_attributes.count(attribute)) {
+          return true;
+        }
+        auto it = attribute_dependency.find(attribute);
+        if (it != attribute_dependency.end()) {
+          return false;
+        }
+        for (const auto &dependent_attribute : it->second) {
+          if (!self(self, dependent_attribute)) {
+            return false;
+          }
+        }
+        passed_attributes.insert(attribute);
+        return true;
+      };
 
   for (const auto &[attribute, _] : attribute_dependency) {
     if (!check_attribute_dependency(check_attribute_dependency, attribute)) {
-      throw cyy::compiler::exception::orphan_grammar_symbol_attribute(attribute);
+      throw cyy::compiler::exception::orphan_grammar_symbol_attribute(
+          attribute);
     }
   }
 }
