@@ -16,7 +16,10 @@
 namespace cyy::compiler {
 
 void S_attributed_SDD::run(token_string_view view) {
-  check_dependency();
+	if(view.empty()) {
+		std::cerr<<"token_string_view is empty"<<std::endl;
+		return ;
+	}
 
   symbol_string token_names;
   for (auto const &token : view) {
@@ -68,10 +71,11 @@ void S_attributed_SDD::run(token_string_view view) {
 
 void S_attributed_SDD::check_dependency() const {
   std::set<std::string> passed_attributes;
+  std::set<std::string> checking_attributes;
   auto attribute_dependency = get_attribute_dependency();
 
   const auto check_attribute_dependency =
-      [&passed_attributes, &attribute_dependency](
+      [&passed_attributes,&checking_attributes, &attribute_dependency](
           auto &&self, const std::string &attribute) {
         const bool is_nonterminal_attribute =
             (attribute.find_first_of('.') != std::string::npos);
@@ -81,10 +85,14 @@ void S_attributed_SDD::check_dependency() const {
         if (passed_attributes.count(attribute)) {
           return true;
         }
+        if (checking_attributes.count(attribute)) {
+          return true;
+        }
         auto it = attribute_dependency.find(attribute);
         if (it != attribute_dependency.end()) {
           return false;
         }
+
         for (const auto &dependent_attribute : it->second) {
           if (!self(self, dependent_attribute)) {
             return false;
@@ -99,6 +107,11 @@ void S_attributed_SDD::check_dependency() const {
       throw cyy::compiler::exception::orphan_grammar_symbol_attribute(
           attribute);
     }
+  }
+  checking_attributes.erase(passed_attributes.begin(),passed_attributes.end());
+  for(const auto &attribute:checking_attributes) {
+      throw cyy::compiler::exception::orphan_grammar_symbol_attribute(
+          attribute);
   }
 }
 

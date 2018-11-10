@@ -14,7 +14,7 @@
 namespace cyy::compiler {
 class S_attributed_SDD : public SDD {
 public:
-  explicit S_attributed_SDD(const LR_grammar & cfg) : SDD(cfg) {}
+  explicit S_attributed_SDD(const LR_grammar & cfg_) : SDD(cfg_) {}
 
   void run(token_string_view view) override;
 

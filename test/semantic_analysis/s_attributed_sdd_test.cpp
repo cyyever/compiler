@@ -123,6 +123,19 @@ TEST_CASE("run") {
 			    );
 
     }
+
+    token_string tokens;
+    /*
+    tokens.push_back(token{'(',U"(",{}});
+    tokens.push_back(token{digit,U"1",{}});
+    tokens.push_back(token{'+',U"+",{}});
+    tokens.push_back(token{digit,U"2",{}});
+    tokens.push_back(token{')',U")",{}});
+    tokens.push_back(token{'*',U"*",{}});
+    tokens.push_back(token{digit,U"3",{}});
+
+    //sdd.run(tokens);
     
+   */
 
 }
