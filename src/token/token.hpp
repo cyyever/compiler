@@ -18,7 +18,7 @@ using namespace cyy::computation;
   };
 
   struct token {
-    symbol_type name;
+    symbol_type name{};
     symbol_string lexeme;
     token_attribute attribute;
   };

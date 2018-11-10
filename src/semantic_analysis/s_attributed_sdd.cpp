@@ -23,10 +23,11 @@ void S_attributed_SDD::run(token_string_view view) {
     token_names.push_back(token.name);
   }
 
-  all_attributes.clear();
+  std::map<std::string, std::any>
+      all_attributes;
 
-  std::dynamic_pointer_cast<LR_grammar>(cfg)->parse(
-      token_names, [&view, this](auto const &production) {
+  dynamic_cast<const LR_grammar &>(cfg).parse(
+      token_names, [&all_attributes, &view, this](auto const &production) {
         auto it = all_rules.find(production);
         if (it == all_rules.end()) {
           return;
@@ -46,11 +47,11 @@ void S_attributed_SDD::run(token_string_view view) {
 
         auto const &rules = it->second;
         for (auto const &rule : rules) {
-          std::vector<std::reference_wrapper<const attribute_type::value_type>>
+          std::vector<std::reference_wrapper<const std::any>>
               argument_values;
           std::vector<std::any> temp_arguments;
           for (auto const &argument : rule.arguments) {
-            auto terminal_index = attribute_type::get_terminal_index(argument);
+            auto terminal_index =get_terminal_index(argument);
             if (terminal_index) {
               temp_arguments.emplace_back(
                   production_view[terminal_index.value()]);
@@ -66,12 +67,12 @@ void S_attributed_SDD::run(token_string_view view) {
 }
 
 void S_attributed_SDD::check_dependency() const {
-  std::set<attribute_type::name_type> passed_attributes;
+  std::set<std::string> passed_attributes;
   auto attribute_dependency = get_attribute_dependency();
 
   const auto check_attribute_dependency =
       [&passed_attributes, &attribute_dependency](
-          auto &&self, const attribute_type::name_type &attribute) {
+          auto &&self, const std::string &attribute) {
         const bool is_nonterminal_attribute =
             (attribute.find_first_of('.') != std::string::npos);
         if (!is_nonterminal_attribute) {
