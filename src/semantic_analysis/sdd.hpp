@@ -33,9 +33,6 @@ public:
 
   virtual void run(token_string_view view) = 0;
 
-  //using attribute_type = grammar_symbol_attribute;
-
-protected:
   using semantic_action_type = std::function<void(
       std::any &, const std::vector<std::reference_wrapper<const std::any>> &)>;
 

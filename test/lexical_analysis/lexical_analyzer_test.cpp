@@ -26,7 +26,7 @@ TEST_CASE("scan") {
 
   analyzer.append_pattern(static_cast<symbol_type>(common_token::id),
                           U"[a-zA-Z_][a-zA-Z_0-9]*");
-  analyzer.append_pattern(static_cast<symbol_type>(common_token::digit),
+  analyzer.append_pattern(static_cast<symbol_type>(common_token::number),
                           U"[0-9]+");
   analyzer.append_pattern(static_cast<symbol_type>(common_token::whitespace),
                           U"[ \\v\\f\\t\\n\\r\\t]*");
@@ -47,7 +47,7 @@ TEST_CASE("scan") {
   tokens.emplace_back(U" ", static_cast<symbol_type>(common_token::whitespace));
   tokens.emplace_back(U"*", '*');
   tokens.emplace_back(U" ", static_cast<symbol_type>(common_token::whitespace));
-  tokens.emplace_back(U"60", static_cast<symbol_type>(common_token::digit));
+  tokens.emplace_back(U"60", static_cast<symbol_type>(common_token::number));
 
   symbol_string stmt;
   for (auto const &[lexeme, _] : tokens) {
