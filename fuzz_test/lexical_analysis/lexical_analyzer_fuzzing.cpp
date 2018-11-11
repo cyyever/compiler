@@ -5,7 +5,6 @@
  * \author cyy
  * \date 2018-10-28
  */
-#include <iostream>
 
 #include "../../src/lexical_analysis/lexical_analyzer.hpp"
 #include <cyy/computation/lang/common_tokens.hpp>
