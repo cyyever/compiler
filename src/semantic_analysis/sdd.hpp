@@ -30,8 +30,7 @@ public:
   explicit SDD(const CFG &cfg_) : cfg(cfg_) {}
 
   virtual ~SDD() = default;
-
-  virtual void run(token_span span) = 0;
+  virtual std::map<std::string, std::any> run(token_span span) = 0;
 
   using semantic_action_type = std::function<void(
       std::any &, const std::vector<std::reference_wrapper<const std::any>> &)>;

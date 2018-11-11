@@ -15,10 +15,10 @@
 
 namespace cyy::compiler {
 
-void S_attributed_SDD::run(token_span span) {
+std::map<std::string, std::any> S_attributed_SDD::run(token_span span) {
   if (span.empty()) {
     std::cerr << "span is empty" << std::endl;
-    return;
+    return {};
   }
 
   symbol_string token_names;
@@ -36,13 +36,6 @@ void S_attributed_SDD::run(token_span span) {
           return;
         }
 
-        // right most derivation
-        auto const &body = production.second;
-        size_t terminal_count =
-            std::count_if(body.begin(), body.end(), [](auto grammal_symbol) {
-              return grammal_symbol.is_terminal();
-            });
-
         auto const &rules = it->second;
         for (auto const &rule : rules) {
           std::vector<std::reference_wrapper<const std::any>> argument_values;
@@ -55,7 +48,8 @@ void S_attributed_SDD::run(token_span span) {
               argument_values.emplace_back(temp_arguments.back());
             } else {
               if (!all_attributes.count(argument)) {
-                std::cerr << "no attribute for " << argument << std::endl;
+                throw cyy::compiler::exception::orphan_grammar_symbol_attribute(
+                    argument);
               }
               argument_values.emplace_back(all_attributes[argument]);
             }
@@ -64,51 +58,7 @@ void S_attributed_SDD::run(token_span span) {
           rule.action(all_attributes[rule.result_attribute], argument_values);
         }
       });
-}
-
-void S_attributed_SDD::check_dependency() const {
-  std::set<std::string> passed_attributes;
-  std::set<std::string> checking_attributes;
-  auto attribute_dependency = get_attribute_dependency();
-
-  const auto check_attribute_dependency =
-      [&passed_attributes, &checking_attributes,
-       &attribute_dependency](auto &&self, const std::string &attribute) {
-        const bool is_nonterminal_attribute =
-            (attribute.find_first_of('.') != std::string::npos);
-        if (!is_nonterminal_attribute) {
-          return true;
-        }
-        if (passed_attributes.count(attribute)) {
-          return true;
-        }
-        if (checking_attributes.count(attribute)) {
-          return true;
-        }
-        auto it = attribute_dependency.find(attribute);
-        if (it != attribute_dependency.end()) {
-          return false;
-        }
-
-        for (const auto &dependent_attribute : it->second) {
-          if (!self(self, dependent_attribute)) {
-            return false;
-          }
-        }
-        passed_attributes.insert(attribute);
-        return true;
-      };
-
-  for (const auto &[attribute, _] : attribute_dependency) {
-    if (!check_attribute_dependency(check_attribute_dependency, attribute)) {
-      throw cyy::compiler::exception::orphan_grammar_symbol_attribute(
-          attribute);
-    }
-  }
-  checking_attributes.erase(passed_attributes.begin(), passed_attributes.end());
-  for (const auto &attribute : checking_attributes) {
-    throw cyy::compiler::exception::orphan_grammar_symbol_attribute(attribute);
-  }
+  return all_attributes;
 }
 
 } // namespace cyy::compiler

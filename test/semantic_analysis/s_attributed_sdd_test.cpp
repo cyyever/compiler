@@ -30,13 +30,11 @@ TEST_CASE("run") {
   production_vector.emplace_back("L", CFG::production_body_type{"E"});
 
   rules.emplace_back(SDD::semantic_rule{
-
       "L.val",
       {"E.val"},
       [](std::any &result,
          const std::vector<std::reference_wrapper<const std::any>> &arguments) {
         result = arguments.at(0).get();
-        std::cout << std::any_cast<int>(result) << std::endl;
       }});
 
   production_vector.emplace_back("E", CFG::production_body_type{"E", '+', "T"});
@@ -90,8 +88,8 @@ TEST_CASE("run") {
         result = arguments.at(0).get();
       }});
 
-  auto digit = static_cast<CFG::terminal_type>(common_token::digit);
-  production_vector.emplace_back("F", CFG::production_body_type{digit});
+  auto digit_token = static_cast<CFG::terminal_type>(common_token::digit);
+  production_vector.emplace_back("F", CFG::production_body_type{digit_token});
 
   rules.emplace_back(SDD::semantic_rule{
       "F.val",
@@ -120,12 +118,13 @@ TEST_CASE("run") {
 
   std::vector<token> tokens;
   tokens.push_back(token{'(', U"(", {}});
-  tokens.push_back(token{digit, U"1", {}});
+  tokens.push_back(token{digit_token, U"1", {}});
   tokens.push_back(token{'+', U"+", {}});
-  tokens.push_back(token{digit, U"2", {}});
+  tokens.push_back(token{digit_token, U"2", {}});
   tokens.push_back(token{')', U")", {}});
   tokens.push_back(token{'*', U"*", {}});
-  tokens.push_back(token{digit, U"3", {}});
+  tokens.push_back(token{digit_token, U"3", {}});
 
-  sdd.run(tokens);
+  auto attriubtes = sdd.run(tokens);
+  REQUIRE(std::any_cast<int>(attriubtes["L.val"]) == 9);
 }
