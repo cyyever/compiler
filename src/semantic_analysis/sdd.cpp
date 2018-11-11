@@ -32,12 +32,14 @@ void SDD::add_synthesized_attribute(const CFG::production_type &production,
   auto it = all_rules.find(production);
   if (it != all_rules.end()) {
     if (it->second.count(rule)) {
-      throw exception::semantic_rule_confliction(rule.result_attribute);
+      throw exception::semantic_rule_confliction(production.first);
     }
   }
 
-  if (!belong_nonterminal(rule.result_attribute, production.first)) {
-    throw exception::unexisted_grammar_symbol_attribute(rule.result_attribute);
+  if (rule.result_attribute &&
+      !belong_nonterminal(rule.result_attribute.value(), production.first)) {
+    throw exception::unexisted_grammar_symbol_attribute(
+        rule.result_attribute.value());
   }
 
   size_t terminal_cnt = std::count_if(
@@ -64,17 +66,6 @@ void SDD::add_synthesized_attribute(const CFG::production_type &production,
     }
   }
   all_rules[production].emplace(std::move(rule));
-}
-
-std::map<std::string, std::vector<std::string>>
-SDD::get_attribute_dependency() const {
-  std::map<std::string, std::vector<std::string>> dependency;
-  for (auto const &[_, rules] : all_rules) {
-    for (auto const &rule : rules) {
-      dependency[rule.result_attribute] = rule.arguments;
-    }
-  }
-  return dependency;
 }
 
 bool SDD::belong_nonterminal(

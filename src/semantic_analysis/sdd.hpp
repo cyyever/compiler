@@ -32,11 +32,11 @@ public:
   virtual ~SDD() = default;
   virtual std::map<std::string, std::any> run(token_span span) = 0;
 
-  using semantic_action_type = std::function<void(
-      std::any &, const std::vector<std::reference_wrapper<const std::any>> &)>;
+  using semantic_action_type = std::function<std::optional<std::any>(
+      const std::vector<std::reference_wrapper<const std::any>> &)>;
 
   struct semantic_rule {
-    std::string result_attribute;
+    std::optional<std::string> result_attribute;
     std::vector<std::string> arguments;
     semantic_action_type action;
   };
@@ -51,8 +51,6 @@ public:
 
   void add_synthesized_attribute(const CFG::production_type &production,
                                  semantic_rule rule);
-  std::map<std::string, std::vector<std::string>>
-  get_attribute_dependency() const;
 
   static bool
   belong_nonterminal(const std::string &name,

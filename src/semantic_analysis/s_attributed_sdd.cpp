@@ -39,13 +39,13 @@ std::map<std::string, std::any> S_attributed_SDD::run(token_span span) {
         auto const &rules = it->second;
         for (auto const &rule : rules) {
           std::vector<std::reference_wrapper<const std::any>> argument_values;
-          std::vector<std::any> temp_arguments;
+          std::vector<std::any> token_vector;
           for (auto const &argument : rule.arguments) {
             auto terminal_index = get_terminal_index(argument);
             if (terminal_index) {
-              temp_arguments.emplace_back(
+              token_vector.emplace_back(
                   span.at(token_position_span.at(terminal_index.value())));
-              argument_values.emplace_back(temp_arguments.back());
+              argument_values.emplace_back(token_vector.back());
             } else {
               if (!all_attributes.count(argument)) {
                 throw cyy::compiler::exception::orphan_grammar_symbol_attribute(
@@ -55,7 +55,11 @@ std::map<std::string, std::any> S_attributed_SDD::run(token_span span) {
             }
           }
           assert(argument_values.size() == rule.arguments.size());
-          rule.action(all_attributes[rule.result_attribute], argument_values);
+          auto result_attribute_opt = rule.action(argument_values);
+          if (rule.result_attribute) {
+            all_attributes[rule.result_attribute.value()] =
+                std::move(result_attribute_opt.value());
+          }
         }
       });
   return all_attributes;

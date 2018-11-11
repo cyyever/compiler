@@ -32,61 +32,53 @@ TEST_CASE("run") {
   rules.emplace_back(SDD::semantic_rule{
       "L.val",
       {"E.val"},
-      [](std::any &result,
-         const std::vector<std::reference_wrapper<const std::any>> &arguments) {
-        result = arguments.at(0).get();
-      }});
+      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
+          -> std::optional<std::any> { return arguments.at(0).get(); }});
 
   production_vector.emplace_back("E", CFG::production_body_type{"E", '+', "T"});
 
   rules.emplace_back(SDD::semantic_rule{
       "E.val",
       {"E.val", "T.val"},
-      [](std::any &result,
-         const std::vector<std::reference_wrapper<const std::any>> &arguments) {
+      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
+          -> std::optional<std::any> {
         auto E_val = std::any_cast<int>(arguments.at(0).get());
         auto T_val = std::any_cast<int>(arguments.at(1).get());
-        result = E_val + T_val;
+        return std::make_any<int>(E_val + T_val);
       }});
 
   production_vector.emplace_back("E", CFG::production_body_type{"T"});
   rules.emplace_back(SDD::semantic_rule{
       "E.val",
       {"T.val"},
-      [](std::any &result,
-         const std::vector<std::reference_wrapper<const std::any>> &arguments) {
-        result = arguments.at(0).get();
-      }});
+      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
+          -> std::optional<std::any> { return arguments.at(0).get(); }});
   production_vector.emplace_back("T", CFG::production_body_type{"T", '*', "F"});
 
   rules.emplace_back(SDD::semantic_rule{
       "T.val",
       {"T.val", "F.val"},
-      [](std::any &result,
-         const std::vector<std::reference_wrapper<const std::any>> &arguments) {
+      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
+          -> std::optional<std::any> {
         auto T_val = std::any_cast<int>(arguments.at(0).get());
         auto F_val = std::any_cast<int>(arguments.at(1).get());
-        result = T_val * F_val;
+        return std::make_any<int>(T_val * F_val);
       }});
 
   production_vector.emplace_back("T", CFG::production_body_type{"F"});
   rules.emplace_back(SDD::semantic_rule{
       "T.val",
       {"F.val"},
-      [](std::any &result,
-         const std::vector<std::reference_wrapper<const std::any>> &arguments) {
-        result = arguments.at(0).get();
-      }});
+      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
+          -> std::optional<std::any> { return arguments.at(0).get(); }});
 
   production_vector.emplace_back("F", CFG::production_body_type{'(', "E", ')'});
 
   rules.emplace_back(SDD::semantic_rule{
       "F.val",
       {"E.val"},
-      [](std::any &result,
-         const std::vector<std::reference_wrapper<const std::any>> &arguments) {
-        result = arguments.at(0).get();
-      }});
+      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
+          -> std::optional<std::any> { return arguments.at(0).get(); }});
 
   auto digit_token = static_cast<CFG::terminal_type>(common_token::digit);
   production_vector.emplace_back("F", CFG::production_body_type{digit_token});
@@ -94,12 +86,11 @@ TEST_CASE("run") {
   rules.emplace_back(SDD::semantic_rule{
       "F.val",
       {"$0"},
-      [](std::any &result,
-         const std::vector<std::reference_wrapper<const std::any>> &arguments) {
-        int digit =
+      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
+          -> std::optional<std::any> {
+        return std::make_any<int>(
             static_cast<char>(std::any_cast<token>(arguments.at(0)).lexeme[0]) -
-            '0';
-        result = digit;
+            '0');
       }});
 
   REQUIRE(production_vector.size() == rules.size());
