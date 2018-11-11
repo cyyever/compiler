@@ -33,7 +33,7 @@ public:
 
   bool set_source_code(symbol_istream &&is) {
     source_code = symbol_string(std::istreambuf_iterator<symbol_type>(is),
-                                 std::istreambuf_iterator<symbol_type>{});
+                                std::istreambuf_iterator<symbol_type>{});
     if (is.bad() || is.fail()) {
       std::cerr << "read symbol stream failed";
       return false;
@@ -65,6 +65,5 @@ private:
   std::optional<DFA> dfa_opt;
   std::map<uint64_t, symbol_type> pattern_final_states;
 };
-
 
 } // namespace cyy::compiler

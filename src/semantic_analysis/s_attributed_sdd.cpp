@@ -16,21 +16,21 @@
 namespace cyy::compiler {
 
 void S_attributed_SDD::run(token_span span) {
-	if(span.empty()) {
-		std::cerr<<"span is empty"<<std::endl;
-		return ;
-	}
+  if (span.empty()) {
+    std::cerr << "span is empty" << std::endl;
+    return;
+  }
 
   symbol_string token_names;
   for (auto const &token : span) {
     token_names.push_back(token.name);
   }
 
-  std::map<std::string, std::any>
-      all_attributes;
+  std::map<std::string, std::any> all_attributes;
 
   dynamic_cast<const LR_grammar &>(cfg).parse(
-      token_names, [&all_attributes, &span, this](auto const &production) {
+      token_names, [&all_attributes, &span, this](auto const &production,
+                                                  auto token_position_span) {
         auto it = all_rules.find(production);
         if (it == all_rules.end()) {
           return;
@@ -43,26 +43,20 @@ void S_attributed_SDD::run(token_span span) {
               return grammal_symbol.is_terminal();
             });
 
-        const token_span production_span(
-            span.data() + span.size() - terminal_count, terminal_count);
-
-	span=span.subspan(0,span.size()-terminal_count);
-
         auto const &rules = it->second;
         for (auto const &rule : rules) {
-          std::vector<std::reference_wrapper<const std::any>>
-              argument_values;
+          std::vector<std::reference_wrapper<const std::any>> argument_values;
           std::vector<std::any> temp_arguments;
           for (auto const &argument : rule.arguments) {
-            auto terminal_index =get_terminal_index(argument);
+            auto terminal_index = get_terminal_index(argument);
             if (terminal_index) {
               temp_arguments.emplace_back(
-                  production_span.at(terminal_index.value()-1));
+                  span.at(token_position_span.at(terminal_index.value())));
               argument_values.emplace_back(temp_arguments.back());
             } else {
-		    if(!all_attributes.count(argument)) {
-			    std::cerr<<"no attribute for "<<argument<<std::endl;
-		    }
+              if (!all_attributes.count(argument)) {
+                std::cerr << "no attribute for " << argument << std::endl;
+              }
               argument_values.emplace_back(all_attributes[argument]);
             }
           }
@@ -78,8 +72,8 @@ void S_attributed_SDD::check_dependency() const {
   auto attribute_dependency = get_attribute_dependency();
 
   const auto check_attribute_dependency =
-      [&passed_attributes,&checking_attributes, &attribute_dependency](
-          auto &&self, const std::string &attribute) {
+      [&passed_attributes, &checking_attributes,
+       &attribute_dependency](auto &&self, const std::string &attribute) {
         const bool is_nonterminal_attribute =
             (attribute.find_first_of('.') != std::string::npos);
         if (!is_nonterminal_attribute) {
@@ -111,10 +105,9 @@ void S_attributed_SDD::check_dependency() const {
           attribute);
     }
   }
-  checking_attributes.erase(passed_attributes.begin(),passed_attributes.end());
-  for(const auto &attribute:checking_attributes) {
-      throw cyy::compiler::exception::orphan_grammar_symbol_attribute(
-          attribute);
+  checking_attributes.erase(passed_attributes.begin(), passed_attributes.end());
+  for (const auto &attribute : checking_attributes) {
+    throw cyy::compiler::exception::orphan_grammar_symbol_attribute(attribute);
   }
 }
 

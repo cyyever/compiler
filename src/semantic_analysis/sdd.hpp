@@ -27,7 +27,7 @@ using namespace cyy::computation;
 
 class SDD {
 public:
-  explicit SDD(const CFG & cfg_) : cfg(cfg_) {}
+  explicit SDD(const CFG &cfg_) : cfg(cfg_) {}
 
   virtual ~SDD() = default;
 

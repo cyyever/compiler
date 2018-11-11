@@ -99,9 +99,6 @@ std::optional<size_t> SDD::get_terminal_index(const std::string &name) {
       }
       index = index * 10 + name[i] - '0';
     }
-    if (index == 0) {
-      return {};
-    }
     return {index};
   }
   return {};

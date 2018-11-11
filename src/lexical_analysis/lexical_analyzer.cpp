@@ -6,8 +6,8 @@
  */
 
 #include <cassert>
-#include <cyy/computation/regular_lang/regex.hpp>
 #include <cyy/computation/regular_lang/dfa.hpp>
+#include <cyy/computation/regular_lang/regex.hpp>
 
 #include "lexical_analyzer.hpp"
 
@@ -40,24 +40,24 @@ void lexical_analyzer::make_NFA() {
   }
   assert(nfa.get_final_states().size() == patterns.size());
 
-  auto [dfa,state_mapping]=nfa.to_DFA_with_mapping();
- 
+  auto [dfa, state_mapping] = nfa.to_DFA_with_mapping();
+
   decltype(pattern_final_states) pattern_DFA_final_states;
 
-  for(auto const &[dfa_state,nfa_states]:state_mapping) {
-    if(!dfa.is_final_state(dfa_state)) {
+  for (auto const &[dfa_state, nfa_states] : state_mapping) {
+    if (!dfa.is_final_state(dfa_state)) {
       continue;
     }
 
-    for(auto nfa_state:nfa_states) {
-      //use first pattern
-      if(pattern_final_states.count(nfa_state)) {
-	pattern_DFA_final_states[dfa_state]=pattern_final_states[nfa_state];
-	break;
+    for (auto nfa_state : nfa_states) {
+      // use first pattern
+      if (pattern_final_states.count(nfa_state)) {
+        pattern_DFA_final_states[dfa_state] = pattern_final_states[nfa_state];
+        break;
       }
     }
   }
-  pattern_final_states=std::move(pattern_DFA_final_states);
+  pattern_final_states = std::move(pattern_DFA_final_states);
 
   dfa_opt = std::move(dfa);
 }
@@ -83,10 +83,10 @@ std::variant<token, int> lexical_analyzer::scan() {
       cur_attribute.column_no++;
     }
 
-    if(!cur_state_opt) {
+    if (!cur_state_opt) {
       break;
     }
-    cur_state=cur_state_opt.value();
+    cur_state = cur_state_opt.value();
 
     if (dfa_opt->is_final_state(cur_state)) {
       last_attribute = cur_attribute;
