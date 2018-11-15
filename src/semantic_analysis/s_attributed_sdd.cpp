@@ -29,9 +29,10 @@ std::map<std::string, std::any> S_attributed_SDD::run(token_span span) {
   std::map<std::string, std::any> all_attributes;
 
   dynamic_cast<const LR_grammar &>(cfg).parse(
-      token_names, [&all_attributes, &span, this](auto const &production,
-                                                  auto token_position_span) {
-        auto it = all_rules.find(production);
+      token_names, []([[maybe_unused]] auto terminal) {},
+      [&all_attributes, &span, this](auto const &head, const auto &body,
+                                     auto token_position_span) {
+        auto it = all_rules.find({head, body});
         if (it == all_rules.end()) {
           return;
         }
