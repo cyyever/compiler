@@ -43,7 +43,7 @@ public:
     return true;
   }
 
-  void reset_input() {
+  void reset_input() noexcept {
     last_view = source_code;
     last_attribute = {};
   }
