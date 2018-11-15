@@ -27,16 +27,26 @@ std::map<std::string, std::any> S_attributed_SDD::run(token_span span) {
   }
 
   std::map<std::string, std::any> all_attributes;
-
+  std::vector<size_t> terminal_positions;
+  size_t next_position = 0;
   dynamic_cast<const LR_grammar &>(cfg).parse(
-      token_names, []([[maybe_unused]] auto terminal) {},
-      [&all_attributes, &span, this](auto const &head, const auto &body,
-                                     auto token_position_span) {
+      token_names, [&terminal_positions,&next_position]([[maybe_unused]]  auto terminal) {
+      terminal_positions.push_back(next_position);
+      next_position++;
+      
+      },
+      [&all_attributes, &span, this,&terminal_positions](auto const &head, const auto &body) {
         auto it = all_rules.find({head, body});
         if (it == all_rules.end()) {
           return;
         }
 
+    auto const terminal_count = std::count_if(
+        body.begin(), body.end(), [this](auto const &grammal_symbol) {
+          return grammal_symbol.is_terminal() && !cfg.is_epsilon(grammal_symbol);
+        });
+
+        const auto token_position_span=gsl::span<size_t>(terminal_positions).last(terminal_count);
         auto const &rules = it->second;
         for (auto const &rule : rules) {
           std::vector<std::reference_wrapper<const std::any>> argument_values;
@@ -62,6 +72,7 @@ std::map<std::string, std::any> S_attributed_SDD::run(token_span span) {
                 std::move(result_attribute_opt.value());
           }
         }
+      terminal_positions.resize(terminal_positions.size() - terminal_count); 
       });
   return all_attributes;
 }
