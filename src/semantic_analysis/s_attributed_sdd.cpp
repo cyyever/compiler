@@ -15,7 +15,7 @@
 
 namespace cyy::compiler {
 
-std::map<std::string, std::any> S_attributed_SDD::run(token_span span) {
+std::map<SDD::attribute_name, std::any> S_attributed_SDD::run(token_span span) {
   if (span.empty()) {
     std::cerr << "span is empty" << std::endl;
     return {};
@@ -26,7 +26,7 @@ std::map<std::string, std::any> S_attributed_SDD::run(token_span span) {
     token_names.push_back(token.name);
   }
 
-  std::map<std::string, std::any> all_attributes;
+  std::map<attribute_name, std::any> all_attributes;
   std::vector<size_t> terminal_positions;
   size_t next_position = 0;
   dynamic_cast<const LR_grammar &>(cfg).parse(
@@ -52,7 +52,7 @@ std::map<std::string, std::any> S_attributed_SDD::run(token_span span) {
           std::vector<std::reference_wrapper<const std::any>> argument_values;
           std::vector<std::any> token_vector;
           for (auto const &argument : rule.arguments) {
-            auto terminal_index = get_terminal_index(argument);
+            auto terminal_index = argument.get_terminal_index();
             if (terminal_index) {
               token_vector.emplace_back(
                   span.at(token_position_span.at(terminal_index.value())));
@@ -60,7 +60,7 @@ std::map<std::string, std::any> S_attributed_SDD::run(token_span span) {
             } else {
               if (!all_attributes.count(argument)) {
                 throw cyy::compiler::exception::orphan_grammar_symbol_attribute(
-                    argument);
+                    argument.get_name());
               }
               argument_values.emplace_back(all_attributes[argument]);
             }

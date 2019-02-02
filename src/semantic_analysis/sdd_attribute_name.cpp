@@ -1,11 +1,10 @@
 
-#include "grammar_symbol_attribute.hpp"
+#include "sdd_attribute_name.hpp"
 
 namespace cyy::compiler {
 
-bool grammar_symbol_attribute::belong_nonterminal(
-    const name_type &name,
-    const grammar_symbol_type::nonterminal_type &nonterminal) {
+bool SDD::attribute_name::belong_to_nonterminal(
+    const grammar_symbol_type::nonterminal_type &nonterminal) const {
 
   if (name.size() <= nonterminal.size()) {
     return false;
@@ -16,8 +15,7 @@ bool grammar_symbol_attribute::belong_nonterminal(
 }
 
 std::optional<size_t>
-grammar_symbol_attribute::get_terminal_index(const name_type &name) {
-
+SDD::attribute_name::get_terminal_index() const {
   if (name.size() > 1 && name[0] == '$') {
     size_t index = 0;
     for (size_t i = 1; i < name.size(); i++) {
@@ -25,9 +23,6 @@ grammar_symbol_attribute::get_terminal_index(const name_type &name) {
         return {};
       }
       index = index * 10 + name[i] - '0';
-    }
-    if (index == 0) {
-      return {};
     }
     return {index};
   }

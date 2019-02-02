@@ -8,18 +8,6 @@
 #include "sdd.hpp"
 #include "../exception.hpp"
 
-namespace std {
-
-/*
-template <> struct less<cyy::compiler::SDD::attribute_name_type> {
-  bool operator()(const cyy::compiler::SDD::attribute_name_type &lhs,
-                  const cyy::compiler::SDD::attribute_name_type &rhs) const
-noexcept { return lhs.get_name() < rhs.get_name();
-  }
-};
-*/
-
-} // namespace std
 
 namespace cyy::compiler {
 
@@ -29,17 +17,19 @@ void SDD::add_synthesized_attribute(const CFG::production_type &production,
     throw exception::unexisted_production("");
   }
 
+  /*
   auto it = all_rules.find(production);
   if (it != all_rules.end()) {
     if (it->second.count(rule)) {
       throw exception::semantic_rule_confliction(production.first);
     }
   }
+  */
 
   if (rule.result_attribute &&
-      !belong_nonterminal(rule.result_attribute.value(), production.first)) {
+      !rule.result_attribute.value().belong_to_nonterminal( production.first)) {
     throw exception::unexisted_grammar_symbol_attribute(
-        rule.result_attribute.value());
+        rule.result_attribute.value().get_name());
   }
 
   size_t terminal_cnt = std::count_if(
@@ -47,10 +37,10 @@ void SDD::add_synthesized_attribute(const CFG::production_type &production,
       [](auto &grammar_symbol) { return grammar_symbol.is_terminal(); });
 
   for (auto const &argument : rule.arguments) {
-    auto terminal_index_opt = get_terminal_index(argument);
+    auto terminal_index_opt = argument.get_terminal_index();
     if (terminal_index_opt) {
       if (terminal_index_opt.value() > terminal_cnt) {
-        throw exception::unexisted_grammar_symbol_attribute(argument);
+        throw exception::unexisted_grammar_symbol_attribute(argument.get_name());
       }
       continue;
     }
@@ -58,41 +48,13 @@ void SDD::add_synthesized_attribute(const CFG::production_type &production,
     if (!std::any_of(production.second.begin(), production.second.end(),
                      [&argument](auto &grammar_symbol) {
                        return grammar_symbol.is_nonterminal() &&
-                              belong_nonterminal(
-                                  argument,
+                            argument.belong_to_nonterminal(
                                   *grammar_symbol.get_nonterminal_ptr());
                      })) {
-      throw exception::unexisted_grammar_symbol_attribute(argument);
+      throw exception::unexisted_grammar_symbol_attribute(argument.get_name());
     }
   }
-  all_rules[production].emplace(std::move(rule));
-}
-
-bool SDD::belong_nonterminal(
-    const std::string &name,
-    const grammar_symbol_type::nonterminal_type &nonterminal) {
-
-  if (name.size() <= nonterminal.size()) {
-    return false;
-  }
-  const auto pos = name.find_first_of(nonterminal);
-
-  return pos == 0 && name[nonterminal.size()] == '.';
-}
-
-std::optional<size_t> SDD::get_terminal_index(const std::string &name) {
-
-  if (name.size() > 1 && name[0] == '$') {
-    size_t index = 0;
-    for (size_t i = 1; i < name.size(); i++) {
-      if (name[i] < '0' || name[i] > '9') {
-        return {};
-      }
-      index = index * 10 + name[i] - '0';
-    }
-    return {index};
-  }
-  return {};
+  all_rules[production].emplace_back(std::move(rule));
 }
 
 } // namespace cyy::compiler

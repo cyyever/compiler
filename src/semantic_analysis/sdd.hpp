@@ -20,7 +20,6 @@
 #include <cyy/computation/lang/lang.hpp>
 
 #include "../token/token.hpp"
-//#include "grammar_symbol_attribute.hpp"
 
 namespace cyy::compiler {
 using namespace cyy::computation;
@@ -30,36 +29,52 @@ public:
   explicit SDD(const CFG &cfg_) : cfg(cfg_) {}
 
   virtual ~SDD() = default;
-  virtual std::map<std::string, std::any> run(token_span span) = 0;
+  class attribute_name final {
 
-  using semantic_action_type = std::function<std::optional<std::any>(
-      const std::vector<std::reference_wrapper<const std::any>> &)>;
 
-  struct semantic_rule {
-    std::optional<std::string> result_attribute;
-    std::vector<std::string> arguments;
-    semantic_action_type action;
+public:
+
+  template <size_t N> 
+    attribute_name(const char(&name_)[N]) : name(name_) {}
+  attribute_name(std::string_view name_) : name(name_) {}
+
+  const std::string &get_name() const {return name;}
+
+  bool
+  belong_to_nonterminal(
+                     const grammar_symbol_type::nonterminal_type &nonterminal) const;
+  std::optional<size_t> get_terminal_index() const;
+
+private:
+  std::string name;
   };
 
-  struct semantic_rule_compare {
-    bool operator()(const cyy::compiler::SDD::semantic_rule &lhs,
-                    const cyy::compiler::SDD::semantic_rule &rhs) const
-        noexcept {
-      return lhs.result_attribute < rhs.result_attribute;
-    }
+  virtual std::map<attribute_name, std::any> run(token_span span) = 0;
+
+  struct semantic_rule {
+    std::optional<attribute_name> result_attribute;
+    std::vector<attribute_name> arguments;
+    using semantic_action_type = std::function<std::optional<std::any>(
+        const std::vector<std::reference_wrapper<const std::any>> &)>;
+    semantic_action_type action;
   };
 
   void add_synthesized_attribute(const CFG::production_type &production,
                                  semantic_rule rule);
 
-  static bool
-  belong_nonterminal(const std::string &name,
-                     const grammar_symbol_type::nonterminal_type &nonterminal);
-  static std::optional<size_t> get_terminal_index(const std::string &name);
-
 protected:
-  std::map<CFG::production_type, std::set<semantic_rule, semantic_rule_compare>>
-      all_rules;
+  std::map<CFG::production_type, std::vector<semantic_rule>> all_rules;
   const CFG &cfg;
 };
 } // namespace cyy::compiler
+
+namespace std {
+template <> struct less<cyy::compiler::SDD::attribute_name> {
+  bool operator()(const cyy::compiler::SDD::attribute_name &lhs,
+                  const cyy::compiler::SDD::attribute_name &rhs) const
+noexcept { return lhs.get_name() < rhs.get_name();
+  }
+};
+
+} // namespace std
+
