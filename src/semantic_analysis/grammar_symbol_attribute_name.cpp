@@ -1,20 +1,15 @@
 
 #include "grammar_symbol_attribute_name.hpp"
-#include <iostream>
 
 namespace cyy::compiler {
 
 bool grammar_symbol_attribute_name::belong_to_nonterminal(
-    const cyy::computation::grammar_symbol_type::nonterminal_type &nonterminal) const {
-  return true;
-
+    const cyy::computation::grammar_symbol_type::nonterminal_type &nonterminal)
+    const {
   if (name.size() <= nonterminal.size()) {
     return false;
   }
   const auto pos = name.find_first_of(nonterminal);
-  std::cout<<"pos="<<pos<<std::endl;
-  std::cout<<"name="<<name <<" nonterminal="<<nonterminal<<std::endl;
-
   return pos == 0 && name[nonterminal.size()] == '.';
 }
 

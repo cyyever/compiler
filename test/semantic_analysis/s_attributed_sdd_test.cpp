@@ -11,7 +11,7 @@
 #endif
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #define DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
-#include <doctest.h>
+#include <doctest/doctest.h>
 
 #include "../../src/semantic_analysis/s_attributed_sdd.hpp"
 #include <cyy/computation/contex_free_lang/slr_grammar.hpp>

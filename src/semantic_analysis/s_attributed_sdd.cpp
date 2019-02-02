@@ -15,7 +15,9 @@
 
 namespace cyy::compiler {
 
-std::map<grammar_symbol_attribute_name, std::any> S_attributed_SDD::run(token_span span) {
+std::map<grammar_symbol_attribute_name, std::any>
+S_attributed_SDD::run(token_span span) {
+  check_attributes();
   if (span.empty()) {
     std::cerr << "span is empty" << std::endl;
     return {};
@@ -30,23 +32,26 @@ std::map<grammar_symbol_attribute_name, std::any> S_attributed_SDD::run(token_sp
   std::vector<size_t> terminal_positions;
   size_t next_position = 0;
   dynamic_cast<const LR_grammar &>(cfg).parse(
-      token_names, [&terminal_positions,&next_position]([[maybe_unused]]  auto terminal) {
-      terminal_positions.push_back(next_position);
-      next_position++;
-      
+      token_names,
+      [&terminal_positions, &next_position]([[maybe_unused]] auto terminal) {
+        terminal_positions.push_back(next_position);
+        next_position++;
       },
-      [&all_attributes, &span, this,&terminal_positions](auto const &head, const auto &body) {
+      [&all_attributes, &span, this, &terminal_positions](auto const &head,
+                                                          const auto &body) {
         auto it = all_rules.find({head, body});
         if (it == all_rules.end()) {
           return;
         }
 
-    auto const terminal_count = std::count_if(
-        body.begin(), body.end(), [this](auto const &grammal_symbol) {
-          return grammal_symbol.is_terminal() && !cfg.is_epsilon(grammal_symbol);
-        });
+        auto const terminal_count = std::count_if(
+            body.begin(), body.end(), [this](auto const &grammal_symbol) {
+              return grammal_symbol.is_terminal() &&
+                     !cfg.is_epsilon(grammal_symbol);
+            });
 
-        const auto token_position_span=gsl::span<size_t>(terminal_positions).last(terminal_count);
+        const auto token_position_span =
+            gsl::span<size_t>(terminal_positions).last(terminal_count);
         auto const &rules = it->second;
         for (auto const &rule : rules) {
           std::vector<std::reference_wrapper<const std::any>> argument_values;
@@ -72,9 +77,24 @@ std::map<grammar_symbol_attribute_name, std::any> S_attributed_SDD::run(token_sp
                 std::move(result_attribute_opt.value());
           }
         }
-      terminal_positions.resize(terminal_positions.size() - terminal_count); 
+        terminal_positions.resize(terminal_positions.size() - terminal_count);
       });
   return all_attributes;
 }
 
+void S_attributed_SDD::check_attributes() const {
+  for (auto const &attribute : synthesized_attributes) {
+    auto it = attribute_dependency.find(attribute);
+    if (it == attribute_dependency.end() || it->second.empty()) {
+      continue;
+    }
+    if (!std::includes(synthesized_attributes.begin(),
+                       synthesized_attributes.end(), it->second.begin(),
+                       it->second.end(),
+                       std::less<grammar_symbol_attribute_name>())) {
+      throw exception::no_synthesized_grammar_symbol_attribute(
+          attribute.get_name());
+    }
+  }
+}
 } // namespace cyy::compiler
