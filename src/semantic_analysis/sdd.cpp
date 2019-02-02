@@ -34,9 +34,8 @@ void SDD::add_synthesized_attribute(const CFG::production_type &production,
       attribute_dependency[rule.result_attribute.value()].insert(argument);
     }
   }
-  all_rules[production].emplace_back(std::move(rule));
-
   synthesized_attributes.insert(rule.result_attribute.value());
+  all_rules[production].emplace_back(std::move(rule));
 }
 
 void SDD::check_semantic_rule(const CFG::production_type &production,
@@ -77,7 +76,6 @@ void SDD::check_semantic_rule(const CFG::production_type &production,
     }
   }
 
-  return;
-}
+  }
 
 } // namespace cyy::compiler
