@@ -1,18 +1,19 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.9)
+include(${CMAKE_CURRENT_LIST_DIR}/../cmake/test.cmake)
 
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../cmake/test.cmake)
+find_package(doctest REQUIRED)
 
-FIND_PACKAGE(doctest REQUIRED)
-
-FILE(GLOB test_sources 
+file(GLOB test_sources 
   ${CMAKE_CURRENT_SOURCE_DIR}/*/*.cpp
   )
 
-FOREACH(test_source ${test_sources})
-  GET_FILENAME_COMPONENT(test_prog ${test_source} NAME_WE)
-  ADD_EXECUTABLE(${test_prog} ${test_source})
-  TARGET_LINK_LIBRARIES(${test_prog} PRIVATE MyCompilerLib)
-  TARGET_LINK_LIBRARIES(${test_prog} PRIVATE MyComputationLib)
-  TARGET_LINK_LIBRARIES(${test_prog} PRIVATE doctest::doctest)
+foreach(test_source ${test_sources})
+  get_filename_component(test_prog ${test_source} NAME_WE)
+#  if (test_prog STREQUAL "lexical_analyzer_test")
+#    continue()
+#  endif()
+  add_executable(${test_prog} ${test_source})
+  target_link_libraries(${test_prog} PRIVATE MyCompilerLib)
+  target_link_libraries(${test_prog} PRIVATE MyComputationLib)
+  target_link_libraries(${test_prog} PRIVATE doctest::doctest)
   add_test_with_runtime_analysis(TARGET ${test_prog})
-ENDFOREACH()
+endforeach()
