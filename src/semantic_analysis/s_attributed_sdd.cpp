@@ -15,7 +15,7 @@
 
 namespace cyy::compiler {
 
-std::map<SDD::attribute_name, std::any> S_attributed_SDD::run(token_span span) {
+std::map<grammar_symbol_attribute_name, std::any> S_attributed_SDD::run(token_span span) {
   if (span.empty()) {
     std::cerr << "span is empty" << std::endl;
     return {};
@@ -26,7 +26,7 @@ std::map<SDD::attribute_name, std::any> S_attributed_SDD::run(token_span span) {
     token_names.push_back(token.name);
   }
 
-  std::map<attribute_name, std::any> all_attributes;
+  std::map<grammar_symbol_attribute_name, std::any> all_attributes;
   std::vector<size_t> terminal_positions;
   size_t next_position = 0;
   dynamic_cast<const LR_grammar &>(cfg).parse(

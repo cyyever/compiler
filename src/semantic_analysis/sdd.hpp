@@ -20,6 +20,7 @@
 #include <cyy/computation/lang/lang.hpp>
 
 #include "../token/token.hpp"
+#include "grammar_symbol_attribute_name.hpp"
 
 namespace cyy::compiler {
 using namespace cyy::computation;
@@ -29,31 +30,12 @@ public:
   explicit SDD(const CFG &cfg_) : cfg(cfg_) {}
 
   virtual ~SDD() = default;
-  class attribute_name final {
 
-
-public:
-
-  template <size_t N> 
-    attribute_name(const char(&name_)[N]) : name(name_) {}
-  attribute_name(std::string_view name_) : name(name_) {}
-
-  const std::string &get_name() const {return name;}
-
-  bool
-  belong_to_nonterminal(
-                     const grammar_symbol_type::nonterminal_type &nonterminal) const;
-  std::optional<size_t> get_terminal_index() const;
-
-private:
-  std::string name;
-  };
-
-  virtual std::map<attribute_name, std::any> run(token_span span) = 0;
+  virtual std::map<grammar_symbol_attribute_name, std::any> run(token_span span) = 0;
 
   struct semantic_rule {
-    std::optional<attribute_name> result_attribute;
-    std::vector<attribute_name> arguments;
+    std::optional<grammar_symbol_attribute_name> result_attribute;
+    std::vector<grammar_symbol_attribute_name> arguments;
     using semantic_action_type = std::function<std::optional<std::any>(
         const std::vector<std::reference_wrapper<const std::any>> &)>;
     semantic_action_type action;
@@ -62,19 +44,16 @@ private:
   void add_synthesized_attribute(const CFG::production_type &production,
                                  semantic_rule rule);
 
+private:
+  void check_rule_arguments(const CFG::production_type &production,
+      const semantic_rule &rule);
+
 protected:
+  std::set<grammar_symbol_attribute_name> synthesized_attributes;
+  std::set<grammar_symbol_attribute_name> inherited_attributes;
+
   std::map<CFG::production_type, std::vector<semantic_rule>> all_rules;
   const CFG &cfg;
 };
 } // namespace cyy::compiler
-
-namespace std {
-template <> struct less<cyy::compiler::SDD::attribute_name> {
-  bool operator()(const cyy::compiler::SDD::attribute_name &lhs,
-                  const cyy::compiler::SDD::attribute_name &rhs) const
-noexcept { return lhs.get_name() < rhs.get_name();
-  }
-};
-
-} // namespace std
 
