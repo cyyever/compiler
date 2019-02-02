@@ -1,25 +1,22 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.9)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.13)
 
-PROJECT(MyCompilerLib LANGUAGES CXX)
+project(MyCompilerLib LANGUAGES CXX)
 
-INCLUDE(cmake/all.cmake)
+include(cmake/all.cmake)
 
-FILE(GLOB SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.cpp)
-FILE(GLOB HRDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.hpp)
+file(GLOB SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.cpp)
+file(GLOB HRDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.hpp)
 
-FIND_PACKAGE(doctest REQUIRED)
+find_package(MicrosoftGSL REQUIRED)
 
-ADD_LIBRARY(MyCompilerLib SHARED ${SOURCE})
-SET_TARGET_PROPERTIES(MyCompilerLib PROPERTIES PUBLIC_HEADER "${HRDS}")
+add_library(MyCompilerLib ${SOURCE})
 
-TARGET_LINK_LIBRARIES(MyCompilerLib PRIVATE doctest::doctest)
+target_link_libraries(MyCompilerLib PUBLIC MicrosoftGSL::GSL)
 
-FIND_PACKAGE(MyComputationLib REQUIRED)
-TARGET_LINK_LIBRARIES(MyCompilerLib PRIVATE MyComputationLib)
+set_target_properties(MyCompilerLib PROPERTIES PUBLIC_HEADER "${HRDS}")
 
-if(CMAKE_BUILD_TYPE STREQUAL Release)
-  TARGET_COMPILE_DEFINITIONS(MyCompilerLib PRIVATE DOCTEST_CONFIG_DISABLE)
-endif()
+find_package(MyComputationLib REQUIRED)
+target_link_libraries(MyCompilerLib PRIVATE MyComputationLib)
 
 # test
 add_subdirectory(test)
@@ -31,7 +28,7 @@ if(BUILD_FUZZING)
 endif()
 
 # install lib
-INSTALL(TARGETS MyCompilerLib EXPORT ${PROJECT_NAME}Targets
+install(TARGETS MyCompilerLib EXPORT ${PROJECT_NAME}Targets
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
@@ -41,6 +38,6 @@ INSTALL(TARGETS MyCompilerLib EXPORT ${PROJECT_NAME}Targets
   )
 
 # install cmake config file
-INSTALL(EXPORT ${PROJECT_NAME}Targets
+install(EXPORT ${PROJECT_NAME}Targets
   FILE ${PROJECT_NAME}Config.cmake
   DESTINATION lib/cmake/${PROJECT_NAME})
