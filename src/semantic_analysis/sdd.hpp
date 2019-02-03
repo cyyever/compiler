@@ -45,6 +45,8 @@ public:
 protected:
   void add_synthesized_attribute(const CFG::production_type &production,
                                  semantic_rule rule);
+  void add_inherited_attribute(const CFG::production_type &production,
+                               semantic_rule rule);
 
 private:
   void check_semantic_rule(const CFG::production_type &production,
@@ -56,6 +58,12 @@ protected:
   std::map<grammar_symbol_attribute_name,
            std::set<grammar_symbol_attribute_name>>
       attribute_dependency;
+  std::map<grammar_symbol_attribute_name,
+           std::set<grammar_symbol_attribute_name>>
+      synthesized_attribute_dependency;
+  std::map<grammar_symbol_attribute_name,
+           std::set<grammar_symbol_attribute_name>>
+      inherited_attribute_head_dependency;
   std::map<CFG::production_type, std::vector<semantic_rule>> all_rules;
   const CFG &cfg;
 };

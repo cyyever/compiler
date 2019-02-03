@@ -84,8 +84,8 @@ S_attributed_SDD::run(token_span span) {
 
 void S_attributed_SDD::check_attributes() const {
   for (auto const &attribute : synthesized_attributes) {
-    auto it = attribute_dependency.find(attribute);
-    if (it == attribute_dependency.end() || it->second.empty()) {
+    auto it = synthesized_attribute_dependency.find(attribute);
+    if (it == synthesized_attribute_dependency.end() || it->second.empty()) {
       continue;
     }
     if (!std::includes(synthesized_attributes.begin(),
