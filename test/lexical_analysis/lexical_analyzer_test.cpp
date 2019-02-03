@@ -11,7 +11,6 @@
 #endif
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest/doctest.h>
-#include <iostream>
 #include <utility>
 
 #include <cyy/computation/lang/common_tokens.hpp>
