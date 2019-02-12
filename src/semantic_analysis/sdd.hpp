@@ -43,13 +43,13 @@ public:
   };
 
 protected:
-  void add_synthesized_attribute(const CFG::production_type &production,
+  void add_synthesized_attribute(const CFG_production &production,
                                  semantic_rule rule);
-  void add_inherited_attribute(const CFG::production_type &production,
+  void add_inherited_attribute(const CFG_production &production,
                                semantic_rule rule);
 
 private:
-  void check_semantic_rule(const CFG::production_type &production,
+  void check_semantic_rule(const CFG_production &production,
                            const semantic_rule &rule) const;
 
 protected:
@@ -64,7 +64,7 @@ protected:
   std::map<grammar_symbol_attribute_name,
            std::set<grammar_symbol_attribute_name>>
       inherited_attribute_head_dependency;
-  std::map<CFG::production_type, std::vector<semantic_rule>> all_rules;
+  std::map<CFG_production , std::vector<semantic_rule>> all_rules;
   const CFG &cfg;
 };
 } // namespace cyy::compiler

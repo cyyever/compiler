@@ -37,9 +37,12 @@ S_attributed_SDD::run(token_span span) {
         terminal_positions.push_back(next_position);
         next_position++;
       },
-      [&all_attributes, &span, this, &terminal_positions](auto const &head,
-                                                          const auto &body) {
-        auto it = all_rules.find({head, body});
+      [&all_attributes, &span, this, &terminal_positions](auto const &production ) {
+      auto const &head=production.get_head();
+      auto const &body=production.get_body();
+
+        auto it = all_rules.find(production);
+        //{head, body});
         if (it == all_rules.end()) {
           return;
         }
@@ -47,7 +50,7 @@ S_attributed_SDD::run(token_span span) {
         auto const terminal_count = std::count_if(
             body.begin(), body.end(), [this](auto const &grammal_symbol) {
               return grammal_symbol.is_terminal() &&
-                     !cfg.is_epsilon(grammal_symbol);
+                     !grammal_symbol.is_epsilon(cfg.get_alphabet());
             });
 
         const auto token_position_span =

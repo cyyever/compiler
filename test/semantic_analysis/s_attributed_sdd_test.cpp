@@ -22,12 +22,12 @@ using namespace cyy::compiler;
 
 TEST_CASE("run") {
 
-  std::vector<std::pair<CFG::nonterminal_type, CFG::production_body_type>>
+  std::vector< CFG_production>
       production_vector;
 
   std::vector<SDD::semantic_rule> rules;
 
-  production_vector.emplace_back("L", CFG::production_body_type{"E"});
+  production_vector.emplace_back("L", CFG_production::body_type{"E"});
 
   rules.emplace_back(SDD::semantic_rule{
       "L.val",
@@ -35,7 +35,7 @@ TEST_CASE("run") {
       [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
           -> std::optional<std::any> { return arguments.at(0).get(); }});
 
-  production_vector.emplace_back("E", CFG::production_body_type{"E", '+', "T"});
+  production_vector.emplace_back("E", CFG_production::body_type{"E", '+', "T"});
 
   rules.emplace_back(SDD::semantic_rule{
       "E.val",
@@ -47,13 +47,13 @@ TEST_CASE("run") {
         return std::make_any<int>(E_val + T_val);
       }});
 
-  production_vector.emplace_back("E", CFG::production_body_type{"T"});
+  production_vector.emplace_back("E", CFG_production::body_type{"T"});
   rules.emplace_back(SDD::semantic_rule{
       "E.val",
       {"T.val"},
       [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
           -> std::optional<std::any> { return arguments.at(0).get(); }});
-  production_vector.emplace_back("T", CFG::production_body_type{"T", '*', "F"});
+  production_vector.emplace_back("T", CFG_production::body_type{"T", '*', "F"});
 
   rules.emplace_back(SDD::semantic_rule{
       "T.val",
@@ -65,14 +65,14 @@ TEST_CASE("run") {
         return std::make_any<int>(T_val * F_val);
       }});
 
-  production_vector.emplace_back("T", CFG::production_body_type{"F"});
+  production_vector.emplace_back("T", CFG_production::body_type{"F"});
   rules.emplace_back(SDD::semantic_rule{
       "T.val",
       {"F.val"},
       [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
           -> std::optional<std::any> { return arguments.at(0).get(); }});
 
-  production_vector.emplace_back("F", CFG::production_body_type{'(', "E", ')'});
+  production_vector.emplace_back("F", CFG_production::body_type{'(', "E", ')'});
 
   rules.emplace_back(SDD::semantic_rule{
       "F.val",
@@ -81,7 +81,7 @@ TEST_CASE("run") {
           -> std::optional<std::any> { return arguments.at(0).get(); }});
 
   auto digit_token = static_cast<CFG::terminal_type>(common_token::digit);
-  production_vector.emplace_back("F", CFG::production_body_type{digit_token});
+  production_vector.emplace_back("F", CFG_production::body_type{digit_token});
 
   rules.emplace_back(SDD::semantic_rule{
       "F.val",
@@ -94,10 +94,10 @@ TEST_CASE("run") {
       }});
 
   REQUIRE(production_vector.size() == rules.size());
-  std::map<CFG::nonterminal_type, std::vector<CFG::production_body_type>>
+  std::map<CFG::nonterminal_type, std::vector<CFG_production::body_type>>
       productions;
-  for (auto const &[head, body] : production_vector) {
-    productions[head].emplace_back(body);
+  for (auto const &production : production_vector) {
+    productions[production.get_head()].emplace_back(production.get_body());
   }
 
   SLR_grammar grammar("common_tokens", "L", productions);
