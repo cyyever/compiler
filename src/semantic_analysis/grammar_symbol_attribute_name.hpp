@@ -18,15 +18,24 @@ class grammar_symbol_attribute_name final {
 
 public:
   template <size_t N>
-  grammar_symbol_attribute_name(const char (&name_)[N]) : name(name_) {}
-  grammar_symbol_attribute_name(std::string_view name_) : name(name_) {}
+  grammar_symbol_attribute_name(const char (&name_)[N]) :grammar_symbol_attribute_name(std::string_view(name_)) {}
+  grammar_symbol_attribute_name(std::string_view name_);
 
   const std::string &get_name() const { return name; }
 
   bool belong_to_nonterminal(
       const cyy::computation::grammar_symbol_type::nonterminal_type
           &nonterminal) const;
+
+  bool belong_to_nonterminal() const {
+    return !suffix.empty();
+
+  }
+
   std::optional<size_t> get_terminal_index() const;
+  size_t get_index() const {
+    return index;
+  }
 
   bool operator==(const grammar_symbol_attribute_name &rhs) const {
     return name == rhs.name;
@@ -34,6 +43,8 @@ public:
 
 private:
   std::string name;
+  size_t index{};
+  std::string suffix;
 };
 } // namespace cyy::compiler
 

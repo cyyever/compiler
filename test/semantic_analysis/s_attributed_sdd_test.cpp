@@ -30,16 +30,16 @@ TEST_CASE("run") {
   production_vector.emplace_back("L", CFG_production::body_type{"E"});
 
   rules.emplace_back(SDD::semantic_rule{
-      "L.val",
-      {"E.val"},
+      "$0.val",
+      {"$1.val"},
       [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
           -> std::optional<std::any> { return arguments.at(0).get(); }});
 
   production_vector.emplace_back("E", CFG_production::body_type{"E", '+', "T"});
 
   rules.emplace_back(SDD::semantic_rule{
-      "E.val",
-      {"E.val", "T.val"},
+      "$0.val",
+      {"$1.val", "$2.val"},
       [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
           -> std::optional<std::any> {
         auto E_val = std::any_cast<int>(arguments.at(0).get());
@@ -49,15 +49,15 @@ TEST_CASE("run") {
 
   production_vector.emplace_back("E", CFG_production::body_type{"T"});
   rules.emplace_back(SDD::semantic_rule{
-      "E.val",
-      {"T.val"},
+      "$0.val",
+      {"$1.val"},
       [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
           -> std::optional<std::any> { return arguments.at(0).get(); }});
   production_vector.emplace_back("T", CFG_production::body_type{"T", '*', "F"});
 
   rules.emplace_back(SDD::semantic_rule{
-      "T.val",
-      {"T.val", "F.val"},
+      "$0.val",
+      {"$1.val", "$2.val"},
       [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
           -> std::optional<std::any> {
         auto T_val = std::any_cast<int>(arguments.at(0).get());
@@ -67,16 +67,16 @@ TEST_CASE("run") {
 
   production_vector.emplace_back("T", CFG_production::body_type{"F"});
   rules.emplace_back(SDD::semantic_rule{
-      "T.val",
-      {"F.val"},
+      "$0.val",
+      {"$1.val"},
       [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
           -> std::optional<std::any> { return arguments.at(0).get(); }});
 
   production_vector.emplace_back("F", CFG_production::body_type{'(', "E", ')'});
 
   rules.emplace_back(SDD::semantic_rule{
-      "F.val",
-      {"E.val"},
+      "$0.val",
+      {"$2.val"},
       [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
           -> std::optional<std::any> { return arguments.at(0).get(); }});
 
@@ -84,8 +84,8 @@ TEST_CASE("run") {
   production_vector.emplace_back("F", CFG_production::body_type{digit_token});
 
   rules.emplace_back(SDD::semantic_rule{
-      "F.val",
-      {"$0"},
+      "$0.val",
+      {"$1"},
       [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
           -> std::optional<std::any> {
         return std::make_any<int>(

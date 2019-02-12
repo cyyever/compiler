@@ -31,6 +31,11 @@ public:
   using invalid_argument::invalid_argument;
 };
 
+class invalid_grammar_symbol_attribute_name : public std::invalid_argument {
+public:
+  using invalid_argument::invalid_argument;
+};
+
 class unexisted_grammar_symbol_attribute : public std::invalid_argument {
 public:
   using invalid_argument::invalid_argument;
