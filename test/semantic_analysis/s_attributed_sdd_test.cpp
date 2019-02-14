@@ -22,8 +22,7 @@ using namespace cyy::compiler;
 
 TEST_CASE("run") {
 
-  std::vector< CFG_production>
-      production_vector;
+  std::vector<CFG_production> production_vector;
 
   std::vector<SDD::semantic_rule> rules;
 
