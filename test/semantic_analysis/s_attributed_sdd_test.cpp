@@ -39,7 +39,7 @@ TEST_CASE("run") {
 
   rules.emplace_back(SDD::semantic_rule{
       "$0.val",
-      {"$1.val", "$2.val"},
+      {"$1.val", "$3.val"},
       [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
           -> std::optional<std::any> {
         auto E_val = std::any_cast<int>(arguments.at(0).get());
@@ -57,7 +57,7 @@ TEST_CASE("run") {
 
   rules.emplace_back(SDD::semantic_rule{
       "$0.val",
-      {"$1.val", "$2.val"},
+      {"$1.val", "$3.val"},
       [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
           -> std::optional<std::any> {
         auto T_val = std::any_cast<int>(arguments.at(0).get());
@@ -117,5 +117,5 @@ TEST_CASE("run") {
   tokens.push_back(token{digit_token, U"3", {}});
 
   auto attriubtes = sdd.run(tokens);
-  REQUIRE(std::any_cast<int>(attriubtes["L.val"]) == 9);
+  REQUIRE(std::any_cast<int>(attriubtes["val"]) == 9);
 }

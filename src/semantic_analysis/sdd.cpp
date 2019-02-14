@@ -34,12 +34,17 @@ void SDD::add_synthesized_attribute(const CFG_production &production,
   check_semantic_rule(production, rule);
 
   for (auto const &argument : rule.arguments) {
-    if (argument.get_index()>production.get_body().size()) {
+    const auto index=argument.get_index();
+  if(index==0) {
+    throw exception::no_synthesized_grammar_symbol_attribute(
+            result_attribute_name.get_name());
+  }
+    if (index>production.get_body().size()) {
       throw exception::unexisted_grammar_symbol_attribute(
           argument.get_name());
     }
 
-    auto const &grammar_symbol=production.get_body()[argument.get_index()];
+    auto const &grammar_symbol=production.get_body()[argument.get_index()-1];
     if(!argument.belong_to_nonterminal() && grammar_symbol.is_nonterminal()) {
       throw exception::unexisted_grammar_symbol_attribute(
           argument.get_name());

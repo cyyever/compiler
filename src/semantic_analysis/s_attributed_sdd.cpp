@@ -15,7 +15,7 @@
 
 namespace cyy::compiler {
 
-std::map<grammar_symbol_attribute_name, std::any>
+std::map<std::string, std::any>
 S_attributed_SDD::run(token_span span) {
   check_attributes();
   if (span.empty()) {
@@ -28,64 +28,60 @@ S_attributed_SDD::run(token_span span) {
     token_names.push_back(token.name);
   }
 
-  std::map<grammar_symbol_attribute_name, std::any> all_attributes;
+  std::vector<std::map<std::string, std::any>> grammal_symbol_attributes_stack;
   std::vector<size_t> terminal_positions;
   size_t next_position = 0;
   dynamic_cast<const LR_grammar &>(cfg).parse(
       token_names,
-      [&terminal_positions, &next_position]([[maybe_unused]] auto terminal) {
-        terminal_positions.push_back(next_position);
+      [this,&span,&next_position,&grammal_symbol_attributes_stack]([[maybe_unused]] auto terminal) {
+      if(cfg.get_alphabet().is_epsilon(terminal)) {
+      grammal_symbol_attributes_stack.emplace_back();
+      return;
+      }
+      assert(next_position<span.size());
+      grammal_symbol_attributes_stack.emplace_back();
+      grammal_symbol_attributes_stack.back().emplace("token",span[next_position]);
         next_position++;
       },
-      [&all_attributes, &span, this, &terminal_positions](auto const &production ) {
-      auto const &head=production.get_head();
-      auto const &body=production.get_body();
-
+      [ &span,&grammal_symbol_attributes_stack, this](auto const &production ) {
         auto it = all_rules.find(production);
-        //{head, body});
         if (it == all_rules.end()) {
           return;
         }
+        const auto body_size=production.get_body().size();
+        const auto stake_size=grammal_symbol_attributes_stack.size();
 
-        auto const terminal_count = std::count_if(
-            body.begin(), body.end(), [this](auto const &grammal_symbol) {
-              return grammal_symbol.is_terminal() &&
-                     !grammal_symbol.is_epsilon(cfg.get_alphabet());
-            });
+        std::map<std::string, std::any> result_attributes;
 
-        const auto token_position_span =
-            gsl::span<size_t>(terminal_positions).last(terminal_count);
-        auto const &rules = it->second;
-        for (auto const &rule : rules) {
+        for (auto const &rule :it->second) {
           std::vector<std::reference_wrapper<const std::any>> argument_values;
-          std::vector<std::any> token_vector;
           for (auto const &argument : rule.arguments) {
-            auto terminal_index = argument.get_terminal_index();
-            if (terminal_index) {
-              token_vector.emplace_back(
-                  span.at(token_position_span.at(terminal_index.value())));
-              argument_values.emplace_back(token_vector.back());
-            } else {
-              if (!all_attributes.count(argument)) {
-                throw cyy::compiler::exception::orphan_grammar_symbol_attribute(
-                    argument.get_name());
+            auto  index= argument.get_index();
+            auto &grammar_symbol_attributes=grammal_symbol_attributes_stack[stake_size-body_size-1+index];
+
+            auto it2 = grammar_symbol_attributes.find(       argument.belong_to_nonterminal()?     argument.get_suffix():"token");
+              if(it2==grammar_symbol_attributes.end()) {
+                throw exception::unexisted_grammar_symbol_attribute(argument.get_name());
               }
-              argument_values.emplace_back(all_attributes[argument]);
-            }
+              argument_values.emplace_back(it2->second);
           }
-          assert(argument_values.size() == rule.arguments.size());
           auto result_attribute_opt = rule.action(argument_values);
           if (rule.result_attribute) {
-            all_attributes[rule.result_attribute.value()] =
-                std::move(result_attribute_opt.value());
+            assert(result_attribute_opt);
+            result_attributes[rule.result_attribute.value().get_suffix()]=std::move(result_attribute_opt.value());
+          } else {
+            assert(!result_attribute_opt);
           }
         }
-        terminal_positions.resize(terminal_positions.size() - terminal_count);
+        grammal_symbol_attributes_stack.resize(stake_size-body_size);
+        grammal_symbol_attributes_stack.emplace_back(std::move(result_attributes));
       });
-  return all_attributes;
+  assert(grammal_symbol_attributes_stack.size()==1);
+  return grammal_symbol_attributes_stack[0];
 }
 
 void S_attributed_SDD::check_attributes() const {
+  /*
   for (auto const &attribute : synthesized_attributes) {
     auto it = synthesized_attribute_dependency.find(attribute);
     if (it == synthesized_attribute_dependency.end() || it->second.empty()) {
@@ -99,5 +95,6 @@ void S_attributed_SDD::check_attributes() const {
           attribute.get_name());
     }
   }
+  */
 }
 } // namespace cyy::compiler

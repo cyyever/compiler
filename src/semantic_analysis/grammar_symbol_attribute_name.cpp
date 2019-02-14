@@ -11,15 +11,15 @@ namespace cyy::compiler {
 
     index = 0;
     for (size_t i = 1; i < name.size(); i++) {
-      if (name[i] < '0' || name[i] > '9') {
-        throw  exception::invalid_grammar_symbol_attribute_name(name);
-      }
       if(name[i]=='.') {
         if(i==1 || i+1==name.size()) {
           throw  exception::invalid_grammar_symbol_attribute_name(name);
         }
         suffix=name.substr(i+1);
         break;
+      }
+      if (name[i] < '0' || name[i] > '9') {
+        throw  exception::invalid_grammar_symbol_attribute_name(name);
       }
       index = index * 10 + name[i] - '0';
     }

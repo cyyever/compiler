@@ -37,6 +37,10 @@ public:
     return index;
   }
 
+  const std::string & get_suffix() const {
+    return suffix;
+  }
+
   bool operator==(const grammar_symbol_attribute_name &rhs) const {
     return name == rhs.name;
   }

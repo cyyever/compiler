@@ -31,7 +31,7 @@ public:
 
   virtual ~SDD() = default;
 
-  virtual std::map<grammar_symbol_attribute_name, std::any>
+  virtual std::map<std::string, std::any>
   run(token_span span) = 0;
 
   struct semantic_rule {
