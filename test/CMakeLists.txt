@@ -8,9 +8,6 @@ file(GLOB test_sources
 
 foreach(test_source ${test_sources})
   get_filename_component(test_prog ${test_source} NAME_WE)
-#  if (test_prog STREQUAL "lexical_analyzer_test")
-#    continue()
-#  endif()
   add_executable(${test_prog} ${test_source})
   target_link_libraries(${test_prog} PRIVATE MyCompilerLib)
   target_link_libraries(${test_prog} PRIVATE MyComputationLib)
