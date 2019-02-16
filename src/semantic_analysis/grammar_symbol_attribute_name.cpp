@@ -47,19 +47,22 @@ namespace cyy::compiler {
     if (index > production.get_body().size()) {
       throw exception::unexisted_grammar_symbol_attribute(name);
     }
+
     auto const &grammar_symbol = production.get_body()[index - 1];
-    auto ptr = grammar_symbol.get_nonterminal_ptr();
-    if (ptr) {
-      if (suffix.empty()) {
-        throw exception::unexisted_grammar_symbol_attribute(name);
-      }
-      return *ptr + "." + suffix;
-    }
-    if (!suffix.empty()) {
+    if (!match(grammar_symbol)) {
       throw exception::unexisted_grammar_symbol_attribute(name);
     }
-
+    auto ptr = grammar_symbol.get_nonterminal_ptr();
+    if (ptr) {
+      return *ptr + "." + suffix;
+    }
     return "token";
+  }
+  bool grammar_symbol_attribute_name::match(
+      const cyy::computation::grammar_symbol_type &grammar_symbol) const {
+    bool is_nonterminal = grammar_symbol.is_nonterminal();
+    return (is_nonterminal && !suffix.empty()) ||
+           (!is_nonterminal && suffix.empty());
   }
 
 } // namespace cyy::compiler

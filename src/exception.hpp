@@ -41,11 +41,6 @@ namespace cyy::compiler::exception {
     using invalid_argument::invalid_argument;
   };
 
-  class orphan_grammar_symbol_attribute : public std::invalid_argument {
-  public:
-    using invalid_argument::invalid_argument;
-  };
-
   class no_synthesized_grammar_symbol_attribute : public std::invalid_argument {
   public:
     using invalid_argument::invalid_argument;

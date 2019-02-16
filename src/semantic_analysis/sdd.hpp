@@ -52,6 +52,7 @@ namespace cyy::compiler {
                              const semantic_rule &rule) const;
 
   protected:
+    /*
     std::set<grammar_symbol_attribute_name> synthesized_attributes;
     std::set<grammar_symbol_attribute_name> inherited_attributes;
     std::map<grammar_symbol_attribute_name,
@@ -63,6 +64,7 @@ namespace cyy::compiler {
     std::map<grammar_symbol_attribute_name,
              std::set<grammar_symbol_attribute_name>>
         inherited_attribute_head_dependency;
+        */
     std::map<CFG_production, std::vector<semantic_rule>> all_rules;
     const CFG &cfg;
     bool new_rule_flag{false};

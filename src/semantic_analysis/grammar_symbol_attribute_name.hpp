@@ -42,6 +42,9 @@ namespace cyy::compiler {
       return name == rhs.name;
     }
 
+    bool
+    match(const cyy::computation::grammar_symbol_type &grammar_symbol) const;
+
   private:
     std::string name;
     size_t index{};

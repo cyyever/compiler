@@ -32,9 +32,7 @@ TEST_CASE("run") {
       "$0.val",
       {"$1.val"},
       [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-          -> std::optional<std::any> {
-        return arguments.at(0).get();
-      }});
+          -> std::optional<std::any> { return arguments.at(0).get(); }});
 
   production_vector.emplace_back("E", CFG_production::body_type{"E", '+', "T"});
 
