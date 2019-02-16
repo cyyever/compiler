@@ -23,48 +23,47 @@
 #include "grammar_symbol_attribute_name.hpp"
 
 namespace cyy::compiler {
-using namespace cyy::computation;
+  using namespace cyy::computation;
 
-class SDD {
-public:
-  explicit SDD(const CFG &cfg_) : cfg(cfg_) {}
+  class SDD {
+  public:
+    explicit SDD(const CFG &cfg_) : cfg(cfg_) {}
 
-  virtual ~SDD() = default;
+    virtual ~SDD() = default;
 
-  virtual std::map<std::string, std::any>
-  run(token_span span) = 0;
+    virtual std::map<std::string, std::any> run(token_span span) = 0;
 
-  struct semantic_rule {
-    std::optional<grammar_symbol_attribute_name> result_attribute;
-    std::vector<grammar_symbol_attribute_name> arguments;
-    using semantic_action_type = std::function<std::optional<std::any>(
-        const std::vector<std::reference_wrapper<const std::any>> &)>;
-    semantic_action_type action;
-  };
+    struct semantic_rule {
+      std::optional<grammar_symbol_attribute_name> result_attribute;
+      std::vector<grammar_symbol_attribute_name> arguments;
+      using semantic_action_type = std::function<std::optional<std::any>(
+          const std::vector<std::reference_wrapper<const std::any>> &)>;
+      semantic_action_type action;
+    };
 
-protected:
-  void add_synthesized_attribute(const CFG_production &production,
+  protected:
+    void add_synthesized_attribute(const CFG_production &production,
+                                   semantic_rule rule);
+    void add_inherited_attribute(const CFG_production &production,
                                  semantic_rule rule);
-  void add_inherited_attribute(const CFG_production &production,
-                               semantic_rule rule);
 
-private:
-  void check_semantic_rule(const CFG_production &production,
-                           const semantic_rule &rule) const;
+  private:
+    void check_semantic_rule(const CFG_production &production,
+                             const semantic_rule &rule) const;
 
-protected:
-  std::set<grammar_symbol_attribute_name> synthesized_attributes;
-  std::set<grammar_symbol_attribute_name> inherited_attributes;
-  std::map<grammar_symbol_attribute_name,
-           std::set<grammar_symbol_attribute_name>>
-      attribute_dependency;
-  std::map<grammar_symbol_attribute_name,
-           std::set<grammar_symbol_attribute_name>>
-      synthesized_attribute_dependency;
-  std::map<grammar_symbol_attribute_name,
-           std::set<grammar_symbol_attribute_name>>
-      inherited_attribute_head_dependency;
-  std::map<CFG_production , std::vector<semantic_rule>> all_rules;
-  const CFG &cfg;
-};
+  protected:
+    std::set<grammar_symbol_attribute_name> synthesized_attributes;
+    std::set<grammar_symbol_attribute_name> inherited_attributes;
+    std::map<grammar_symbol_attribute_name,
+             std::set<grammar_symbol_attribute_name>>
+        attribute_dependency;
+    std::map<grammar_symbol_attribute_name,
+             std::set<grammar_symbol_attribute_name>>
+        synthesized_attribute_dependency;
+    std::map<grammar_symbol_attribute_name,
+             std::set<grammar_symbol_attribute_name>>
+        inherited_attribute_head_dependency;
+    std::map<CFG_production, std::vector<semantic_rule>> all_rules;
+    const CFG &cfg;
+  };
 } // namespace cyy::compiler

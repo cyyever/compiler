@@ -18,52 +18,52 @@
 #include "../token/token.hpp"
 
 namespace cyy::compiler {
-using namespace cyy::computation;
+  using namespace cyy::computation;
 
-class lexical_analyzer {
-public:
-  explicit lexical_analyzer(const std::string &alphabet_name_)
-      : alphabet_name(alphabet_name_) {}
+  class lexical_analyzer {
+  public:
+    explicit lexical_analyzer(const std::string &alphabet_name_)
+        : alphabet_name(alphabet_name_) {}
 
-  void append_pattern(const symbol_type &token_name, symbol_string pattern) {
-    patterns.emplace_back(token_name, std::move(pattern));
-    dfa_opt.reset();
-    reset_input();
-  }
-
-  bool set_source_code(symbol_istream &&is) {
-    source_code = symbol_string(std::istreambuf_iterator<symbol_type>(is),
-                                std::istreambuf_iterator<symbol_type>{});
-    if (is.bad() || is.fail()) {
-      std::cerr << "read symbol stream failed";
-      return false;
+    void append_pattern(const symbol_type &token_name, symbol_string pattern) {
+      patterns.emplace_back(token_name, std::move(pattern));
+      dfa_opt.reset();
+      reset_input();
     }
-    last_view = source_code;
-    reset_input();
-    return true;
-  }
 
-  void reset_input() noexcept {
-    last_view = source_code;
-    last_attribute = {};
-  }
+    bool set_source_code(symbol_istream &&is) {
+      source_code = symbol_string(std::istreambuf_iterator<symbol_type>(is),
+                                  std::istreambuf_iterator<symbol_type>{});
+      if (is.bad() || is.fail()) {
+        std::cerr << "read symbol stream failed";
+        return false;
+      }
+      last_view = source_code;
+      reset_input();
+      return true;
+    }
 
-  //! \brief scan the input stream,return first token
-  //! \return when successed,return token
-  //	when no token in remain input,return 1
-  std::variant<token, int> scan();
+    void reset_input() noexcept {
+      last_view = source_code;
+      last_attribute = {};
+    }
 
-private:
-  void make_NFA();
+    //! \brief scan the input stream,return first token
+    //! \return when successed,return token
+    //	when no token in remain input,return 1
+    std::variant<token, int> scan();
 
-private:
-  std::string alphabet_name;
-  std::vector<std::pair<symbol_type, symbol_string>> patterns;
-  token_attribute last_attribute;
-  symbol_string source_code;
-  symbol_string_view last_view;
-  std::optional<DFA> dfa_opt;
-  std::map<uint64_t, symbol_type> pattern_final_states;
-};
+  private:
+    void make_NFA();
+
+  private:
+    std::string alphabet_name;
+    std::vector<std::pair<symbol_type, symbol_string>> patterns;
+    token_attribute last_attribute;
+    symbol_string source_code;
+    symbol_string_view last_view;
+    std::optional<DFA> dfa_opt;
+    std::map<uint64_t, symbol_type> pattern_final_states;
+  };
 
 } // namespace cyy::compiler
