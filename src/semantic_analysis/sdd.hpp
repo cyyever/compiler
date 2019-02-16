@@ -65,5 +65,6 @@ namespace cyy::compiler {
         inherited_attribute_head_dependency;
     std::map<CFG_production, std::vector<semantic_rule>> all_rules;
     const CFG &cfg;
+    bool new_rule_flag{false};
   };
 } // namespace cyy::compiler

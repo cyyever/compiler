@@ -35,9 +35,9 @@ namespace cyy::compiler {
 
     for (auto const &argument : rule.arguments) {
       const auto index = argument.get_index();
+      // synthesized_attribute could use other attributes of the same node.
       if (index == 0) {
-        throw exception::no_synthesized_grammar_symbol_attribute(
-            result_attribute_name.get_name());
+        continue;
       }
       if (index > production.get_body().size()) {
         throw exception::unexisted_grammar_symbol_attribute(
@@ -60,6 +60,7 @@ namespace cyy::compiler {
 
     // synthesized_attributes.insert(result_attribute_name.get_name());
     all_rules[production].emplace_back(std::move(rule));
+    new_rule_flag = true;
   }
 
   void SDD::add_inherited_attribute(const CFG_production &production,

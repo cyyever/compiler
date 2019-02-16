@@ -56,4 +56,9 @@ namespace cyy::compiler::exception {
     using invalid_argument::invalid_argument;
   };
 
+  class grammar_symbol_attribute_dependency_circle
+      : public std::invalid_argument {
+  public:
+    using invalid_argument::invalid_argument;
+  };
 } // namespace cyy::compiler::exception

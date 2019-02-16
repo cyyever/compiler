@@ -10,13 +10,18 @@
 #include <functional>
 #include <set>
 
+#include <cyy/computation/util.hpp>
+
 #include "../exception.hpp"
 #include "s_attributed_sdd.hpp"
 
 namespace cyy::compiler {
 
   std::map<std::string, std::any> S_attributed_SDD::run(token_span span) {
-    check_attributes();
+    if (new_rule_flag) {
+      check_attribute_dependency();
+      new_rule_flag = false;
+    }
     if (span.empty()) {
       std::cerr << "span is empty" << std::endl;
       return {};
@@ -61,8 +66,10 @@ namespace cyy::compiler {
             for (auto const &argument : rule.arguments) {
               auto index = argument.get_index();
               auto &grammar_symbol_attributes =
-                  grammal_symbol_attributes_stack[stake_size - body_size - 1 +
-                                                  index];
+                  index == 0
+                      ? result_attributes
+                      : grammal_symbol_attributes_stack[stake_size - body_size -
+                                                        1 + index];
 
               auto it2 = grammar_symbol_attributes.find(
                   argument.get_full_name(production));
@@ -89,21 +96,54 @@ namespace cyy::compiler {
     return grammal_symbol_attributes_stack[0];
   }
 
-  void S_attributed_SDD::check_attributes() const {
-    /*
-    for (auto const &attribute : synthesized_attributes) {
-      auto it = synthesized_attribute_dependency.find(attribute);
-      if (it == synthesized_attribute_dependency.end() || it->second.empty()) {
+  void S_attributed_SDD::check_attribute_dependency() {
+    for (auto &[_, rules] : all_rules) {
+      assert(!rules.empty());
+      std::map<std::string, size_t> result_attributes;
+      for (size_t i = 0; i < rules.size(); i++) {
+        auto const &rule = rules[i];
+        if (rule.result_attribute) {
+          result_attributes[rule.result_attribute->get_suffix()] = i;
+        }
+      }
+      std::map<size_t, std::set<size_t>> dependency_graph;
+      for (size_t i = 0; i < rules.size(); i++) {
+        auto const &rule = rules[i];
+        for (auto const &argument : rule.arguments) {
+          if (argument.get_index() == 0) {
+            auto it = result_attributes.find(argument.get_suffix());
+            if (it == result_attributes.end()) {
+              throw exception::unexisted_grammar_symbol_attribute(
+                  argument.get_name());
+            }
+            if (it->second == i) {
+              throw exception::grammar_symbol_attribute_dependency_circle(
+                  argument.get_name());
+            }
+            dependency_graph[it->second].insert(i);
+          }
+        }
+      }
+      if (dependency_graph.empty()) {
         continue;
       }
-      if (!std::includes(synthesized_attributes.begin(),
-                         synthesized_attributes.end(), it->second.begin(),
-                         it->second.end(),
-                         std::less<grammar_symbol_attribute_name>())) {
-        throw exception::no_synthesized_grammar_symbol_attribute(
-            attribute.get_name());
+      auto [sorted_indexes, remain_dependency] =
+          topological_sort(dependency_graph);
+      if (!remain_dependency.empty()) {
+        throw exception::grammar_symbol_attribute_dependency_circle(
+            rules[remain_dependency.begin()->first]
+                .result_attribute->get_name());
+      }
+
+      for (auto it = sorted_indexes.begin(); it != sorted_indexes.end(); it++) {
+        auto it2 = std::min_element(it, sorted_indexes.end());
+        if (it == it2) {
+          continue;
+        }
+        std::swap(rules[*it], rules[*it2]);
+        *it2 = *it;
       }
     }
-    */
   }
+
 } // namespace cyy::compiler

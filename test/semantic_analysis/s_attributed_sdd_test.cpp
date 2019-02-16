@@ -32,7 +32,9 @@ TEST_CASE("run") {
       "$0.val",
       {"$1.val"},
       [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-          -> std::optional<std::any> { return arguments.at(0).get(); }});
+          -> std::optional<std::any> {
+        return arguments.at(0).get();
+      }});
 
   production_vector.emplace_back("E", CFG_production::body_type{"E", '+', "T"});
 
@@ -106,6 +108,17 @@ TEST_CASE("run") {
     sdd.add_synthesized_attribute(production_vector[i], std::move(rules[i]));
   }
 
+  sdd.add_synthesized_attribute(
+      production_vector[0],
+      SDD::semantic_rule{
+          "$0.val_inc",
+          {"$0.val"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            auto L_val = std::any_cast<int>(arguments.at(0).get());
+            return std::make_any<int>(L_val + 1);
+          }});
+
   std::vector<token> tokens;
   tokens.push_back(token{'(', U"(", {}});
   tokens.push_back(token{digit_token, U"1", {}});
@@ -117,4 +130,5 @@ TEST_CASE("run") {
 
   auto attriubtes = sdd.run(tokens);
   REQUIRE(std::any_cast<int>(attriubtes["L.val"]) == 9);
+  REQUIRE(std::any_cast<int>(attriubtes["L.val_inc"]) == 10);
 }
