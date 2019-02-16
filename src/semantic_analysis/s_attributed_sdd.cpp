@@ -39,7 +39,7 @@ namespace cyy::compiler {
             grammal_symbol_attributes_stack.emplace_back();
             return;
           }
-          assert(next_position < span.size());
+          assert(next_position < static_cast<size_t>(span.size()));
           grammal_symbol_attributes_stack.emplace_back();
           grammal_symbol_attributes_stack.back().emplace("token",
                                                          span[next_position]);
@@ -65,8 +65,7 @@ namespace cyy::compiler {
                                                   index];
 
               auto it2 = grammar_symbol_attributes.find(
-                  argument.belong_to_nonterminal() ? argument.get_suffix()
-                                                   : "token");
+                  argument.get_full_name(production));
               if (it2 == grammar_symbol_attributes.end()) {
                 throw exception::unexisted_grammar_symbol_attribute(
                     argument.get_name());
@@ -76,8 +75,8 @@ namespace cyy::compiler {
             auto result_attribute_opt = rule.action(argument_values);
             if (rule.result_attribute) {
               assert(result_attribute_opt);
-              result_attributes[rule.result_attribute.value().get_suffix()] =
-                  std::move(result_attribute_opt.value());
+              result_attributes[rule.result_attribute.value().get_full_name(
+                  production)] = std::move(result_attribute_opt.value());
             } else {
               assert(!result_attribute_opt);
             }

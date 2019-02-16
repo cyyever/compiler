@@ -11,6 +11,7 @@
 #include <string>
 #include <string_view>
 
+#include <cyy/computation/contex_free_lang/cfg_production.hpp>
 #include <cyy/computation/formal_grammar/grammar.hpp>
 
 namespace cyy::compiler {
@@ -24,13 +25,15 @@ namespace cyy::compiler {
 
     const std::string &get_name() const { return name; }
 
+    std::string
+    get_full_name(const cyy::computation::CFG_production &production) const;
+
     bool belong_to_nonterminal(
         const cyy::computation::grammar_symbol_type::nonterminal_type
             &nonterminal) const;
 
     bool belong_to_nonterminal() const { return !suffix.empty(); }
 
-    std::optional<size_t> get_terminal_index() const;
     size_t get_index() const { return index; }
 
     const std::string &get_suffix() const { return suffix; }

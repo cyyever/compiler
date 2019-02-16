@@ -116,5 +116,5 @@ TEST_CASE("run") {
   tokens.push_back(token{digit_token, U"3", {}});
 
   auto attriubtes = sdd.run(tokens);
-  REQUIRE(std::any_cast<int>(attriubtes["val"]) == 9);
+  REQUIRE(std::any_cast<int>(attriubtes["L.val"]) == 9);
 }

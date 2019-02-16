@@ -25,6 +25,9 @@ namespace cyy::compiler {
       }
       index = index * 10 + name[i] - '0';
     }
+    if (index == 0 && suffix.empty()) {
+      throw exception::unexisted_grammar_symbol_attribute(name);
+    }
   }
   bool grammar_symbol_attribute_name::belong_to_nonterminal(
       const cyy::computation::grammar_symbol_type::nonterminal_type
@@ -36,22 +39,27 @@ namespace cyy::compiler {
     const auto pos = name.find_first_of(nonterminal);
     return pos == 0 && name[nonterminal.size()] == '.';
   }
-
-  std::optional<size_t>
-  grammar_symbol_attribute_name::get_terminal_index() const {
-    /*
-    if (name.size() > 1 && name[0] == '$') {
-      size_t index = 0;
-      for (size_t i = 1; i < name.size(); i++) {
-        if (name[i] < '0' || name[i] > '9') {
-          return {};
-        }
-        index = index * 10 + name[i] - '0';
-      }
-      return {index};
+  std::string grammar_symbol_attribute_name::get_full_name(
+      const cyy::computation::CFG_production &production) const {
+    if (index == 0) {
+      return production.get_head() + "." + suffix;
     }
-    */
-    return {};
+    if (index > production.get_body().size()) {
+      throw exception::unexisted_grammar_symbol_attribute(name);
+    }
+    auto const &grammar_symbol = production.get_body()[index - 1];
+    auto ptr = grammar_symbol.get_nonterminal_ptr();
+    if (ptr) {
+      if (suffix.empty()) {
+        throw exception::unexisted_grammar_symbol_attribute(name);
+      }
+      return *ptr + "." + suffix;
+    }
+    if (!suffix.empty()) {
+      throw exception::unexisted_grammar_symbol_attribute(name);
+    }
+
+    return "token";
   }
 
 } // namespace cyy::compiler
