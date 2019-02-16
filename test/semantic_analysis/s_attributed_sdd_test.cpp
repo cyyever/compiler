@@ -117,6 +117,20 @@ TEST_CASE("run") {
             return std::make_any<int>(L_val + 1);
           }});
 
+  sdd.add_synthesized_attribute(
+      production_vector[0],
+      SDD::semantic_rule{
+          {},
+          {"$0.val_inc"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            auto L_val_inc = std::any_cast<int>(arguments.at(0).get());
+
+            std::cout << "in semantic procedure val_inc is " << L_val_inc
+                      << std::endl;
+            return {};
+          }});
+
   std::vector<token> tokens;
   tokens.push_back(token{'(', U"(", {}});
   tokens.push_back(token{digit_token, U"1", {}});

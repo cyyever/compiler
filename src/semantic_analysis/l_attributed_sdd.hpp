@@ -20,9 +20,11 @@ namespace cyy::compiler {
     // std::map<grammar_symbol_attribute_name, std::any> run(token_span span)
     // override;
 
+    using SDD::add_inherited_attribute;
     using SDD::add_synthesized_attribute;
 
   private:
-    void check_attributes() const;
+    void check_inherited_attributes() const;
+    // void check_attribute_dependency();
   };
 } // namespace cyy::compiler

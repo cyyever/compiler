@@ -14,17 +14,13 @@ namespace cyy::compiler {
                                       semantic_rule rule) {
     check_semantic_rule(production, rule);
 
-    if (!rule.result_attribute) {
-      throw exception::no_synthesized_grammar_symbol_attribute(
-          "no result_attribute");
+    if (rule.result_attribute) {
+      const auto &result_attribute_name = rule.result_attribute.value();
+      if (result_attribute_name.get_index() != 0) {
+        throw exception::no_synthesized_grammar_symbol_attribute(
+            result_attribute_name.get_name());
+      }
     }
-
-    const auto &result_attribute_name = rule.result_attribute.value();
-    if (result_attribute_name.get_index() != 0) {
-      throw exception::no_synthesized_grammar_symbol_attribute(
-          result_attribute_name.get_name());
-    }
-
     all_rules[production].emplace_back(std::move(rule));
     new_rule_flag = true;
   }
@@ -78,6 +74,7 @@ namespace cyy::compiler {
         }
         continue;
       }
+
       if (index > production.get_body().size()) {
         throw exception::unexisted_grammar_symbol_attribute(
             argument.get_name());
