@@ -1,7 +1,7 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.9)
-PROJECT(ComplierFuzzTest)
-
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../cmake/fuzzing.cmake)
+find_package(libFuzzer)
+if(NOT libFuzzer_FOUND)
+  return()
+endif()
 
 FILE(GLOB test_sources 
   ${CMAKE_CURRENT_SOURCE_DIR}/*/*.cpp
