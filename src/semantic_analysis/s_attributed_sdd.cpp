@@ -37,7 +37,7 @@ namespace cyy::compiler {
     dynamic_cast<const LR_grammar &>(cfg).parse(
         token_names,
         [this, &span, &next_position,
-         &grammal_symbol_attributes_stack]([[maybe_unused]] auto terminal) {
+         &grammal_symbol_attributes_stack](auto terminal) {
           if (cfg.get_alphabet().is_epsilon(terminal)) {
             grammal_symbol_attributes_stack.emplace_back();
             return;
@@ -50,40 +50,41 @@ namespace cyy::compiler {
         },
         [&span, &grammal_symbol_attributes_stack,
          this](auto const &production) {
-          auto it = all_rules.find(production);
-          if (it == all_rules.end()) {
-            return;
-          }
           const auto body_size = production.get_body().size();
           const auto stake_size = grammal_symbol_attributes_stack.size();
 
           std::map<std::string, std::any> result_attributes;
 
-          for (auto const &rule : it->second) {
-            std::vector<std::reference_wrapper<const std::any>> argument_values;
-            for (auto const &argument : rule.arguments) {
-              auto index = argument.get_index();
-              auto &grammar_symbol_attributes =
-                  index == 0
-                      ? result_attributes
-                      : grammal_symbol_attributes_stack[stake_size - body_size -
-                                                        1 + index];
+          auto it = all_rules.find(production);
+          if (it != all_rules.end()) {
+            for (auto const &rule : it->second) {
+              std::vector<std::reference_wrapper<const std::any>>
+                  argument_values;
+              for (auto const &argument : rule.arguments) {
+                auto index = argument.get_index();
+                auto &grammar_symbol_attributes =
+                    index == 0 ? result_attributes
+                               : grammal_symbol_attributes_stack[stake_size -
+                                                                 body_size - 1 +
+                                                                 index];
 
-              auto it2 = grammar_symbol_attributes.find(
-                  argument.get_full_name(production));
-              if (it2 == grammar_symbol_attributes.end()) {
-                throw exception::unexisted_grammar_symbol_attribute(
-                    argument.get_name());
+                auto it2 = grammar_symbol_attributes.find(
+                    argument.get_full_name(production));
+                if (it2 == grammar_symbol_attributes.end()) {
+                  throw exception::unexisted_grammar_symbol_attribute(
+                      argument.get_name());
+                }
+                argument_values.emplace_back(it2->second);
               }
-              argument_values.emplace_back(it2->second);
-            }
-            auto result_attribute_opt = rule.action(argument_values);
-            if (rule.result_attribute) {
-              assert(result_attribute_opt);
-              result_attributes[rule.result_attribute.value().get_full_name(
-                  production)] = std::move(result_attribute_opt.value());
-            } else {
-              assert(!result_attribute_opt);
+              auto result_value_opt = rule.action(argument_values);
+              if (rule.result_attribute) {
+                if (!result_value_opt) {
+                  throw exception::unexisted_grammar_symbol_attribute(
+                      rule.result_attribute->get_name());
+                }
+                result_attributes[rule.result_attribute.value().get_full_name(
+                    production)] = std::move(result_value_opt.value());
+              }
             }
           }
           grammal_symbol_attributes_stack.resize(stake_size - body_size);
