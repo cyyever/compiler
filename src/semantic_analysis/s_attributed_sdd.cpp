@@ -10,8 +10,6 @@
 #include <functional>
 #include <set>
 
-#include <cyy/computation/util.hpp>
-
 #include "../exception.hpp"
 #include "s_attributed_sdd.hpp"
 
@@ -19,7 +17,7 @@ namespace cyy::compiler {
 
   std::map<std::string, std::any> S_attributed_SDD::run(token_span span) {
     if (new_rule_flag) {
-      check_attribute_dependency();
+      resolve_semantic_rules_order();
       new_rule_flag = false;
     }
     if (span.empty()) {
@@ -94,56 +92,6 @@ namespace cyy::compiler {
         });
     assert(grammal_symbol_attributes_stack.size() == 1);
     return grammal_symbol_attributes_stack[0];
-  }
-
-  void S_attributed_SDD::check_attribute_dependency() {
-    for (auto &[_, rules] : all_rules) {
-      assert(!rules.empty());
-      std::map<std::string, size_t> result_attributes;
-      for (size_t i = 0; i < rules.size(); i++) {
-        auto const &rule = rules[i];
-        if (rule.result_attribute) {
-          result_attributes[rule.result_attribute->get_suffix()] = i;
-        }
-      }
-      std::map<size_t, std::set<size_t>> dependency_graph;
-      for (size_t i = 0; i < rules.size(); i++) {
-        auto const &rule = rules[i];
-        for (auto const &argument : rule.arguments) {
-          if (argument.get_index() == 0) {
-            auto it = result_attributes.find(argument.get_suffix());
-            if (it == result_attributes.end()) {
-              throw exception::unexisted_grammar_symbol_attribute(
-                  argument.get_name());
-            }
-            if (it->second == i) {
-              throw exception::grammar_symbol_attribute_dependency_circle(
-                  argument.get_name());
-            }
-            dependency_graph[it->second].insert(i);
-          }
-        }
-      }
-      if (dependency_graph.empty()) {
-        continue;
-      }
-      auto [sorted_indexes, remain_dependency] =
-          topological_sort(dependency_graph);
-      if (!remain_dependency.empty()) {
-        throw exception::grammar_symbol_attribute_dependency_circle(
-            rules[remain_dependency.begin()->first]
-                .result_attribute->get_name());
-      }
-
-      for (auto it = sorted_indexes.begin(); it != sorted_indexes.end(); it++) {
-        auto it2 = std::min_element(it, sorted_indexes.end());
-        if (it == it2) {
-          continue;
-        }
-        std::swap(rules[*it], rules[*it2]);
-        *it2 = *it;
-      }
-    }
   }
 
 } // namespace cyy::compiler

@@ -14,14 +14,33 @@
 #include "l_attributed_sdd.hpp"
 
 namespace cyy::compiler {
+
+  std::map<std::string, std::any> L_attributed_SDD::run(token_span span) {
+    if (new_rule_flag) {
+      check_inherited_attributes();
+      resolve_semantic_rules_order();
+      new_rule_flag = false;
+    }
+    if (span.empty()) {
+      std::cerr << "span is empty" << std::endl;
+      return {};
+    }
+    return {};
+  }
+
   void L_attributed_SDD::check_inherited_attributes() const {
     for (const auto &[_, rules] : all_rules) {
       assert(!rules.empty());
       for (auto const &rule : rules) {
+        // synthesized attribute
         if (!rule.result_attribute) {
           continue;
         }
         auto result_attribute_index = rule.result_attribute->get_index();
+        // synthesized attribute
+        if (result_attribute_index == 0) {
+          continue;
+        }
 
         for (auto const &argument : rule.arguments) {
           auto index = argument.get_index();

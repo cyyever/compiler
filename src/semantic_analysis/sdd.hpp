@@ -47,6 +47,8 @@ namespace cyy::compiler {
     void add_inherited_attribute(const CFG_production &production,
                                  semantic_rule rule);
 
+    void resolve_semantic_rules_order();
+
   private:
     void check_semantic_rule(const CFG_production &production,
                              const semantic_rule &rule) const;

@@ -5,8 +5,11 @@
  * \date 2018-03-04
  */
 
-#include "sdd.hpp"
+#include <cassert>
+#include <cyy/computation/util.hpp>
+
 #include "../exception.hpp"
+#include "sdd.hpp"
 
 namespace cyy::compiler {
 
@@ -85,6 +88,75 @@ namespace cyy::compiler {
       if (!argument.match(grammar_symbol)) {
         throw exception::unexisted_grammar_symbol_attribute(
             argument.get_name());
+      }
+    }
+  }
+  void SDD::resolve_semantic_rules_order() {
+    std::set<std::string> inherited_attributes;
+    for (auto &[production, rules] : all_rules) {
+      assert(!rules.empty());
+      std::map<std::pair<size_t, std::string>, size_t> result_attributes;
+      for (size_t i = 0; i < rules.size(); i++) {
+        auto const &rule = rules[i];
+        if (rule.result_attribute) {
+          auto const &result_attribute_name = rule.result_attribute.value();
+          result_attributes[{result_attribute_name.get_index(),
+                             result_attribute_name.get_name()}] = i;
+          // inherited_attributes
+          if (result_attribute_name.get_index() != 0) {
+            inherited_attributes.insert(
+                result_attribute_name.get_full_name(production));
+          }
+        }
+      }
+
+      std::map<size_t, std::set<size_t>> dependency_graph;
+      for (size_t i = 0; i < rules.size(); i++) {
+        auto const &rule = rules[i];
+        for (auto const &argument : rule.arguments) {
+          if (!rule.result_attribute && argument.get_index() != 0) {
+            continue;
+          }
+          if (rule.result_attribute &&
+              argument.get_index() != rule.result_attribute->get_index()) {
+            continue;
+          }
+
+          auto it = result_attributes.find(
+              {argument.get_index(), argument.get_name()});
+          if (it == result_attributes.end()) {
+            if (inherited_attributes.count(
+                    argument.get_full_name(production))) {
+              continue;
+            }
+            throw exception::unexisted_grammar_symbol_attribute(
+                argument.get_name());
+          }
+          if (it->second == i) {
+            throw exception::grammar_symbol_attribute_dependency_circle(
+                argument.get_name());
+          }
+          dependency_graph[it->second].insert(i);
+        }
+      }
+      if (dependency_graph.empty()) {
+        continue;
+      }
+      auto [sorted_indexes, remain_dependency] =
+          topological_sort(dependency_graph);
+      if (!remain_dependency.empty()) {
+        throw exception::grammar_symbol_attribute_dependency_circle(
+            rules[remain_dependency.begin()->first]
+                .result_attribute->get_name());
+      }
+
+      for (auto it = sorted_indexes.begin(); it != sorted_indexes.end(); it++) {
+        auto it2 = std::min_element(it, sorted_indexes.end());
+        if (it == it2) {
+          continue;
+        }
+        std::swap(rules[*it], rules[*it2]);
+        *it2 = *it;
       }
     }
   }

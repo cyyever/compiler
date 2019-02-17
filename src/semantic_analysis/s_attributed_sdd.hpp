@@ -19,10 +19,5 @@ namespace cyy::compiler {
     std::map<std::string, std::any> run(token_span span) override;
 
     using SDD::add_synthesized_attribute;
-
-  private:
-    void check_attribute_dependency();
-    const std::vector<semantic_rule> &
-    get_semantic_rules(const cyy::computation::CFG_production &production);
   };
 } // namespace cyy::compiler
