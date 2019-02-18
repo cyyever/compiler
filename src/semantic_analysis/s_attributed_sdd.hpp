@@ -19,5 +19,7 @@ namespace cyy::compiler {
     std::map<std::string, std::any> run(token_span span) override;
 
     using SDD::add_synthesized_attribute;
+  private:
+    void check_attributes() const;
   };
 } // namespace cyy::compiler

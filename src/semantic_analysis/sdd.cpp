@@ -44,6 +44,8 @@ namespace cyy::compiler {
           result_attribute_name.get_name());
     }
 
+    inherited_attributes.insert(
+        rule.result_attribute->get_full_name(production));
     all_rules[production].emplace_back(std::move(rule));
     new_rule_flag = true;
   }
@@ -94,8 +96,7 @@ namespace cyy::compiler {
     }
   }
   void SDD::resolve_semantic_rules_order() {
-    std::set<std::string> inherited_attributes;
-    for (auto &[production, rules] : all_rules) {
+    for (auto &[_, rules] : all_rules) {
       assert(!rules.empty());
       std::map<std::pair<size_t, std::string>, size_t> result_attributes;
       for (size_t i = 0; i < rules.size(); i++) {
@@ -104,11 +105,6 @@ namespace cyy::compiler {
           auto const &result_attribute_name = rule.result_attribute.value();
           result_attributes[{result_attribute_name.get_index(),
                              result_attribute_name.get_name()}] = i;
-          // inherited_attributes
-          if (result_attribute_name.get_index() != 0) {
-            inherited_attributes.insert(
-                result_attribute_name.get_full_name(production));
-          }
         }
       }
 
@@ -128,14 +124,6 @@ namespace cyy::compiler {
               {argument.get_index(), argument.get_name()});
           if (it == result_attributes.end()) {
             continue;
-            /*
-          if (inherited_attributes.count(
-                  argument.get_full_name(production))) {
-            continue;
-          }
-          throw exception::unexisted_grammar_symbol_attribute(
-              argument.get_name());
-              */
           }
           if (it->second == i) {
             throw exception::grammar_symbol_attribute_dependency_circle(

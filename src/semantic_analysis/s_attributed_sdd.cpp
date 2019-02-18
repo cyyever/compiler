@@ -17,6 +17,7 @@ namespace cyy::compiler {
 
   std::map<std::string, std::any> S_attributed_SDD::run(token_span span) {
     if (new_rule_flag) {
+      check_attributes();
       resolve_semantic_rules_order();
       new_rule_flag = false;
     }
@@ -93,6 +94,29 @@ namespace cyy::compiler {
         });
     assert(grammal_symbol_attributes_stack.size() == 1);
     return grammal_symbol_attributes_stack[0];
+  }
+
+  void S_attributed_SDD::check_attributes() const {
+    for (const auto &[production, rules] : all_rules) {
+      for (auto const &rule : rules) {
+        // synthesized attribute
+        if (rule.result_attribute) {
+          auto full_name = rule.result_attribute->get_full_name(production);
+          if (!synthesized_attributes.count(full_name)) {
+            throw exception::no_synthesized_grammar_symbol_attribute(full_name);
+          }
+        }
+        for (auto const &argument : rule.arguments) {
+          if (!argument.belong_to_nonterminal()) {
+            continue;
+          }
+          auto full_name = argument.get_full_name(production);
+          if (!synthesized_attributes.count(full_name)) {
+            throw exception::no_synthesized_grammar_symbol_attribute(full_name);
+          }
+        }
+      }
+    }
   }
 
 } // namespace cyy::compiler

@@ -17,7 +17,7 @@ namespace cyy::compiler {
 
   std::map<std::string, std::any> L_attributed_SDD::run(token_span span) {
     if (new_rule_flag) {
-      check_inherited_attributes();
+      check_attributes();
       resolve_semantic_rules_order();
       new_rule_flag = false;
     }
@@ -37,6 +37,7 @@ namespace cyy::compiler {
     grammal_symbol_attributes_stack.emplace_back();
     std::vector<size_t> terminal_positions;
     size_t next_position = 0;
+
     dynamic_cast<const LL_grammar &>(cfg).parse(
         token_names,
         [this, &span, &next_position,
@@ -54,14 +55,17 @@ namespace cyy::compiler {
               next_position++;
             }
           }
+
+          const auto rules_it = all_rules.find(production);
+
           // before nonterminal derivation
           if (pos < body_size && body[pos].is_nonterminal()) {
             grammal_symbol_attributes_stack.emplace_back();
-            auto stake_size = grammal_symbol_attributes_stack.size();
-            auto it = all_rules.find(production);
-            if (it != all_rules.end()) {
-              // compute inherited attributes
-              for (auto const &rule : it->second) {
+            if (rules_it != all_rules.end()) {
+              auto stack_size = grammal_symbol_attributes_stack.size();
+              // compute inherited attributes defined without their synthesized
+              // attributes
+              for (auto const &rule : rules_it->second) {
                 if (!rule.result_attribute) {
                   continue;
                 }
@@ -72,13 +76,25 @@ namespace cyy::compiler {
                   continue;
                 }
 
+                if (std::any_of(rule.arguments.begin(), rule.arguments.end(),
+                                [this, &production,
+                                 result_attribute_index](auto const &argument) {
+                                  return argument.get_index() ==
+                                             result_attribute_index &&
+                                         synthesized_attributes.count(
+                                             argument.get_full_name(
+                                                 production)) != 0;
+                                })) {
+                  continue;
+                }
+
                 std::vector<std::reference_wrapper<const std::any>>
                     argument_values;
                 for (auto const &argument : rule.arguments) {
                   auto index = argument.get_index();
 
                   auto &grammar_symbol_attributes =
-                      grammal_symbol_attributes_stack[stake_size - 1 -
+                      grammal_symbol_attributes_stack[stack_size - 1 -
                                                       result_attribute_index +
                                                       index];
                   auto it2 = grammar_symbol_attributes.find(
@@ -103,13 +119,69 @@ namespace cyy::compiler {
             }
           }
 
+          // after nonterminal derivation
+          if (pos > 0 && body[pos - 1].is_nonterminal() &&
+              rules_it != all_rules.end()) {
+            auto stack_size = grammal_symbol_attributes_stack.size();
+            // compute inherited attributes defined with their synthesized
+            // attributes
+            for (auto const &rule : rules_it->second) {
+              if (!rule.result_attribute) {
+                continue;
+              }
+
+              auto result_attribute_index = rule.result_attribute->get_index();
+              if (result_attribute_index != pos) {
+                continue;
+              }
+
+              if (!std::any_of(
+                      rule.arguments.begin(), rule.arguments.end(),
+                      [this, &production,
+                       result_attribute_index](auto const &argument) {
+                        return argument.get_index() == result_attribute_index &&
+                               synthesized_attributes.count(
+                                   argument.get_full_name(production)) != 0;
+                      })) {
+                continue;
+              }
+
+              std::vector<std::reference_wrapper<const std::any>>
+                  argument_values;
+              for (auto const &argument : rule.arguments) {
+                auto index = argument.get_index();
+                auto &grammar_symbol_attributes =
+                    grammal_symbol_attributes_stack[stack_size - 1 -
+                                                    result_attribute_index +
+                                                    index];
+                auto it2 = grammar_symbol_attributes.find(
+                    argument.get_full_name(production));
+                if (it2 == grammar_symbol_attributes.end()) {
+                  throw exception::unexisted_grammar_symbol_attribute(
+                      argument.get_name());
+                }
+                argument_values.emplace_back(it2->second);
+              }
+
+              auto result_value_opt = rule.action(argument_values);
+              assert(rule.result_attribute);
+              if (!result_value_opt) {
+                throw exception::unexisted_grammar_symbol_attribute(
+                    rule.result_attribute->get_name());
+              }
+              grammal_symbol_attributes_stack
+                  .back()[rule.result_attribute.value().get_full_name(
+                      production)] = std::move(result_value_opt.value());
+            }
+          }
+
           // finish nonterminal derivation
           if (pos == body_size) {
-            auto stake_size = grammal_symbol_attributes_stack.size();
-            auto it = all_rules.find(production);
-            if (it != all_rules.end()) {
+
+            auto stack_size = grammal_symbol_attributes_stack.size();
+            if (rules_it != all_rules.end()) {
               // compute synthesized attributes
-              for (auto const &rule : it->second) {
+              for (auto const &rule : rules_it->second) {
                 if (rule.result_attribute &&
                     rule.result_attribute->get_index() != 0) {
                   continue;
@@ -121,14 +193,14 @@ namespace cyy::compiler {
                   auto index = argument.get_index();
 
                   auto &grammar_symbol_attributes =
-                      grammal_symbol_attributes_stack[stake_size - 1 -
+                      grammal_symbol_attributes_stack[stack_size - 1 -
                                                       body_size + index];
 
                   auto it2 = grammar_symbol_attributes.find(
                       argument.get_full_name(production));
                   if (it2 == grammar_symbol_attributes.end()) {
                     throw exception::unexisted_grammar_symbol_attribute(
-                        argument.get_name());
+                        argument.get_full_name(production));
                   }
                   argument_values.emplace_back(it2->second);
                 }
@@ -140,12 +212,12 @@ namespace cyy::compiler {
                       rule.result_attribute->get_name());
                 }
                 grammal_symbol_attributes_stack
-                    [stake_size - 1 - body_size]
+                    [stack_size - 1 - body_size]
                     [rule.result_attribute.value().get_full_name(production)] =
                         std::move(result_value_opt.value());
               }
             }
-            grammal_symbol_attributes_stack.resize(stake_size - body_size);
+            grammal_symbol_attributes_stack.resize(stack_size - body_size);
           }
         });
     assert(grammal_symbol_attributes_stack.size() == 1);
@@ -153,7 +225,7 @@ namespace cyy::compiler {
     return {};
   }
 
-  void L_attributed_SDD::check_inherited_attributes() const {
+  void L_attributed_SDD::check_attributes() const {
     for (const auto &[production, rules] : all_rules) {
       assert(!rules.empty());
       for (auto const &rule : rules) {
@@ -174,30 +246,14 @@ namespace cyy::compiler {
                 rule.result_attribute->get_name());
           }
 
-          // head's attribute must be synthesize
+          // head's attribute must be inherited
           if (index == 0) {
-            if (!synthesized_attributes.count(
+            if (!inherited_attributes.count(
                     argument.get_full_name(production))) {
               throw exception::no_synthesized_grammar_symbol_attribute(
                   argument.get_name());
             }
           }
-
-          /*
-          // TODO currently we disable the inherited attribute to use his
-          // synthesized attributes
-          if (index == result_attribute_index) {
-            if (std::any_of(rules.begin(), rules.end(),
-                            [&argument](const auto &r) {
-                              return r.result_attribute &&
-                                     r.result_attribute->get_suffix() ==
-                                         argument.get_suffix();
-                            })) {
-              throw exception::no_inherited_grammar_symbol_attribute(
-                  argument.get_name());
-            }
-          }
-          */
         }
       }
     }

@@ -70,6 +70,7 @@ TEST_CASE("run") {
           {"$1.val", "$2.syn"},
           [](const std::vector<std::reference_wrapper<const std::any>>
                  &arguments) -> std::optional<std::any> {
+            REQUIRE(std::any_cast<int>(arguments.at(1).get()) == 15);
             return arguments.at(1).get();
           }});
 

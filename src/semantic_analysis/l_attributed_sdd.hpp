@@ -23,6 +23,6 @@ namespace cyy::compiler {
     using SDD::add_synthesized_attribute;
 
   private:
-    void check_inherited_attributes() const;
+    void check_attributes() const;
   };
 } // namespace cyy::compiler
