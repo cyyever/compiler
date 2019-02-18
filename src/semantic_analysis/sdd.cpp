@@ -83,13 +83,12 @@ namespace cyy::compiler {
   void SDD::resolve_semantic_rules_order() const {
     for (auto &[_, rules] : all_rules) {
       assert(!rules.empty());
-      std::map<std::pair<size_t, std::string>, size_t> result_attributes;
+      std::map<std::string, size_t> result_attribute_rule_indexes;
       for (size_t i = 0; i < rules.size(); i++) {
         auto const &rule = rules[i];
         if (rule.result_attribute) {
           auto const &result_attribute_name = rule.result_attribute.value();
-          result_attributes[{result_attribute_name.get_index(),
-                             result_attribute_name.get_name()}] = i;
+          result_attribute_rule_indexes[result_attribute_name.get_name()] = i;
         }
       }
 
@@ -105,9 +104,8 @@ namespace cyy::compiler {
             continue;
           }
 
-          auto it = result_attributes.find(
-              {argument.get_index(), argument.get_name()});
-          if (it == result_attributes.end()) {
+          auto it = result_attribute_rule_indexes.find(argument.get_name());
+          if (it == result_attribute_rule_indexes.end()) {
             continue;
           }
           if (it->second == i) {
