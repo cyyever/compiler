@@ -154,7 +154,7 @@ namespace cyy::compiler {
   }
 
   void L_attributed_SDD::check_inherited_attributes() const {
-    for (const auto &[_, rules] : all_rules) {
+    for (const auto &[production, rules] : all_rules) {
       assert(!rules.empty());
       for (auto const &rule : rules) {
         // synthesized attribute
@@ -176,18 +176,14 @@ namespace cyy::compiler {
 
           // head's attribute must be synthesize
           if (index == 0) {
-            if (!std::any_of(rules.begin(), rules.end(),
-                             [&argument](const auto &r) {
-                               return r.result_attribute &&
-                                      r.result_attribute->get_suffix() ==
-                                          argument.get_suffix();
-                             })) {
-
+            if (!synthesized_attributes.count(
+                    argument.get_full_name(production))) {
               throw exception::no_synthesized_grammar_symbol_attribute(
                   argument.get_name());
             }
           }
 
+          /*
           // TODO currently we disable the inherited attribute to use his
           // synthesized attributes
           if (index == result_attribute_index) {
@@ -201,6 +197,7 @@ namespace cyy::compiler {
                   argument.get_name());
             }
           }
+          */
         }
       }
     }

@@ -63,11 +63,11 @@ TEST_CASE("run") {
             return arguments.at(0).get();
           }});
 
-  sdd.add_synthesized_attribute(
+  sdd.add_inherited_attribute(
       production_vector[0],
       SDD::semantic_rule{
           "$2.inh2",
-          {"$1.val","$2.syn"},
+          {"$1.val", "$2.syn"},
           [](const std::vector<std::reference_wrapper<const std::any>>
                  &arguments) -> std::optional<std::any> {
             return arguments.at(1).get();

@@ -23,6 +23,8 @@ namespace cyy::compiler {
         throw exception::no_synthesized_grammar_symbol_attribute(
             result_attribute_name.get_name());
       }
+      synthesized_attributes.insert(
+          rule.result_attribute->get_full_name(production));
     }
     all_rules[production].emplace_back(std::move(rule));
     new_rule_flag = true;
@@ -125,12 +127,15 @@ namespace cyy::compiler {
           auto it = result_attributes.find(
               {argument.get_index(), argument.get_name()});
           if (it == result_attributes.end()) {
-            if (inherited_attributes.count(
-                    argument.get_full_name(production))) {
-              continue;
-            }
-            throw exception::unexisted_grammar_symbol_attribute(
-                argument.get_name());
+            continue;
+            /*
+          if (inherited_attributes.count(
+                  argument.get_full_name(production))) {
+            continue;
+          }
+          throw exception::unexisted_grammar_symbol_attribute(
+              argument.get_name());
+              */
           }
           if (it->second == i) {
             throw exception::grammar_symbol_attribute_dependency_circle(

@@ -55,6 +55,7 @@ namespace cyy::compiler {
 
   protected:
     std::map<CFG_production, std::vector<semantic_rule>> all_rules;
+    std::set<std::string> synthesized_attributes;
     const CFG &cfg;
     bool new_rule_flag{false};
   };
