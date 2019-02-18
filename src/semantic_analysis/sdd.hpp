@@ -31,7 +31,7 @@ namespace cyy::compiler {
 
     virtual ~SDD() = default;
 
-    virtual std::map<std::string, std::any> run(token_span span) = 0;
+    virtual std::map<std::string, std::any> run(token_span span) const = 0 ;
 
     struct semantic_rule {
       std::optional<grammar_symbol_attribute_name> result_attribute;
@@ -47,17 +47,17 @@ namespace cyy::compiler {
     void add_inherited_attribute(const CFG_production &production,
                                  semantic_rule rule);
 
-    void resolve_semantic_rules_order();
+    void resolve_semantic_rules_order() const ;
 
   private:
     void check_semantic_rule(const CFG_production &production,
                              const semantic_rule &rule) const;
 
   protected:
-    std::map<CFG_production, std::vector<semantic_rule>> all_rules;
+    mutable std::map<CFG_production, std::vector<semantic_rule>> all_rules;
     std::set<std::string> synthesized_attributes;
     std::set<std::string> inherited_attributes;
     const CFG &cfg;
-    bool new_rule_flag{false};
+    mutable bool new_rule_flag{false};
   };
 } // namespace cyy::compiler

@@ -39,6 +39,24 @@ namespace cyy::compiler {
     const auto pos = name.find_first_of(nonterminal);
     return pos == 0 && name[nonterminal.size()] == '.';
   }
+
+  bool grammar_symbol_attribute_name::belong_to_production(
+      const cyy::computation::CFG_production &production) const {
+    if (index == 0) {
+      if (!match(production.get_head())) {
+        return false;
+      }
+      return true;
+    }
+
+    if (index > production.get_body().size()) {
+      return false;
+    }
+
+    auto const &grammar_symbol = production.get_body()[index - 1];
+    return match(grammar_symbol);
+  }
+
   std::string grammar_symbol_attribute_name::get_full_name(
       const cyy::computation::CFG_production &production) const {
     if (index == 0) {

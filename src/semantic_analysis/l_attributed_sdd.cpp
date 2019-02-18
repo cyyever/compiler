@@ -15,7 +15,7 @@
 
 namespace cyy::compiler {
 
-  std::map<std::string, std::any> L_attributed_SDD::run(token_span span) {
+  std::map<std::string, std::any> L_attributed_SDD::run(token_span span) const {
     if (new_rule_flag) {
       check_attributes();
       resolve_semantic_rules_order();

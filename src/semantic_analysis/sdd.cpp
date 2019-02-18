@@ -73,29 +73,14 @@ namespace cyy::compiler {
     }
 
     for (auto const &argument : rule.arguments) {
-      const auto index = argument.get_index();
-      if (index == 0) {
-        if (!argument.match(production.get_head())) {
-          throw exception::unexisted_grammar_symbol_attribute(
-              argument.get_name());
-        }
-        continue;
-      }
-
-      if (index > production.get_body().size()) {
-        throw exception::unexisted_grammar_symbol_attribute(
-            argument.get_name());
-      }
-
-      auto const &grammar_symbol =
-          production.get_body()[argument.get_index() - 1];
-      if (!argument.match(grammar_symbol)) {
+      if (!argument.belong_to_production(production)) {
         throw exception::unexisted_grammar_symbol_attribute(
             argument.get_name());
       }
     }
   }
-  void SDD::resolve_semantic_rules_order() {
+
+  void SDD::resolve_semantic_rules_order() const {
     for (auto &[_, rules] : all_rules) {
       assert(!rules.empty());
       std::map<std::pair<size_t, std::string>, size_t> result_attributes;
