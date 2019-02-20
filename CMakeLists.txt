@@ -5,15 +5,12 @@ project(MyCompilerLib LANGUAGES CXX)
 include(cmake/all.cmake)
 
 file(GLOB SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.cpp)
-file(GLOB HRDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.hpp)
 
-find_package(MicrosoftGSL REQUIRED)
+find_package(range-v3 REQUIRED)
 
 add_library(MyCompilerLib ${SOURCE})
 
-target_link_libraries(MyCompilerLib PUBLIC MicrosoftGSL::GSL)
-
-set_target_properties(MyCompilerLib PROPERTIES PUBLIC_HEADER "${HRDS}")
+target_link_libraries(MyCompilerLib PUBLIC range-v3)
 
 find_package(MyComputationLib REQUIRED)
 target_link_libraries(MyCompilerLib PRIVATE MyComputationLib)
@@ -36,6 +33,9 @@ install(TARGETS MyCompilerLib EXPORT ${PROJECT_NAME}Targets
   COMPONENT library
   INCLUDES DESTINATION include
   )
+
+install(DIRECTORY src/ DESTINATION include/cyy/compiler
+  FILES_MATCHING PATTERN "*.hpp")
 
 # install cmake config file
 install(EXPORT ${PROJECT_NAME}Targets

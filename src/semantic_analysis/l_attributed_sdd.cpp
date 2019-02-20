@@ -5,9 +5,9 @@
  * \author cyy
  * \date 2018-10-28
  */
-#include <algorithm>
 #include <cassert>
 #include <functional>
+#include <range/v3/algorithm.hpp>
 #include <set>
 
 #include "../exception.hpp"
@@ -76,15 +76,15 @@ namespace cyy::compiler {
                   continue;
                 }
 
-                if (std::any_of(rule.arguments.begin(), rule.arguments.end(),
-                                [this, &production,
-                                 result_attribute_index](auto const &argument) {
-                                  return argument.get_index() ==
-                                             result_attribute_index &&
-                                         synthesized_attributes.count(
-                                             argument.get_full_name(
-                                                 production)) != 0;
-                                })) {
+                if (ranges::v3::any_of(
+                        rule.arguments,
+                        [this, &production,
+                         result_attribute_index](auto const &argument) {
+                          return argument.get_index() ==
+                                     result_attribute_index &&
+                                 synthesized_attributes.count(
+                                     argument.get_full_name(production)) != 0;
+                        })) {
                   continue;
                 }
 
@@ -135,8 +135,8 @@ namespace cyy::compiler {
                 continue;
               }
 
-              if (!std::any_of(
-                      rule.arguments.begin(), rule.arguments.end(),
+              if (!ranges::v3::any_of(
+                      rule.arguments,
                       [this, &production,
                        result_attribute_index](auto const &argument) {
                         return argument.get_index() == result_attribute_index &&
