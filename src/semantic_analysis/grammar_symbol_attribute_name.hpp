@@ -34,7 +34,8 @@ namespace cyy::compiler {
 
     bool belong_to_nonterminal() const { return !suffix.empty(); }
 
-    bool belong_to_production(const cyy::computation::CFG_production &production) const;
+    bool belong_to_production(
+        const cyy::computation::CFG_production &production) const;
 
     size_t get_index() const { return index; }
 
