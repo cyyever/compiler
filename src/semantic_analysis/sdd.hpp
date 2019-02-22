@@ -31,7 +31,8 @@ namespace cyy::compiler {
 
     virtual ~SDD() = default;
 
-    virtual std::map<std::string, std::any> run(token_span span) const = 0;
+    virtual std::optional<std::map<std::string, std::any>>
+    run(token_span span) const = 0;
 
     struct semantic_rule {
       std::optional<grammar_symbol_attribute_name> result_attribute;

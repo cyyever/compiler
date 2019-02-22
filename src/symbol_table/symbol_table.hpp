@@ -27,6 +27,6 @@ namespace cyy::compiler {
     ~symbol_table() = default;
 
   private:
-    std::set<entry> table;
+    std::unordered_set<entry> table;
   };
 } // namespace cyy::compiler
