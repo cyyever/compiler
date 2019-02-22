@@ -12,28 +12,25 @@
 #include <memory>
 
 namespace cyy::compiler {
-  class  three_address_code {
+  using namespace cyy::computation;
+  class three_address_code {
   public:
     class address {
     public:
-      address() = default;
+      address(symbol_string lexeme_) : lexeme{std::move(lexeme_)} {}
       virtual ~address() = default;
-    };
 
-    class name : public  address {
-    public:
-      name(symbol_string lexeme_) : lexeme{std::move(lexeme_)} {}
-
-    private:
+    protected:
       symbol_string lexeme;
     };
 
-    class constant: public  address {
+    class name : public address {
     public:
-      name(symbol_string lexeme_) : lexeme{std::move(lexeme_)} {}
+      using address::address;
+    };
 
-    private:
-      symbol_string lexeme;
+    class constant : public address {
+      using address::address;
     };
 
     enum class binary_arithmetic_operator {
@@ -42,7 +39,7 @@ namespace cyy::compiler {
       multiplication,
     };
 
-    enum class binary_logical_operator :{
+    enum class binary_logical_operator {
       AND,
       OR,
     };
@@ -53,18 +50,23 @@ namespace cyy::compiler {
       virtual ~instruction() = default;
     };
 
-    template<typename operator_type>
-    class assignment_instruction:public instruction {
+    template <typename operator_type>
+    class assignment_instruction : public instruction {
+      static_assert(std::is_same_v<operator_type, binary_arithmetic_operator> ||
+                    std::is_same_v<operator_type, binary_logical_operator>);
+
     public:
-      assignment_instruction(operator_type op_,name result_,address left_,address right_):op(op_),result(std::move(result_)),
-      left(std::move(left_)),right(std::move(right_)) { }
+      assignment_instruction(operator_type op_, name result_, address left_,
+                             address right_)
+          : op(op_), result(std::move(result_)), left(std::move(left_)),
+            right(std::move(right_)) {}
       virtual ~assignment_instruction() = default;
+
     private:
       operator_type op;
       name result;
       address left;
       address right;
     };
-
   };
 } // namespace cyy::compiler
