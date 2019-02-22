@@ -42,7 +42,7 @@ TEST_CASE("syntax tree") {
                 arguments.at(1).get());
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::binary_expression_node>(
-                syntax_tree::binary_opterator::addtion, E_val, T_val));
+                syntax_tree::binary_operator::addtion, E_val, T_val));
       }});
 
   production_vector.emplace_back("E", CFG_production::body_type{"E", '-', "T"});
@@ -60,7 +60,7 @@ TEST_CASE("syntax tree") {
                 arguments.at(1).get());
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::binary_expression_node>(
-                syntax_tree::binary_opterator::subtraction, E_val, T_val));
+                syntax_tree::binary_operator::subtraction, E_val, T_val));
       }});
 
   production_vector.emplace_back("E", CFG_production::body_type{"T"});
@@ -152,7 +152,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
                 arguments.at(1).get());
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::binary_expression_node>(
-                syntax_tree::binary_opterator::addtion, E_val, T_val)
+                syntax_tree::binary_operator::addtion, E_val, T_val)
                 ->common_subexpression_elimination_by_DAG());
       }});
 
@@ -171,7 +171,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
                 arguments.at(1).get());
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::binary_expression_node>(
-                syntax_tree::binary_opterator::subtraction, E_val, T_val)
+                syntax_tree::binary_operator::subtraction, E_val, T_val)
                 ->common_subexpression_elimination_by_DAG());
       }});
 
@@ -196,7 +196,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
                 arguments.at(1).get());
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::binary_expression_node>(
-                syntax_tree::binary_opterator::multiplication, T_val, F_val));
+                syntax_tree::binary_operator::multiplication, T_val, F_val));
       }});
 
   production_vector.emplace_back("T", CFG_production::body_type{"F"});

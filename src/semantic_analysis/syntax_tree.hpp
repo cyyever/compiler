@@ -15,7 +15,7 @@ namespace cyy::compiler {
   using namespace cyy::computation;
   class syntax_tree {
   public:
-    enum class binary_opterator : uint64_t {
+    enum class binary_operator : uint64_t {
       addtion,
       subtraction,
       multiplication,
@@ -82,7 +82,7 @@ namespace cyy::compiler {
 
     class binary_expression_node : public expression_node {
     public:
-      binary_expression_node(binary_opterator op_,
+      binary_expression_node(binary_operator op_,
                              std::shared_ptr<expression_node> left_,
                              std::shared_ptr<expression_node> right_)
           : op{op_}, left{left_}, right{right_} {}
@@ -115,11 +115,11 @@ namespace cyy::compiler {
       }
 
     private:
-      binary_opterator op;
+      binary_operator op;
       std::shared_ptr<expression_node> left;
       std::shared_ptr<expression_node> right;
       static inline std::map<
-          std::tuple<binary_opterator, value_number_type, value_number_type>,
+          std::tuple<binary_operator, value_number_type, value_number_type>,
           value_number_type>
           value_numbers;
     };
