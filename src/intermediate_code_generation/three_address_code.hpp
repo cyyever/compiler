@@ -128,6 +128,7 @@ namespace cyy::compiler {
       std::string target_label;
     };
 
+    template <bool negative_if>
     class conditional_jump_instruction : public instruction {
     public:
       conditional_jump_instruction(address operand_,
@@ -138,11 +139,6 @@ namespace cyy::compiler {
     protected:
       address operand;
       std::string target_label;
-    };
-    class negative_conditional_jump_instruction
-        : public conditional_jump_instruction {
-    public:
-      using conditional_jump_instruction::conditional_jump_instruction;
     };
 
     class relational_operation_and_conditional_jump_instruction
@@ -161,6 +157,114 @@ namespace cyy::compiler {
       address left;
       address right;
       std::string target_label;
+    };
+    class param_instruction : public instruction {
+    public:
+      param_instruction(address param_) : param(std::move(param_)) {}
+      ~param_instruction() override = default;
+
+    private:
+      address param;
+    };
+
+    class procedure_call_instruction : public instruction {
+    public:
+      procedure_call_instruction(std::string_view procedure_label_,
+                                 size_t param_number_)
+          : procedure_label(procedure_label_), param_number(param_number_) {}
+      ~procedure_call_instruction() override = default;
+
+    protected:
+      std::string procedure_label;
+      size_t param_number;
+    };
+
+    class function_call_instruction : public procedure_call_instruction {
+    public:
+      function_call_instruction(std::string_view function_label_,
+                                size_t param_number_, name result_)
+          : procedure_call_instruction(function_label_, param_number_),
+            result(std::move(result_)) {}
+      ~function_call_instruction() override = default;
+
+    private:
+      address result;
+    };
+
+    class return_instruction : public instruction {
+    public:
+      return_instruction() = default;
+      ~return_instruction() override = default;
+    };
+
+    class return_with_value_instruction : public return_instruction {
+    public:
+      return_with_value_instruction(address value_)
+          : value(std::move(value_)) {}
+      ~return_with_value_instruction() override = default;
+
+    private:
+      address value;
+    };
+
+    class indexed_copy_instruction : public instruction {
+    public:
+      indexed_copy_instruction(name result_, name operand_, size_t index_)
+          : result(std::move(result_)), operand(std::move(operand_)),
+            index(index_) {}
+      ~indexed_copy_instruction() override = default;
+
+    private:
+      name result;
+      name operand;
+      size_t index;
+    };
+
+    class result_indexed_copy_instruction : public instruction {
+    public:
+      result_indexed_copy_instruction(name result_, size_t index_,
+                                      address operand_)
+          : result(std::move(result_)), index(index_),
+            operand(std::move(operand_)) {}
+      ~result_indexed_copy_instruction() override = default;
+
+    private:
+      name result;
+      size_t index;
+      address operand;
+    };
+
+    class address_assignment_instruction : public instruction {
+    public:
+      address_assignment_instruction(name result_, name operand_)
+          : result(std::move(result_)), operand(std::move(operand_)) {}
+      ~address_assignment_instruction() override = default;
+
+    private:
+      name result;
+      name operand;
+    };
+
+    class pointer_assignment_instruction : public instruction {
+    public:
+      pointer_assignment_instruction(name result_, name operand_)
+          : result(std::move(result_)), operand(std::move(operand_)) {}
+      ~pointer_assignment_instruction() override = default;
+
+    private:
+      name result;
+      name operand;
+    };
+
+    class result_pointer_assignment_instruction : public instruction {
+    public:
+      result_pointer_assignment_instruction(name result_, name operand_)
+          : result(std::move(result_)), operand(std::move(operand_)) {}
+      ~result_pointer_assignment_instruction() override = default;
+
+    private:
+      name result;
+      name operand;
     };
   };
 } // namespace cyy::compiler
