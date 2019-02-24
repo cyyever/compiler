@@ -56,4 +56,10 @@ namespace cyy::compiler::exception {
   public:
     using invalid_argument::invalid_argument;
   };
+
+  class type_name_confliction : public std::invalid_argument {
+  public:
+    using invalid_argument::invalid_argument;
+  };
+
 } // namespace cyy::compiler::exception
