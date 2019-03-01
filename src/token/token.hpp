@@ -7,7 +7,7 @@
 #pragma once
 
 #include <cyy/computation/lang/lang.hpp>
-#include <gsl/span>
+#include <range/v3/span.hpp>
 
 namespace cyy::compiler {
 using namespace cyy::computation;
@@ -24,5 +24,5 @@ struct token {
 };
 
 using token_istream = std::basic_istream<token>;
-using token_span = gsl::span<token>;
+using token_span = ranges::v3::span<token>;
 } // namespace cyy::compiler
