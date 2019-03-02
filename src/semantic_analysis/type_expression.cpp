@@ -36,4 +36,21 @@ namespace cyy::compiler::type_expression {
 
   void type_name::make_stand_for_self() { stand_for_self = true; }
 
+  bool array_type::equivalent_with(const expression &rhs) const {
+    auto ptr = dynamic_cast<const array_type *>(&rhs);
+    return ptr && ptr->element_number == element_number &&
+           element_type->equivalent_with(*(ptr->element_type));
+  }
+
+  bool function_type::equivalent_with(const expression &rhs) const {
+    auto ptr = dynamic_cast<const function_type *>(&rhs);
+    return ptr && from_type->equivalent_with(*(ptr->from_type)) &&
+           to_type->equivalent_with(*(ptr->to_type));
+  }
+
+  bool Cartesian_product_type::equivalent_with(const expression &rhs) const {
+    auto ptr = dynamic_cast<const Cartesian_product_type *>(&rhs);
+    return ptr && first_type->equivalent_with(*(ptr->first_type)) &&
+           second_type->equivalent_with(*(ptr->second_type));
+  }
 } // namespace cyy::compiler::type_expression
