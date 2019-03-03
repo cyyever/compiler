@@ -28,7 +28,7 @@ namespace cyy::compiler::type_expression {
     enum class type_enum {
       BOOL,
       CHAR,
-      INTEGEA,
+      INT,
       FLOAT,
       VOID,
     };
