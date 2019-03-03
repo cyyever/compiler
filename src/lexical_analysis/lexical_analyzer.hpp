@@ -31,9 +31,10 @@ namespace cyy::compiler {
       reset_input();
     }
 
-    bool set_source_code(symbol_istream &&is) {
-      source_code = symbol_string(std::istreambuf_iterator<symbol_type>(is),
-                                  std::istreambuf_iterator<symbol_type>{});
+    bool set_source_code(std::istringstream &&is) {
+      source_code =
+          is.str(); // symbol_string(std::istreambuf_iterator<symbol_type>(is),
+                    //            std::istreambuf_iterator<symbol_type>{});
       if (is.bad() || is.fail()) {
         std::cerr << "read symbol stream failed";
         return false;
@@ -60,8 +61,10 @@ namespace cyy::compiler {
     std::string alphabet_name;
     std::vector<std::pair<symbol_type, symbol_string>> patterns;
     token_attribute last_attribute;
-    symbol_string source_code;
-    symbol_string_view last_view;
+    // symbol_
+    std::string source_code;
+    // symbol_
+    std::string_view last_view;
     std::optional<DFA> dfa_opt;
     std::map<uint64_t, symbol_type> pattern_final_states;
   };

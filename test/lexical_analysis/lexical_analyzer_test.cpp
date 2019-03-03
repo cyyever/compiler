@@ -33,27 +33,27 @@ TEST_CASE("scan") {
   analyzer.append_pattern('*', U"\\*");
   analyzer.append_pattern('=', U"=");
 
-  std::vector<std::pair<symbol_string, symbol_type>> tokens;
-  tokens.emplace_back(U"position", static_cast<symbol_type>(common_token::id));
-  tokens.emplace_back(U" ", static_cast<symbol_type>(common_token::whitespace));
-  tokens.emplace_back(U"=", '=');
-  tokens.emplace_back(U" ", static_cast<symbol_type>(common_token::whitespace));
-  tokens.emplace_back(U"initial", static_cast<symbol_type>(common_token::id));
-  tokens.emplace_back(U" ", static_cast<symbol_type>(common_token::whitespace));
-  tokens.emplace_back(U"+", '+');
-  tokens.emplace_back(U" ", static_cast<symbol_type>(common_token::whitespace));
-  tokens.emplace_back(U"rate", static_cast<symbol_type>(common_token::id));
-  tokens.emplace_back(U" ", static_cast<symbol_type>(common_token::whitespace));
-  tokens.emplace_back(U"*", '*');
-  tokens.emplace_back(U" ", static_cast<symbol_type>(common_token::whitespace));
-  tokens.emplace_back(U"60", static_cast<symbol_type>(common_token::number));
+  std::vector<std::pair<std::string, symbol_type>> tokens;
+  tokens.emplace_back("position", static_cast<symbol_type>(common_token::id));
+  tokens.emplace_back(" ", static_cast<symbol_type>(common_token::whitespace));
+  tokens.emplace_back("=", '=');
+  tokens.emplace_back(" ", static_cast<symbol_type>(common_token::whitespace));
+  tokens.emplace_back("initial", static_cast<symbol_type>(common_token::id));
+  tokens.emplace_back(" ", static_cast<symbol_type>(common_token::whitespace));
+  tokens.emplace_back("+", '+');
+  tokens.emplace_back(" ", static_cast<symbol_type>(common_token::whitespace));
+  tokens.emplace_back("rate", static_cast<symbol_type>(common_token::id));
+  tokens.emplace_back(" ", static_cast<symbol_type>(common_token::whitespace));
+  tokens.emplace_back("*", '*');
+  tokens.emplace_back(" ", static_cast<symbol_type>(common_token::whitespace));
+  tokens.emplace_back("60", static_cast<symbol_type>(common_token::number));
 
-  symbol_string stmt;
+  std::string stmt;
   for (auto const &[lexeme, _] : tokens) {
     stmt += lexeme;
   }
 
-  REQUIRE(analyzer.set_source_code(symbol_istringstream(stmt)));
+  REQUIRE(analyzer.set_source_code(std::istringstream(stmt)));
 
   size_t column_no = 1;
   for (auto const &[lexeme, name] : tokens) {

@@ -52,7 +52,7 @@ namespace cyy::compiler {
 
     class symbol_node : public expression_node {
     public:
-      symbol_node(symbol_string lexeme_) : lexeme{std::move(lexeme_)} {}
+      symbol_node(std::string lexeme_) : lexeme{std::move(lexeme_)} {}
 
       std::shared_ptr<expression_node>
       common_subexpression_elimination_by_DAG() override {
@@ -75,8 +75,8 @@ namespace cyy::compiler {
       }
 
     private:
-      symbol_string lexeme;
-      static inline std::unordered_map<symbol_string, value_number_type>
+      std::string lexeme;
+      static inline std::unordered_map<std::string, value_number_type>
           value_numbers;
     };
 

@@ -119,13 +119,13 @@ TEST_CASE("syntax tree") {
   }
 
   std::vector<token> tokens;
-  tokens.push_back(token{id_token, U"a", {}});
-  tokens.push_back(token{'-', U"-", {}});
-  tokens.push_back(token{number_token, U"4", {}});
-  tokens.push_back(token{'+', U"+", {}});
-  tokens.push_back(token{id_token, U"c", {}});
+  tokens.push_back(token{id_token, "a", {}});
+  tokens.push_back(token{'-', "-", {}});
+  tokens.push_back(token{number_token, "4", {}});
+  tokens.push_back(token{'+', "+", {}});
+  tokens.push_back(token{id_token, "c", {}});
 
-  auto attriubtes = sdd.run(tokens);
+  auto attriubtes = sdd.run(tokens, {"E.node"});
   REQUIRE(attriubtes);
   REQUIRE(std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
       attriubtes.value()["E.node"]));
@@ -253,25 +253,25 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
   }
 
   std::vector<token> tokens;
-  tokens.push_back(token{id_token, U"a", {}});
-  tokens.push_back(token{'+', U"+", {}});
-  tokens.push_back(token{id_token, U"a", {}});
-  tokens.push_back(token{'*', U"*", {}});
-  tokens.push_back(token{'(', U"(", {}});
-  tokens.push_back(token{id_token, U"b", {}});
-  tokens.push_back(token{'-', U"-", {}});
-  tokens.push_back(token{id_token, U"c", {}});
-  tokens.push_back(token{')', U")", {}});
-  tokens.push_back(token{'+', U"+", {}});
-  tokens.push_back(token{'(', U"(", {}});
-  tokens.push_back(token{id_token, U"b", {}});
-  tokens.push_back(token{'-', U"-", {}});
-  tokens.push_back(token{id_token, U"c", {}});
-  tokens.push_back(token{')', U")", {}});
-  tokens.push_back(token{'*', U"*", {}});
-  tokens.push_back(token{id_token, U"d", {}});
+  tokens.push_back(token{id_token, "a", {}});
+  tokens.push_back(token{'+', "+", {}});
+  tokens.push_back(token{id_token, "a", {}});
+  tokens.push_back(token{'*', "*", {}});
+  tokens.push_back(token{'(', "(", {}});
+  tokens.push_back(token{id_token, "b", {}});
+  tokens.push_back(token{'-', "-", {}});
+  tokens.push_back(token{id_token, "c", {}});
+  tokens.push_back(token{')', ")", {}});
+  tokens.push_back(token{'+', "+", {}});
+  tokens.push_back(token{'(', "(", {}});
+  tokens.push_back(token{id_token, "b", {}});
+  tokens.push_back(token{'-', "-", {}});
+  tokens.push_back(token{id_token, "c", {}});
+  tokens.push_back(token{')', ")", {}});
+  tokens.push_back(token{'*', "*", {}});
+  tokens.push_back(token{id_token, "d", {}});
 
-  auto attriubtes = sdd.run(tokens);
+  auto attriubtes = sdd.run(tokens, {"E.node"});
   REQUIRE(attriubtes);
   REQUIRE(std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
       attriubtes.value()["E.node"]));

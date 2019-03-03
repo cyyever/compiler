@@ -13,14 +13,16 @@
 #define DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
 #include <doctest/doctest.h>
 
+#include <cyy/computation/lang/common_tokens.hpp>
+
 #include "../../src/semantic_analysis/l_attributed_sdd.hpp"
 #include "../../src/semantic_analysis/type_expression.hpp"
-#include <cyy/computation/lang/common_tokens.hpp>
+#include "../../src/symbol_table/symbol_table.hpp"
 
 using namespace cyy::computation;
 using namespace cyy::compiler;
 
-TEST_CASE("type expression") {
+TEST_CASE("types and storage layout") {
 
   std::vector<CFG_production> production_vector;
 
@@ -59,8 +61,7 @@ TEST_CASE("type expression") {
   }
 
   SUBCASE("types and widths") {
-
-    LL_grammar grammar("common_tokens", "T", productions);
+    LL_grammar grammar("common_tokens", "D", productions);
     L_attributed_SDD sdd(grammar);
 
     sdd.add_synthesized_attribute(
@@ -232,19 +233,20 @@ TEST_CASE("type expression") {
             }});
     std::vector<token> tokens;
     tokens.push_back(
-        token{static_cast<symbol_type>(common_token::INT), U"int", {}});
-    tokens.push_back(token{'[', U"[", {}});
+        token{static_cast<symbol_type>(common_token::INT), "int", {}});
+    tokens.push_back(token{'[', "[", {}});
     tokens.push_back(
-        token{static_cast<symbol_type>(common_token::number), U"2", {}});
-    tokens.push_back(token{']', U"]", {}});
-    tokens.push_back(token{'[', U"[", {}});
+        token{static_cast<symbol_type>(common_token::number), "2", {}});
+    tokens.push_back(token{']', "]", {}});
+    tokens.push_back(token{'[', "[", {}});
     tokens.push_back(
-        token{static_cast<symbol_type>(common_token::number), U"3", {}});
-    tokens.push_back(token{']', U"]", {}});
-    // tokens.push_back(token{static_cast<symbol_type>(common_token::id), U"a",
-    // {}});
+        token{static_cast<symbol_type>(common_token::number), "3", {}});
+    tokens.push_back(token{']', "]", {}});
+    tokens.push_back(
+        token{static_cast<symbol_type>(common_token::id), "a", {}});
+    tokens.push_back(token{';', ";", {}});
 
-    auto attributes = sdd.run(tokens);
+    auto attributes = sdd.run(tokens, {"T.width", "T.type"});
     REQUIRE(attributes);
 
     REQUIRE(std::any_cast<size_t>(attributes.value()["T.width"]) == 24);
@@ -263,4 +265,6 @@ TEST_CASE("type expression") {
                             3),
                         2)));
   }
+
+  SUBCASE("relative addresses") {}
 }

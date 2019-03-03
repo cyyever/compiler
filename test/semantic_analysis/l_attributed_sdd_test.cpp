@@ -120,11 +120,11 @@ TEST_CASE("run") {
           }});
 
   std::vector<token> tokens;
-  tokens.push_back(token{digit_token, U"3", {}});
-  tokens.push_back(token{'*', U"*", {}});
-  tokens.push_back(token{digit_token, U"5", {}});
+  tokens.push_back(token{digit_token, "3", {}});
+  tokens.push_back(token{'*', "*", {}});
+  tokens.push_back(token{digit_token, "5", {}});
 
-  auto attriubtes = sdd.run(tokens);
+  auto attriubtes = sdd.run(tokens, {"T.val"});
   REQUIRE(attriubtes);
   REQUIRE(std::any_cast<int>(attriubtes.value()["T.val"]) == 15);
 }

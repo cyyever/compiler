@@ -15,16 +15,22 @@
 
 namespace cyy::compiler {
 
-  std::optional<std::map<std::string, std::any>>
-  S_attributed_SDD::run(token_span span) const {
+  std::optional<std::map<std::string, std::any>> S_attributed_SDD::run(
+      token_span span,
+      const std::unordered_set<std::string> &result_attribute_names) const {
+    if (span.empty()) {
+      std::cerr << "span is empty" << std::endl;
+      return {};
+    }
+    if (result_attribute_names.empty()) {
+      std::cerr << "result_attribute_names is empty" << std::endl;
+      return {};
+    }
+
     if (new_rule_flag) {
       check_attributes();
       resolve_semantic_rules_order();
       new_rule_flag = false;
-    }
-    if (span.empty()) {
-      std::cerr << "span is empty" << std::endl;
-      return {};
     }
 
     symbol_string token_names;
@@ -36,6 +42,7 @@ namespace cyy::compiler {
         grammal_symbol_attributes_stack;
     std::vector<size_t> terminal_positions;
     size_t next_position = 0;
+    std::map<std::string, std::any> final_attributes;
     if (!dynamic_cast<const LR_grammar &>(cfg).parse(
             token_names,
             [this, &span, &next_position,
@@ -50,8 +57,8 @@ namespace cyy::compiler {
                   "token", span[next_position]);
               next_position++;
             },
-            [&span, &grammal_symbol_attributes_stack,
-             this](auto const &production) {
+            [&span, &result_attribute_names, &final_attributes,
+             &grammal_symbol_attributes_stack, this](auto const &production) {
               const auto body_size = production.get_body().size();
               const auto stake_size = grammal_symbol_attributes_stack.size();
 
@@ -85,8 +92,15 @@ namespace cyy::compiler {
                       throw exception::unexisted_grammar_symbol_attribute(
                           rule.result_attribute->get_name());
                     }
-                    result_attributes[rule.result_attribute.value()
-                                          .get_full_name(production)] =
+
+                    auto attribute_full_name =
+                        rule.result_attribute.value().get_full_name(production);
+                    if (result_attribute_names.count(attribute_full_name) !=
+                        0) {
+                      final_attributes.insert_or_assign(
+                          attribute_full_name, result_value_opt.value());
+                    }
+                    result_attributes[attribute_full_name] =
                         std::move(result_value_opt.value());
                   }
                 }
@@ -99,7 +113,7 @@ namespace cyy::compiler {
       return {};
     }
     assert(grammal_symbol_attributes_stack.size() == 1);
-    return grammal_symbol_attributes_stack[0];
+    return final_attributes;
   }
 
   void S_attributed_SDD::check_attributes() const {

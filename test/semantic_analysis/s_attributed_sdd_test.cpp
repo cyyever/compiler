@@ -88,7 +88,8 @@ TEST_CASE("run") {
       [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
           -> std::optional<std::any> {
         return std::make_any<int>(
-            static_cast<char>(std::any_cast<token>(arguments.at(0)).lexeme[0]) -
+            static_cast<char>(
+                std::any_cast<token>(arguments.at(0).get()).lexeme[0]) -
             '0');
       }});
 
@@ -132,15 +133,15 @@ TEST_CASE("run") {
           }});
 
   std::vector<token> tokens;
-  tokens.push_back(token{'(', U"(", {}});
-  tokens.push_back(token{digit_token, U"1", {}});
-  tokens.push_back(token{'+', U"+", {}});
-  tokens.push_back(token{digit_token, U"2", {}});
-  tokens.push_back(token{')', U")", {}});
-  tokens.push_back(token{'*', U"*", {}});
-  tokens.push_back(token{digit_token, U"3", {}});
+  tokens.push_back(token{'(', "(", {}});
+  tokens.push_back(token{digit_token, "1", {}});
+  tokens.push_back(token{'+', "+", {}});
+  tokens.push_back(token{digit_token, "2", {}});
+  tokens.push_back(token{')', ")", {}});
+  tokens.push_back(token{'*', "*", {}});
+  tokens.push_back(token{digit_token, "3", {}});
 
-  auto attriubtes = sdd.run(tokens);
+  auto attriubtes = sdd.run(tokens, {"L.val", "L.val_inc"});
   REQUIRE(attriubtes);
   REQUIRE(std::any_cast<int>(attriubtes.value()["L.val"]) == 9);
   REQUIRE(std::any_cast<int>(attriubtes.value()["L.val_inc"]) == 10);

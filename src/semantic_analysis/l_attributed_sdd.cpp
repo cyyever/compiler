@@ -15,8 +15,9 @@
 
 namespace cyy::compiler {
 
-  std::optional<std::map<std::string, std::any>>
-  L_attributed_SDD::run(token_span span) const {
+  std::optional<std::map<std::string, std::any>> L_attributed_SDD::run(
+      token_span span,
+      const std::unordered_set<std::string> &result_attribute_names) const {
     if (new_rule_flag) {
       check_attributes();
       resolve_semantic_rules_order();
@@ -24,6 +25,10 @@ namespace cyy::compiler {
     }
     if (span.empty()) {
       std::cerr << "span is empty" << std::endl;
+      return {};
+    }
+    if (result_attribute_names.empty()) {
+      std::cerr << "result_attribute_names is empty" << std::endl;
       return {};
     }
 
@@ -39,9 +44,11 @@ namespace cyy::compiler {
     std::vector<size_t> terminal_positions;
     size_t next_position = 0;
 
+    std::map<std::string, std::any> final_attributes;
     if (!dynamic_cast<const LL_grammar &>(cfg).parse(
             token_names,
-            [this, &span, &next_position, &grammal_symbol_attributes_stack](
+            [this, &span, &result_attribute_names, &final_attributes,
+             &next_position, &grammal_symbol_attributes_stack](
                 const auto &production, auto pos) {
               const auto &body = production.get_body();
               const auto body_size = production.get_body().size();
@@ -113,9 +120,17 @@ namespace cyy::compiler {
                       throw exception::unexisted_grammar_symbol_attribute(
                           rule.result_attribute->get_name());
                     }
+
+                    auto attribute_full_name =
+                        rule.result_attribute.value().get_full_name(production);
+                    if (result_attribute_names.count(attribute_full_name) !=
+                        0) {
+                      final_attributes.insert_or_assign(
+                          attribute_full_name, result_value_opt.value());
+                    }
                     grammal_symbol_attributes_stack
-                        .back()[rule.result_attribute.value().get_full_name(
-                            production)] = std::move(result_value_opt.value());
+                        .back()[attribute_full_name] =
+                        std::move(result_value_opt.value());
                   }
                 }
               }
@@ -172,9 +187,14 @@ namespace cyy::compiler {
                     throw exception::unexisted_grammar_symbol_attribute(
                         rule.result_attribute->get_name());
                   }
-                  grammal_symbol_attributes_stack
-                      .back()[rule.result_attribute.value().get_full_name(
-                          production)] = std::move(result_value_opt.value());
+                  auto attribute_full_name =
+                      rule.result_attribute.value().get_full_name(production);
+                  if (result_attribute_names.count(attribute_full_name) != 0) {
+                    final_attributes.insert_or_assign(attribute_full_name,
+                                                      result_value_opt.value());
+                  }
+                  grammal_symbol_attributes_stack.back()[attribute_full_name] =
+                      std::move(result_value_opt.value());
                 }
               }
 
@@ -214,10 +234,18 @@ namespace cyy::compiler {
                       throw exception::unexisted_grammar_symbol_attribute(
                           rule.result_attribute->get_name());
                     }
-                    grammal_symbol_attributes_stack
-                        [stack_size - 1 - body_size]
-                        [rule.result_attribute.value().get_full_name(
-                            production)] = std::move(result_value_opt.value());
+                    auto attribute_full_name =
+                        rule.result_attribute.value().get_full_name(production);
+                    if (result_attribute_names.count(attribute_full_name) !=
+                        0) {
+                      final_attributes.insert_or_assign(
+                          attribute_full_name, result_value_opt.value());
+                    }
+                    grammal_symbol_attributes_stack[stack_size - 1 - body_size]
+                                                   [attribute_full_name] =
+                                                       std::move(
+                                                           result_value_opt
+                                                               .value());
                   }
                 }
                 grammal_symbol_attributes_stack.resize(stack_size - body_size);
@@ -227,7 +255,7 @@ namespace cyy::compiler {
       return {};
     }
     assert(grammal_symbol_attributes_stack.size() == 1);
-    return grammal_symbol_attributes_stack[0];
+    return final_attributes;
   }
 
   void L_attributed_SDD::check_attributes() const {

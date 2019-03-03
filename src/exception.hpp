@@ -62,4 +62,8 @@ namespace cyy::compiler::exception {
     using invalid_argument::invalid_argument;
   };
 
+  class existed_symbol_table_entry : public std::invalid_argument {
+  public:
+    using invalid_argument::invalid_argument;
+  };
 } // namespace cyy::compiler::exception

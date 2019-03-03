@@ -17,7 +17,9 @@ namespace cyy::compiler {
     explicit S_attributed_SDD(const LR_grammar &cfg_) : SDD(cfg_) {}
 
     std::optional<std::map<std::string, std::any>>
-    run(token_span span) const override;
+    run(token_span span,
+        const std::unordered_set<std::string> &result_attribute_names)
+        const override;
 
     using SDD::add_synthesized_attribute;
 

@@ -19,7 +19,8 @@ struct token_attribute {
 
 struct token {
   symbol_type name{};
-  symbol_string lexeme;
+  //symbol_
+    std::string lexeme;
   token_attribute attribute;
 };
 
