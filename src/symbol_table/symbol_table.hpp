@@ -39,15 +39,19 @@ namespace cyy::compiler {
         : prev_table(prev_table_) {}
     ~symbol_table() = default;
 
-    void add_entry(entry e) {
-      auto [it, has_emplaced] = entries.emplace(std::move(e));
-      if (!has_emplaced) {
-        throw exception::existed_symbol_table_entry(it->lexeme);
+    bool add_entry(entry e) { return entries.emplace(e.lexeme, e).second; }
+    std::optional<entry> get_entry(const std::string &lexeme) {
+      auto it = entries.find(lexeme);
+      if (it != entries.end()) {
+        return it->second;
       }
+      return {};
     }
 
+    auto get_entries() const -> const auto & { return entries; }
+
   private:
-    std::unordered_set<entry, entry_hash> entries;
+    std::unordered_map<std::string, entry> entries;
     std::shared_ptr<symbol_table> prev_table;
   };
 } // namespace cyy::compiler

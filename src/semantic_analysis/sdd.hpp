@@ -31,10 +31,9 @@ namespace cyy::compiler {
 
     virtual ~SDD() = default;
 
-    virtual std::optional<std::map<std::string, std::any>>
+    std::optional<std::map<std::string, std::any>>
     run(token_span span,
-        const std::unordered_set<std::string> &result_attribute_names)
-        const = 0;
+        const std::unordered_set<std::string> &result_attribute_names) const;
 
     struct semantic_rule {
       std::optional<grammar_symbol_attribute_name> result_attribute;
@@ -55,6 +54,11 @@ namespace cyy::compiler {
   private:
     void check_semantic_rule(const CFG_production &production,
                              const semantic_rule &rule) const;
+
+    virtual std::optional<std::map<std::string, std::any>>
+    _run(token_span span,
+         const std::unordered_set<std::string> &result_attribute_names)
+        const = 0;
 
   protected:
     mutable std::map<CFG_production, std::vector<semantic_rule>> all_rules;

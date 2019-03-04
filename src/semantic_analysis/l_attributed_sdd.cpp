@@ -15,21 +15,13 @@
 
 namespace cyy::compiler {
 
-  std::optional<std::map<std::string, std::any>> L_attributed_SDD::run(
+  std::optional<std::map<std::string, std::any>> L_attributed_SDD::_run(
       token_span span,
       const std::unordered_set<std::string> &result_attribute_names) const {
     if (new_rule_flag) {
       check_attributes();
       resolve_semantic_rules_order();
       new_rule_flag = false;
-    }
-    if (span.empty()) {
-      std::cerr << "span is empty" << std::endl;
-      return {};
-    }
-    if (result_attribute_names.empty()) {
-      std::cerr << "result_attribute_names is empty" << std::endl;
-      return {};
     }
 
     symbol_string token_names;

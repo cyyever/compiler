@@ -138,4 +138,29 @@ namespace cyy::compiler {
     }
   }
 
+  std::optional<std::map<std::string, std::any>> SDD::run(
+      token_span span,
+      const std::unordered_set<std::string> &result_attribute_names) const {
+    if (span.empty()) {
+      std::cerr << "span is empty" << std::endl;
+      return {};
+    }
+    if (result_attribute_names.empty()) {
+      std::cerr << "result_attribute_names is empty" << std::endl;
+      return {};
+    }
+
+    auto result_attribute_opt = _run(span, result_attribute_names);
+
+    if (result_attribute_opt.has_value() &&
+        result_attribute_opt.value().size() != result_attribute_names.size()) {
+      for (auto const &name : result_attribute_names) {
+        if (result_attribute_opt.value().count(name) == 0) {
+          std::cerr << "no result attribute " << name << std::endl;
+        }
+      }
+      return {};
+    }
+    return result_attribute_opt;
+  }
 } // namespace cyy::compiler

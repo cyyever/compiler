@@ -15,17 +15,9 @@
 
 namespace cyy::compiler {
 
-  std::optional<std::map<std::string, std::any>> S_attributed_SDD::run(
+  std::optional<std::map<std::string, std::any>> S_attributed_SDD::_run(
       token_span span,
       const std::unordered_set<std::string> &result_attribute_names) const {
-    if (span.empty()) {
-      std::cerr << "span is empty" << std::endl;
-      return {};
-    }
-    if (result_attribute_names.empty()) {
-      std::cerr << "result_attribute_names is empty" << std::endl;
-      return {};
-    }
 
     if (new_rule_flag) {
       check_attributes();
@@ -113,6 +105,7 @@ namespace cyy::compiler {
       return {};
     }
     assert(grammal_symbol_attributes_stack.size() == 1);
+
     return final_attributes;
   }
 

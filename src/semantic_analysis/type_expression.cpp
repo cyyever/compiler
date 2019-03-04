@@ -42,6 +42,26 @@ namespace cyy::compiler::type_expression {
            element_type->equivalent_with(*(ptr->element_type));
   }
 
+  bool record_type::equivalent_with(const expression &rhs) const {
+    auto ptr = dynamic_cast<const record_type *>(&rhs);
+    if (!ptr) {
+      return false;
+    }
+    if (ptr->field_types.size() != field_types.size()) {
+      return false;
+    }
+    for (size_t i = 0; i < field_types.size(); i++) {
+      if (field_types[i].first != ptr->field_types[i].first) {
+        return false;
+      }
+      if (!field_types[i].second->equivalent_with(
+              *(ptr->field_types[i].second))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   bool function_type::equivalent_with(const expression &rhs) const {
     auto ptr = dynamic_cast<const function_type *>(&rhs);
     return ptr && from_type->equivalent_with(*(ptr->from_type)) &&

@@ -262,57 +262,171 @@ TEST_CASE("types and storage layout") {
                         2)));
   }
 
+  sdd.add_inherited_attribute(
+      production_vector[8],
+      SDD::semantic_rule{
+          "$1.offset",
+          {},
+          [](const std::vector<std::reference_wrapper<const std::any>> &)
+              -> std::optional<std::any> { return std::make_any<size_t>(0); }});
+
+  sdd.add_inherited_attribute(
+      production_vector[8],
+      SDD::semantic_rule{
+          "$1.symbol_table",
+          {},
+          [](const std::vector<std::reference_wrapper<const std::any>> &)
+              -> std::optional<std::any> {
+            return std::make_any<std::shared_ptr<symbol_table>>(
+                std::make_shared<symbol_table>());
+          }});
+
+  sdd.add_inherited_attribute(
+      production_vector[0],
+      SDD::semantic_rule{
+          "$1.symbol_table",
+          {"$0.symbol_table"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            return arguments.at(0).get();
+          }});
+
+  sdd.add_inherited_attribute(
+      production_vector[0],
+      SDD::semantic_rule{
+          "$4.symbol_table",
+          {"$0.symbol_table", "$0.offset", "$1.type", "$2"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            auto table = std::any_cast<std::shared_ptr<symbol_table>>(
+                arguments.at(0).get());
+            symbol_table::entry e;
+            e.lexeme = std::any_cast<token>(arguments.at(3).get()).lexeme;
+            e.type =
+                std::any_cast<std::shared_ptr<type_expression::expression>>(
+                    arguments.at(2).get());
+            e.relative_address = std::any_cast<size_t>(arguments.at(1).get());
+            table->add_entry(e);
+            return std::make_any<std::shared_ptr<symbol_table>>(table);
+          }});
+
+  sdd.add_inherited_attribute(
+      production_vector[0],
+      SDD::semantic_rule{
+          "$4.offset",
+          {"$0.offset", "$1.width"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            return std::make_any<size_t>(
+                std::any_cast<size_t>(arguments.at(0).get()) +
+                std::any_cast<size_t>(arguments.at(1).get()));
+          }});
+
   SUBCASE("relative addresses") {
-    sdd.add_inherited_attribute(
-        production_vector[8],
-        SDD::semantic_rule{
-            "$1.offset",
-            {},
-            [](const std::vector<std::reference_wrapper<const std::any>> &)
-                -> std::optional<std::any> {
-              return std::make_any<size_t>(0);
-            }});
+    std::vector<token> tokens;
+    tokens.push_back(
+        token{static_cast<symbol_type>(common_token::FLOAT), "float", {}});
+    tokens.push_back(
+        token{static_cast<symbol_type>(common_token::id), "x", {}});
+    tokens.push_back(token{';', ";", {}});
 
-    sdd.add_inherited_attribute(
-        production_vector[8],
-        SDD::semantic_rule{
-            "$1.symbol_table",
-            {},
-            [](const std::vector<std::reference_wrapper<const std::any>> &)
-                -> std::optional<std::any> {
-              return std::make_any<std::shared_ptr<symbol_table>>(
-                  std::make_shared<symbol_table>());
-            }});
+    auto attributes = sdd.run(tokens, {"D.symbol_table"});
+    REQUIRE(attributes);
+    auto const &table = std::any_cast<std::shared_ptr<symbol_table>>(
+        attributes.value()["D.symbol_table"]);
+    REQUIRE(table->get_entry("x")->type->equivalent_with(
+        cyy::compiler::type_expression::basic_type(
+            cyy::compiler::type_expression::basic_type::type_enum::FLOAT)));
+    REQUIRE(table->get_entry("x")->relative_address == 0);
+  }
 
-    sdd.add_inherited_attribute(
-        production_vector[0],
-        SDD::semantic_rule{
-            "$4.symbol_table",
-            {"$0.symbol_table", "$0.offset", "$1.type", "$2"},
-            [](const std::vector<std::reference_wrapper<const std::any>>
-                   &arguments) -> std::optional<std::any> {
-              auto table = std::any_cast<std::shared_ptr<symbol_table>>(
-                  arguments.at(0).get());
-              symbol_table::entry e;
-              e.lexeme = std::any_cast<token>(arguments.at(3).get()).lexeme;
-              e.type =
-                  std::any_cast<std::shared_ptr<type_expression::expression>>(
-                      arguments.at(2).get());
-              e.relative_address = std::any_cast<size_t>(arguments.at(1).get());
-              table->add_entry(e);
-              return std::make_any<std::shared_ptr<symbol_table>>(table);
-            }});
+  sdd.add_inherited_attribute(
+      production_vector[3],
+      SDD::semantic_rule{
+          "$3.symbol_table",
+          {"$0.symbol_table"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            auto table = std::any_cast<std::shared_ptr<symbol_table>>(
+                arguments.at(0).get());
+            return std::make_any<std::shared_ptr<symbol_table>>(table);
+          }});
 
-    sdd.add_inherited_attribute(
-        production_vector[0],
-        SDD::semantic_rule{
-            "$4.offset",
-            {"$0.offset", "$1.width"},
-            [](const std::vector<std::reference_wrapper<const std::any>>
-                   &arguments) -> std::optional<std::any> {
-              return std::make_any<size_t>(
-                  std::any_cast<size_t>(arguments.at(0).get()) +
-                  std::any_cast<size_t>(arguments.at(1).get()));
-            }});
+  sdd.add_inherited_attribute(
+      production_vector[3],
+      SDD::semantic_rule{
+          "$3.offset",
+          {},
+          [](const std::vector<std::reference_wrapper<const std::any>> &)
+              -> std::optional<std::any> { return std::make_any<size_t>(0); }});
+
+  sdd.add_synthesized_attribute(
+      production_vector[3],
+      SDD::semantic_rule{
+          "$0.width",
+          {"$3.offset"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            return arguments.at(2).get();
+          }});
+
+  sdd.add_synthesized_attribute(
+      production_vector[3],
+      SDD::semantic_rule{
+          "$0.type",
+          {"$3.symbol_table"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            auto const &entries = std::any_cast<std::shared_ptr<symbol_table>>(
+                                      arguments.at(0).get())
+                                      ->get_entries();
+
+            std::vector<symbol_table::entry> sorted_entries;
+
+            for (auto const &[_, entry] : entries) {
+              sorted_entries.push_back(entry);
+            }
+
+            std::sort(sorted_entries.begin(), sorted_entries.end(),
+                      [](const auto &a, const auto &b) {
+                        return a.relative_address < b.relative_address;
+                      });
+
+            std::vector<std::pair<
+                std::string,
+                std::shared_ptr<cyy::compiler::type_expression::expression>>>
+                field_types;
+            for (auto const &entry : sorted_entries) {
+              field_types.emplace_back(entry.lexeme, entry.type);
+            }
+
+            return std::make_any<
+                std::shared_ptr<cyy::compiler::type_expression::expression>>(
+                std::make_shared<cyy::compiler::type_expression::record_type>(
+                    field_types));
+          }});
+  SUBCASE("records") {
+    std::vector<token> tokens;
+    tokens.push_back(
+        token{static_cast<symbol_type>(common_token::record), "record", {}});
+    tokens.push_back(token{'{', "{", {}});
+    tokens.push_back(
+        token{static_cast<symbol_type>(common_token::FLOAT), "float", {}});
+    tokens.push_back(
+        token{static_cast<symbol_type>(common_token::id), "x", {}});
+    tokens.push_back(token{';', ";", {}});
+
+    tokens.push_back(
+        token{static_cast<symbol_type>(common_token::FLOAT), "float", {}});
+    tokens.push_back(
+        token{static_cast<symbol_type>(common_token::id), "y", {}});
+    tokens.push_back(token{';', ";", {}});
+    tokens.push_back(token{'}', "}", {}});
+    tokens.push_back(
+        token{static_cast<symbol_type>(common_token::id), "q", {}});
+    tokens.push_back(token{';', ";", {}});
+
+    auto attributes = sdd.run(tokens, {"D.symbol_table"});
+    REQUIRE(attributes);
   }
 }

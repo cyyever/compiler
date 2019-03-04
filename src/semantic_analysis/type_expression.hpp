@@ -23,6 +23,7 @@ namespace cyy::compiler::type_expression {
     virtual ~expression() = default;
     virtual bool equivalent_with(const expression &rhs) const = 0;
   };
+
   class basic_type : public expression {
   public:
     enum class type_enum {
@@ -32,7 +33,6 @@ namespace cyy::compiler::type_expression {
       FLOAT,
       VOID,
     };
-
     basic_type(type_enum type_) : type(type_) {}
     ~basic_type() override = default;
 
