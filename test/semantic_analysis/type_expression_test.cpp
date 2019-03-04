@@ -54,183 +54,179 @@ TEST_CASE("types and storage layout") {
                '[', static_cast<CFG::terminal_type>(common_token::number), ']',
                "C"});
 
+  production_vector.emplace_back("P", CFG_production::body_type{"D"});
+
   std::map<CFG::nonterminal_type, std::vector<CFG_production::body_type>>
       productions;
   for (auto const &production : production_vector) {
     productions[production.get_head()].emplace_back(production.get_body());
   }
 
+  LL_grammar grammar("common_tokens", "P", productions);
+  L_attributed_SDD sdd(grammar);
+
+  sdd.add_synthesized_attribute(
+      production_vector[2],
+      SDD::semantic_rule{
+          "$0.type",
+          {"$2.type"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            return arguments.at(0).get();
+          }});
+
+  sdd.add_synthesized_attribute(
+      production_vector[2],
+      SDD::semantic_rule{
+          "$0.width",
+          {"$2.width"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            return arguments.at(0).get();
+          }});
+
+  sdd.add_inherited_attribute(
+      production_vector[2],
+      SDD::semantic_rule{
+          "$2.inh_type",
+          {"$1.type"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            return arguments.at(0).get();
+          }});
+
+  sdd.add_inherited_attribute(
+      production_vector[2],
+      SDD::semantic_rule{
+          "$2.inh_width",
+          {"$1.width"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            return arguments.at(0).get();
+          }});
+
+  sdd.add_synthesized_attribute(
+      production_vector[4],
+      SDD::semantic_rule{
+          "$0.type",
+          {},
+          [](const std::vector<std::reference_wrapper<const std::any>> &)
+              -> std::optional<std::any> {
+            return std::make_any<
+                std::shared_ptr<cyy::compiler::type_expression::expression>>(
+                std::make_shared<cyy::compiler::type_expression::basic_type>(
+                    cyy::compiler::type_expression::basic_type::type_enum::
+                        INT));
+          }});
+
+  sdd.add_synthesized_attribute(
+      production_vector[4],
+      SDD::semantic_rule{
+          "$0.width",
+          {},
+          [](const std::vector<std::reference_wrapper<const std::any>> &)
+              -> std::optional<std::any> { return std::make_any<size_t>(4); }});
+
+  sdd.add_synthesized_attribute(
+      production_vector[5],
+      SDD::semantic_rule{
+          "$0.type",
+          {},
+          [](const std::vector<std::reference_wrapper<const std::any>> &)
+              -> std::optional<std::any> {
+            return std::make_any<
+                std::shared_ptr<cyy::compiler::type_expression::expression>>(
+                std::make_shared<cyy::compiler::type_expression::basic_type>(
+                    cyy::compiler::type_expression::basic_type::type_enum::
+                        FLOAT));
+          }});
+
+  sdd.add_synthesized_attribute(
+      production_vector[5],
+      SDD::semantic_rule{
+          "$0.width",
+          {},
+          [](const std::vector<std::reference_wrapper<const std::any>> &)
+              -> std::optional<std::any> { return std::make_any<size_t>(8); }});
+
+  sdd.add_synthesized_attribute(
+      production_vector[6],
+      SDD::semantic_rule{
+          "$0.type",
+          {"$0.inh_type"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            return arguments.at(0).get();
+          }});
+  sdd.add_synthesized_attribute(
+      production_vector[6],
+      SDD::semantic_rule{
+          "$0.width",
+          {"$0.inh_width"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            return arguments.at(0).get();
+          }});
+
+  sdd.add_inherited_attribute(
+      production_vector[7],
+      SDD::semantic_rule{
+          "$4.inh_type",
+          {"$0.inh_type"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            return arguments.at(0).get();
+          }});
+
+  sdd.add_inherited_attribute(
+      production_vector[7],
+      SDD::semantic_rule{
+          "$4.inh_width",
+          {"$0.inh_width"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            return arguments.at(0).get();
+          }});
+  sdd.add_synthesized_attribute(
+      production_vector[7],
+      SDD::semantic_rule{
+          "$0.type",
+          {"$2", "$4.type"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            size_t element_number = 0;
+
+            for (auto c : std::any_cast<token>(arguments.at(0).get()).lexeme) {
+              element_number = element_number * 10 + c - '0';
+            }
+
+            return std::make_any<
+                std::shared_ptr<cyy::compiler::type_expression::expression>>(
+                std::make_shared<cyy::compiler::type_expression::array_type>(
+                    std::any_cast<std::shared_ptr<
+                        cyy::compiler::type_expression::expression>>(
+                        arguments.at(1).get()),
+                    element_number));
+          }});
+
+  sdd.add_synthesized_attribute(
+      production_vector[7],
+      SDD::semantic_rule{
+          "$0.width",
+          {"$2", "$4.width"},
+          [](const std::vector<std::reference_wrapper<const std::any>>
+                 &arguments) -> std::optional<std::any> {
+            size_t element_number = 0;
+
+            for (auto c : std::any_cast<token>(arguments.at(0).get()).lexeme) {
+              element_number = element_number * 10 + c - '0';
+            }
+
+            return std::make_any<size_t>(
+                element_number * std::any_cast<size_t>(arguments.at(1).get()));
+          }});
+
   SUBCASE("types and widths") {
-    LL_grammar grammar("common_tokens", "D", productions);
-    L_attributed_SDD sdd(grammar);
-
-    sdd.add_synthesized_attribute(
-        production_vector[2],
-        SDD::semantic_rule{
-            "$0.type",
-            {"$2.type"},
-            [](const std::vector<std::reference_wrapper<const std::any>>
-                   &arguments) -> std::optional<std::any> {
-              return arguments.at(0).get();
-            }});
-
-    sdd.add_synthesized_attribute(
-        production_vector[2],
-        SDD::semantic_rule{
-            "$0.width",
-            {"$2.width"},
-            [](const std::vector<std::reference_wrapper<const std::any>>
-                   &arguments) -> std::optional<std::any> {
-              return arguments.at(0).get();
-            }});
-
-    sdd.add_inherited_attribute(
-        production_vector[2],
-        SDD::semantic_rule{
-            "$2.inh_type",
-            {"$1.type"},
-            [](const std::vector<std::reference_wrapper<const std::any>>
-                   &arguments) -> std::optional<std::any> {
-              return arguments.at(0).get();
-            }});
-
-    sdd.add_inherited_attribute(
-        production_vector[2],
-        SDD::semantic_rule{
-            "$2.inh_width",
-            {"$1.width"},
-            [](const std::vector<std::reference_wrapper<const std::any>>
-                   &arguments) -> std::optional<std::any> {
-              return arguments.at(0).get();
-            }});
-
-    sdd.add_synthesized_attribute(
-        production_vector[4],
-        SDD::semantic_rule{
-            "$0.type",
-            {},
-            [](const std::vector<std::reference_wrapper<const std::any>> &)
-                -> std::optional<std::any> {
-              return std::make_any<
-                  std::shared_ptr<cyy::compiler::type_expression::expression>>(
-                  std::make_shared<cyy::compiler::type_expression::basic_type>(
-                      cyy::compiler::type_expression::basic_type::type_enum::
-                          INT));
-            }});
-
-    sdd.add_synthesized_attribute(
-        production_vector[4],
-        SDD::semantic_rule{
-            "$0.width",
-            {},
-            [](const std::vector<std::reference_wrapper<const std::any>> &)
-                -> std::optional<std::any> {
-              return std::make_any<size_t>(4);
-            }});
-
-    sdd.add_synthesized_attribute(
-        production_vector[5],
-        SDD::semantic_rule{
-            "$0.type",
-            {},
-            [](const std::vector<std::reference_wrapper<const std::any>> &)
-                -> std::optional<std::any> {
-              return std::make_any<
-                  std::shared_ptr<cyy::compiler::type_expression::expression>>(
-                  std::make_shared<cyy::compiler::type_expression::basic_type>(
-                      cyy::compiler::type_expression::basic_type::type_enum::
-                          FLOAT));
-            }});
-
-    sdd.add_synthesized_attribute(
-        production_vector[5],
-        SDD::semantic_rule{
-            "$0.width",
-            {},
-            [](const std::vector<std::reference_wrapper<const std::any>> &)
-                -> std::optional<std::any> {
-              return std::make_any<size_t>(8);
-            }});
-
-    sdd.add_synthesized_attribute(
-        production_vector[6],
-        SDD::semantic_rule{
-            "$0.type",
-            {"$0.inh_type"},
-            [](const std::vector<std::reference_wrapper<const std::any>>
-                   &arguments) -> std::optional<std::any> {
-              return arguments.at(0).get();
-            }});
-    sdd.add_synthesized_attribute(
-        production_vector[6],
-        SDD::semantic_rule{
-            "$0.width",
-            {"$0.inh_width"},
-            [](const std::vector<std::reference_wrapper<const std::any>>
-                   &arguments) -> std::optional<std::any> {
-              return arguments.at(0).get();
-            }});
-
-    sdd.add_inherited_attribute(
-        production_vector[7],
-        SDD::semantic_rule{
-            "$4.inh_type",
-            {"$0.inh_type"},
-            [](const std::vector<std::reference_wrapper<const std::any>>
-                   &arguments) -> std::optional<std::any> {
-              return arguments.at(0).get();
-            }});
-
-    sdd.add_inherited_attribute(
-        production_vector[7],
-        SDD::semantic_rule{
-            "$4.inh_width",
-            {"$0.inh_width"},
-            [](const std::vector<std::reference_wrapper<const std::any>>
-                   &arguments) -> std::optional<std::any> {
-              return arguments.at(0).get();
-            }});
-    sdd.add_synthesized_attribute(
-        production_vector[7],
-        SDD::semantic_rule{
-            "$0.type",
-            {"$2", "$4.type"},
-            [](const std::vector<std::reference_wrapper<const std::any>>
-                   &arguments) -> std::optional<std::any> {
-              size_t element_number = 0;
-
-              for (auto c :
-                   std::any_cast<token>(arguments.at(0).get()).lexeme) {
-                element_number = element_number * 10 + c - '0';
-              }
-
-              return std::make_any<
-                  std::shared_ptr<cyy::compiler::type_expression::expression>>(
-                  std::make_shared<cyy::compiler::type_expression::array_type>(
-                      std::any_cast<std::shared_ptr<
-                          cyy::compiler::type_expression::expression>>(
-                          arguments.at(1).get()),
-                      element_number));
-            }});
-
-    sdd.add_synthesized_attribute(
-        production_vector[7],
-        SDD::semantic_rule{
-            "$0.width",
-            {"$2", "$4.width"},
-            [](const std::vector<std::reference_wrapper<const std::any>>
-                   &arguments) -> std::optional<std::any> {
-              size_t element_number = 0;
-
-              for (auto c :
-                   std::any_cast<token>(arguments.at(0).get()).lexeme) {
-                element_number = element_number * 10 + c - '0';
-              }
-
-              return std::make_any<size_t>(
-                  element_number *
-                  std::any_cast<size_t>(arguments.at(1).get()));
-            }});
     std::vector<token> tokens;
     tokens.push_back(
         token{static_cast<symbol_type>(common_token::INT), "int", {}});
@@ -266,5 +262,57 @@ TEST_CASE("types and storage layout") {
                         2)));
   }
 
-  SUBCASE("relative addresses") {}
+  SUBCASE("relative addresses") {
+    sdd.add_inherited_attribute(
+        production_vector[8],
+        SDD::semantic_rule{
+            "$1.offset",
+            {},
+            [](const std::vector<std::reference_wrapper<const std::any>> &)
+                -> std::optional<std::any> {
+              return std::make_any<size_t>(0);
+            }});
+
+    sdd.add_inherited_attribute(
+        production_vector[8],
+        SDD::semantic_rule{
+            "$1.symbol_table",
+            {},
+            [](const std::vector<std::reference_wrapper<const std::any>> &)
+                -> std::optional<std::any> {
+              return std::make_any<std::shared_ptr<symbol_table>>(
+                  std::make_shared<symbol_table>());
+            }});
+
+    sdd.add_inherited_attribute(
+        production_vector[0],
+        SDD::semantic_rule{
+            "$4.symbol_table",
+            {"$0.symbol_table", "$0.offset", "$1.type", "$2"},
+            [](const std::vector<std::reference_wrapper<const std::any>>
+                   &arguments) -> std::optional<std::any> {
+              auto table = std::any_cast<std::shared_ptr<symbol_table>>(
+                  arguments.at(0).get());
+              symbol_table::entry e;
+              e.lexeme = std::any_cast<token>(arguments.at(3).get()).lexeme;
+              e.type =
+                  std::any_cast<std::shared_ptr<type_expression::expression>>(
+                      arguments.at(2).get());
+              e.relative_address = std::any_cast<size_t>(arguments.at(1).get());
+              table->add_entry(e);
+              return std::make_any<std::shared_ptr<symbol_table>>(table);
+            }});
+
+    sdd.add_inherited_attribute(
+        production_vector[0],
+        SDD::semantic_rule{
+            "$4.offset",
+            {"$0.offset", "$1.width"},
+            [](const std::vector<std::reference_wrapper<const std::any>>
+                   &arguments) -> std::optional<std::any> {
+              return std::make_any<size_t>(
+                  std::any_cast<size_t>(arguments.at(0).get()) +
+                  std::any_cast<size_t>(arguments.at(1).get()));
+            }});
+  }
 }
