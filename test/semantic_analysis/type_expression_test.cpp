@@ -367,7 +367,7 @@ TEST_CASE("types and storage layout") {
           {"$3.offset"},
           [](const std::vector<std::reference_wrapper<const std::any>>
                  &arguments) -> std::optional<std::any> {
-            return arguments.at(2).get();
+            return arguments.at(0).get();
           }});
 
   sdd.add_synthesized_attribute(
@@ -411,6 +411,11 @@ TEST_CASE("types and storage layout") {
         token{static_cast<symbol_type>(common_token::record), "record", {}});
     tokens.push_back(token{'{', "{", {}});
     tokens.push_back(
+        token{static_cast<symbol_type>(common_token::INT), "int", {}});
+    tokens.push_back(
+        token{static_cast<symbol_type>(common_token::id), "tag", {}});
+    tokens.push_back(token{';', ";", {}});
+    tokens.push_back(
         token{static_cast<symbol_type>(common_token::FLOAT), "float", {}});
     tokens.push_back(
         token{static_cast<symbol_type>(common_token::id), "x", {}});
@@ -426,7 +431,49 @@ TEST_CASE("types and storage layout") {
         token{static_cast<symbol_type>(common_token::id), "q", {}});
     tokens.push_back(token{';', ";", {}});
 
-    auto attributes = sdd.run(tokens, {"D.symbol_table"});
+    auto attributes = sdd.run(tokens, {"T.type", "D.symbol_table"});
     REQUIRE(attributes);
+
+    auto const &table = std::any_cast<std::shared_ptr<symbol_table>>(
+        attributes.value()["D.symbol_table"]);
+    REQUIRE(table->get_entry("tag")->type->equivalent_with(
+        cyy::compiler::type_expression::basic_type(
+            cyy::compiler::type_expression::basic_type::type_enum::INT)));
+    REQUIRE(table->get_entry("tag")->relative_address == 0);
+    REQUIRE(table->get_entry("x")->type->equivalent_with(
+        cyy::compiler::type_expression::basic_type(
+            cyy::compiler::type_expression::basic_type::type_enum::FLOAT)));
+    REQUIRE(table->get_entry("x")->relative_address == 4);
+    REQUIRE(table->get_entry("y")->type->equivalent_with(
+        cyy::compiler::type_expression::basic_type(
+            cyy::compiler::type_expression::basic_type::type_enum::FLOAT)));
+    REQUIRE(table->get_entry("y")->relative_address == 12);
+    auto const &record_type = std::any_cast<
+        std::shared_ptr<cyy::compiler::type_expression::expression>>(
+        attributes.value()["T.type"]);
+
+    std::vector<
+        std::pair<std::string,
+                  std::shared_ptr<cyy::compiler::type_expression::expression>>>
+        field_types;
+    field_types.emplace_back(
+        "tag",
+        std::shared_ptr<cyy::compiler::type_expression::expression>(
+            std::make_shared<cyy::compiler::type_expression::basic_type>(
+                cyy::compiler::type_expression::basic_type::type_enum::INT)));
+    field_types.emplace_back(
+        "x",
+        std::shared_ptr<cyy::compiler::type_expression::expression>(
+            std::make_shared<cyy::compiler::type_expression::basic_type>(
+                cyy::compiler::type_expression::basic_type::type_enum::FLOAT)));
+
+    field_types.emplace_back(
+        "y",
+        std::shared_ptr<cyy::compiler::type_expression::expression>(
+            std::make_shared<cyy::compiler::type_expression::basic_type>(
+                cyy::compiler::type_expression::basic_type::type_enum::FLOAT)));
+
+    REQUIRE(record_type->equivalent_with(
+        cyy::compiler::type_expression::record_type(field_types)));
   }
 }

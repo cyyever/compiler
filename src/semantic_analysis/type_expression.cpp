@@ -11,7 +11,15 @@
 
 namespace cyy::compiler::type_expression {
 
-  bool basic_type::equivalent_with(const expression &rhs) const {
+  bool expression::equivalent_with(const expression &rhs) const {
+    auto type_name_ptr = dynamic_cast<const type_name *>(&rhs);
+    if (type_name_ptr && type_name_ptr->_equivalent_with(*this)) {
+      return true;
+    }
+    return this->_equivalent_with(rhs);
+  }
+
+  bool basic_type::_equivalent_with(const expression &rhs) const {
     auto ptr = dynamic_cast<const basic_type *>(&rhs);
     return ptr && ptr->type == type;
   }
@@ -22,7 +30,7 @@ namespace cyy::compiler::type_expression {
     return it->second;
   }
 
-  bool type_name::equivalent_with(const expression &rhs) const {
+  bool type_name::_equivalent_with(const expression &rhs) const {
     auto ptr = dynamic_cast<const type_name *>(&rhs);
     if (stand_for_self) {
       return ptr && ptr->name == name;
@@ -36,13 +44,13 @@ namespace cyy::compiler::type_expression {
 
   void type_name::make_stand_for_self() { stand_for_self = true; }
 
-  bool array_type::equivalent_with(const expression &rhs) const {
+  bool array_type::_equivalent_with(const expression &rhs) const {
     auto ptr = dynamic_cast<const array_type *>(&rhs);
     return ptr && ptr->element_number == element_number &&
            element_type->equivalent_with(*(ptr->element_type));
   }
 
-  bool record_type::equivalent_with(const expression &rhs) const {
+  bool record_type::_equivalent_with(const expression &rhs) const {
     auto ptr = dynamic_cast<const record_type *>(&rhs);
     if (!ptr) {
       return false;
@@ -62,13 +70,13 @@ namespace cyy::compiler::type_expression {
     return true;
   }
 
-  bool function_type::equivalent_with(const expression &rhs) const {
+  bool function_type::_equivalent_with(const expression &rhs) const {
     auto ptr = dynamic_cast<const function_type *>(&rhs);
     return ptr && from_type->equivalent_with(*(ptr->from_type)) &&
            to_type->equivalent_with(*(ptr->to_type));
   }
 
-  bool Cartesian_product_type::equivalent_with(const expression &rhs) const {
+  bool Cartesian_product_type::_equivalent_with(const expression &rhs) const {
     auto ptr = dynamic_cast<const Cartesian_product_type *>(&rhs);
     return ptr && first_type->equivalent_with(*(ptr->first_type)) &&
            second_type->equivalent_with(*(ptr->second_type));

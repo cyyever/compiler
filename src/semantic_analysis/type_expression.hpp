@@ -21,7 +21,10 @@ namespace cyy::compiler::type_expression {
   public:
     expression() = default;
     virtual ~expression() = default;
-    virtual bool equivalent_with(const expression &rhs) const = 0;
+    bool equivalent_with(const expression &rhs) const;
+
+  private:
+    virtual bool _equivalent_with(const expression &rhs) const = 0;
   };
 
   class basic_type : public expression {
@@ -36,7 +39,7 @@ namespace cyy::compiler::type_expression {
     basic_type(type_enum type_) : type(type_) {}
     ~basic_type() override = default;
 
-    bool equivalent_with(const expression &rhs) const override;
+    bool _equivalent_with(const expression &rhs) const override;
 
   private:
     type_enum type;
@@ -53,7 +56,7 @@ namespace cyy::compiler::type_expression {
     ~type_name() override = default;
 
     std::shared_ptr<expression> &get_expression() const;
-    bool equivalent_with(const expression &rhs) const override;
+    bool _equivalent_with(const expression &rhs) const override;
 
     static void make_stand_for_self();
 
@@ -72,7 +75,7 @@ namespace cyy::compiler::type_expression {
           element_number(element_number_) {}
     ~array_type() override = default;
 
-    bool equivalent_with(const expression &rhs) const override;
+    bool _equivalent_with(const expression &rhs) const override;
 
   private:
     std::shared_ptr<expression> element_type;
@@ -86,7 +89,7 @@ namespace cyy::compiler::type_expression {
         : field_types(std::move(field_types_)) {}
     ~record_type() override = default;
 
-    bool equivalent_with(const expression &rhs) const override;
+    bool _equivalent_with(const expression &rhs) const override;
 
   private:
     std::vector<std::pair<std::string, std::shared_ptr<expression>>>
@@ -100,7 +103,7 @@ namespace cyy::compiler::type_expression {
         : from_type(std::move(from_type_)), to_type(to_type_) {}
     ~function_type() override = default;
 
-    bool equivalent_with(const expression &rhs) const override;
+    bool _equivalent_with(const expression &rhs) const override;
 
   private:
     std::shared_ptr<expression> from_type;
@@ -114,7 +117,7 @@ namespace cyy::compiler::type_expression {
         : first_type(std::move(first_type_)), second_type(second_type_) {}
     ~Cartesian_product_type() override = default;
 
-    bool equivalent_with(const expression &rhs) const override;
+    bool _equivalent_with(const expression &rhs) const override;
 
   private:
     std::shared_ptr<expression> first_type;
