@@ -377,15 +377,12 @@ TEST_CASE("types and storage layout") {
           {"$3.symbol_table"},
           [](const std::vector<std::reference_wrapper<const std::any>>
                  &arguments) -> std::optional<std::any> {
-            auto const &entries = std::any_cast<std::shared_ptr<symbol_table>>(
-                                      arguments.at(0).get())
-                                      ->get_entries();
-
             std::vector<symbol_table::entry> sorted_entries;
 
-            for (auto const &[_, entry] : entries) {
-              sorted_entries.push_back(entry);
-            }
+            std::any_cast<std::shared_ptr<symbol_table>>(arguments.at(0).get())
+                ->foreach_entry([&sorted_entries](auto const &e) {
+                  sorted_entries.push_back(e);
+                });
 
             std::sort(sorted_entries.begin(), sorted_entries.end(),
                       [](const auto &a, const auto &b) {

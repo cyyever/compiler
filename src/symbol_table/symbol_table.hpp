@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <functional>
 #include <set>
 
 #include <cyy/computation/lang/lang.hpp>
@@ -48,7 +49,12 @@ namespace cyy::compiler {
       return {};
     }
 
-    auto get_entries() const -> const auto & { return entries; }
+    void
+    foreach_entry(const std::function<void(const entry &)> &callback) const {
+      for (auto const &[_, e] : entries) {
+        callback(e);
+      }
+    }
 
   private:
     std::unordered_map<std::string, entry> entries;
