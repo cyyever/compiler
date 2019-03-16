@@ -67,51 +67,40 @@ TEST_CASE("types and storage layout") {
 
   sdd.add_synthesized_attribute(
       production_vector[2],
-      SDD::semantic_rule{
-          "$0.type",
-          {"$2.type"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            return arguments.at(0).get();
-          }});
+      SDD::semantic_rule{"$0.type",
+                         {"$2.type"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   sdd.add_synthesized_attribute(
       production_vector[2],
-      SDD::semantic_rule{
-          "$0.width",
-          {"$2.width"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            return arguments.at(0).get();
-          }});
+      SDD::semantic_rule{"$0.width",
+                         {"$2.width"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   sdd.add_inherited_attribute(
       production_vector[2],
-      SDD::semantic_rule{
-          "$2.inh_type",
-          {"$1.type"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            return arguments.at(0).get();
-          }});
+      SDD::semantic_rule{"$2.inh_type",
+                         {"$1.type"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   sdd.add_inherited_attribute(
       production_vector[2],
-      SDD::semantic_rule{
-          "$2.inh_width",
-          {"$1.width"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            return arguments.at(0).get();
-          }});
+      SDD::semantic_rule{"$2.inh_width",
+                         {"$1.width"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   sdd.add_synthesized_attribute(
       production_vector[4],
       SDD::semantic_rule{
-          "$0.type",
-          {},
-          [](const std::vector<std::reference_wrapper<const std::any>> &)
-              -> std::optional<std::any> {
+          "$0.type", {}, [](const auto &) -> std::optional<std::any> {
             return std::make_any<
                 std::shared_ptr<cyy::compiler::type_expression::expression>>(
                 std::make_shared<cyy::compiler::type_expression::basic_type>(
@@ -122,18 +111,14 @@ TEST_CASE("types and storage layout") {
   sdd.add_synthesized_attribute(
       production_vector[4],
       SDD::semantic_rule{
-          "$0.width",
-          {},
-          [](const std::vector<std::reference_wrapper<const std::any>> &)
-              -> std::optional<std::any> { return std::make_any<size_t>(4); }});
+          "$0.width", {}, [](const auto &) -> std::optional<std::any> {
+            return std::make_any<size_t>(4);
+          }});
 
   sdd.add_synthesized_attribute(
       production_vector[5],
       SDD::semantic_rule{
-          "$0.type",
-          {},
-          [](const std::vector<std::reference_wrapper<const std::any>> &)
-              -> std::optional<std::any> {
+          "$0.type", {}, [](const auto &) -> std::optional<std::any> {
             return std::make_any<
                 std::shared_ptr<cyy::compiler::type_expression::expression>>(
                 std::make_shared<cyy::compiler::type_expression::basic_type>(
@@ -144,56 +129,46 @@ TEST_CASE("types and storage layout") {
   sdd.add_synthesized_attribute(
       production_vector[5],
       SDD::semantic_rule{
-          "$0.width",
-          {},
-          [](const std::vector<std::reference_wrapper<const std::any>> &)
-              -> std::optional<std::any> { return std::make_any<size_t>(8); }});
+          "$0.width", {}, [](const auto &) -> std::optional<std::any> {
+            return std::make_any<size_t>(8);
+          }});
 
   sdd.add_synthesized_attribute(
       production_vector[6],
-      SDD::semantic_rule{
-          "$0.type",
-          {"$0.inh_type"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            return arguments.at(0).get();
-          }});
+      SDD::semantic_rule{"$0.type",
+                         {"$0.inh_type"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
   sdd.add_synthesized_attribute(
       production_vector[6],
-      SDD::semantic_rule{
-          "$0.width",
-          {"$0.inh_width"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            return arguments.at(0).get();
-          }});
+      SDD::semantic_rule{"$0.width",
+                         {"$0.inh_width"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   sdd.add_inherited_attribute(
       production_vector[7],
-      SDD::semantic_rule{
-          "$4.inh_type",
-          {"$0.inh_type"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            return arguments.at(0).get();
-          }});
+      SDD::semantic_rule{"$4.inh_type",
+                         {"$0.inh_type"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   sdd.add_inherited_attribute(
       production_vector[7],
-      SDD::semantic_rule{
-          "$4.inh_width",
-          {"$0.inh_width"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            return arguments.at(0).get();
-          }});
+      SDD::semantic_rule{"$4.inh_width",
+                         {"$0.inh_width"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
   sdd.add_synthesized_attribute(
       production_vector[7],
       SDD::semantic_rule{
           "$0.type",
           {"$2", "$4.type"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
+          [](const auto &arguments) -> std::optional<std::any> {
             size_t element_number = 0;
 
             for (auto c : std::any_cast<token>(arguments.at(0).get()).lexeme) {
@@ -214,8 +189,7 @@ TEST_CASE("types and storage layout") {
       SDD::semantic_rule{
           "$0.width",
           {"$2", "$4.width"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
+          [](const auto &arguments) -> std::optional<std::any> {
             size_t element_number = 0;
 
             for (auto c : std::any_cast<token>(arguments.at(0).get()).lexeme) {
@@ -265,39 +239,32 @@ TEST_CASE("types and storage layout") {
   sdd.add_inherited_attribute(
       production_vector[8],
       SDD::semantic_rule{
-          "$1.offset",
-          {},
-          [](const std::vector<std::reference_wrapper<const std::any>> &)
-              -> std::optional<std::any> { return std::make_any<size_t>(0); }});
+          "$1.offset", {}, [](const auto &) -> std::optional<std::any> {
+            return std::make_any<size_t>(0);
+          }});
 
   sdd.add_inherited_attribute(
       production_vector[8],
       SDD::semantic_rule{
-          "$1.symbol_table",
-          {},
-          [](const std::vector<std::reference_wrapper<const std::any>> &)
-              -> std::optional<std::any> {
+          "$1.symbol_table", {}, [](const auto &) -> std::optional<std::any> {
             return std::make_any<std::shared_ptr<symbol_table>>(
                 std::make_shared<symbol_table>());
           }});
 
   sdd.add_inherited_attribute(
       production_vector[0],
-      SDD::semantic_rule{
-          "$1.symbol_table",
-          {"$0.symbol_table"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            return arguments.at(0).get();
-          }});
+      SDD::semantic_rule{"$1.symbol_table",
+                         {"$0.symbol_table"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   sdd.add_inherited_attribute(
       production_vector[0],
       SDD::semantic_rule{
           "$4.symbol_table",
           {"$0.symbol_table", "$0.offset", "$1.type", "$2"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
+          [](const auto &arguments) -> std::optional<std::any> {
             auto table = std::any_cast<std::shared_ptr<symbol_table>>(
                 arguments.at(0).get());
             symbol_table::entry e;
@@ -312,15 +279,13 @@ TEST_CASE("types and storage layout") {
 
   sdd.add_inherited_attribute(
       production_vector[0],
-      SDD::semantic_rule{
-          "$4.offset",
-          {"$0.offset", "$1.width"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            return std::make_any<size_t>(
-                std::any_cast<size_t>(arguments.at(0).get()) +
-                std::any_cast<size_t>(arguments.at(1).get()));
-          }});
+      SDD::semantic_rule{"$4.offset",
+                         {"$0.offset", "$1.width"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return std::make_any<size_t>(
+                               std::any_cast<size_t>(arguments.at(0).get()) +
+                               std::any_cast<size_t>(arguments.at(1).get()));
+                         }});
 
   SUBCASE("relative addresses") {
     std::vector<token> tokens;
@@ -345,8 +310,7 @@ TEST_CASE("types and storage layout") {
       SDD::semantic_rule{
           "$3.symbol_table",
           {"$0.symbol_table"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
+          [](const auto &arguments) -> std::optional<std::any> {
             auto table = std::any_cast<std::shared_ptr<symbol_table>>(
                 arguments.at(0).get());
             return std::make_any<std::shared_ptr<symbol_table>>(table);
@@ -355,28 +319,24 @@ TEST_CASE("types and storage layout") {
   sdd.add_inherited_attribute(
       production_vector[3],
       SDD::semantic_rule{
-          "$3.offset",
-          {},
-          [](const std::vector<std::reference_wrapper<const std::any>> &)
-              -> std::optional<std::any> { return std::make_any<size_t>(0); }});
+          "$3.offset", {}, [](const auto &) -> std::optional<std::any> {
+            return std::make_any<size_t>(0);
+          }});
 
   sdd.add_synthesized_attribute(
       production_vector[3],
-      SDD::semantic_rule{
-          "$0.width",
-          {"$3.offset"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            return arguments.at(0).get();
-          }});
+      SDD::semantic_rule{"$0.width",
+                         {"$3.offset"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   sdd.add_synthesized_attribute(
       production_vector[3],
       SDD::semantic_rule{
           "$0.type",
           {"$3.symbol_table"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
+          [](const auto &arguments) -> std::optional<std::any> {
             std::vector<symbol_table::entry> sorted_entries;
 
             std::any_cast<std::shared_ptr<symbol_table>>(arguments.at(0).get())

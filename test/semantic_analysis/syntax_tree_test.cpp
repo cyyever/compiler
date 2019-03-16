@@ -32,8 +32,7 @@ TEST_CASE("syntax tree") {
   rules.emplace_back(SDD::semantic_rule{
       "$0.node",
       {"$1.node", "$3.node"},
-      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-          -> std::optional<std::any> {
+      [](const auto &arguments) -> std::optional<std::any> {
         auto E_val =
             std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
                 arguments.at(0).get());
@@ -50,8 +49,7 @@ TEST_CASE("syntax tree") {
   rules.emplace_back(SDD::semantic_rule{
       "$0.node",
       {"$1.node", "$3.node"},
-      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-          -> std::optional<std::any> {
+      [](const auto &arguments) -> std::optional<std::any> {
         auto E_val =
             std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
                 arguments.at(0).get());
@@ -64,27 +62,26 @@ TEST_CASE("syntax tree") {
       }});
 
   production_vector.emplace_back("E", CFG_production::body_type{"T"});
-  rules.emplace_back(SDD::semantic_rule{
-      "$0.node",
-      {"$1.node"},
-      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-          -> std::optional<std::any> { return arguments.at(0).get(); }});
+  rules.emplace_back(
+      SDD::semantic_rule{"$0.node",
+                         {"$1.node"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   production_vector.emplace_back("T", CFG_production::body_type{'(', "E", ')'});
 
-  rules.emplace_back(SDD::semantic_rule{
-      "$0.node",
-      {"$2.node"},
-      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-          -> std::optional<std::any> { return arguments.at(0).get(); }});
+  rules.emplace_back(
+      SDD::semantic_rule{"$0.node",
+                         {"$2.node"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   auto number_token = static_cast<CFG::terminal_type>(common_token::number);
   production_vector.emplace_back("T", CFG_production::body_type{number_token});
   rules.emplace_back(SDD::semantic_rule{
-      "$0.node",
-      {"$1"},
-      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-          -> std::optional<std::any> {
+      "$0.node", {"$1"}, [](const auto &arguments) -> std::optional<std::any> {
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::symbol_node>(
                 std::any_cast<token>(arguments.at(0)).lexeme)
@@ -94,10 +91,7 @@ TEST_CASE("syntax tree") {
   auto id_token = static_cast<CFG::terminal_type>(common_token::id);
   production_vector.emplace_back("T", CFG_production::body_type{id_token});
   rules.emplace_back(SDD::semantic_rule{
-      "$0.node",
-      {"$1"},
-      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-          -> std::optional<std::any> {
+      "$0.node", {"$1"}, [](const auto &arguments) -> std::optional<std::any> {
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::symbol_node>(
                 std::any_cast<token>(arguments.at(0)).lexeme)
@@ -142,8 +136,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
   rules.emplace_back(SDD::semantic_rule{
       "$0.node",
       {"$1.node", "$3.node"},
-      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-          -> std::optional<std::any> {
+      [](const auto &arguments) -> std::optional<std::any> {
         auto E_val =
             std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
                 arguments.at(0).get());
@@ -161,8 +154,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
   rules.emplace_back(SDD::semantic_rule{
       "$0.node",
       {"$1.node", "$3.node"},
-      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-          -> std::optional<std::any> {
+      [](const auto &arguments) -> std::optional<std::any> {
         auto E_val =
             std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
                 arguments.at(0).get());
@@ -176,18 +168,18 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
       }});
 
   production_vector.emplace_back("E", CFG_production::body_type{"T"});
-  rules.emplace_back(SDD::semantic_rule{
-      "$0.node",
-      {"$1.node"},
-      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-          -> std::optional<std::any> { return arguments.at(0).get(); }});
+  rules.emplace_back(
+      SDD::semantic_rule{"$0.node",
+                         {"$1.node"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   production_vector.emplace_back("T", CFG_production::body_type{"T", '*', "F"});
   rules.emplace_back(SDD::semantic_rule{
       "$0.node",
       {"$1.node", "$3.node"},
-      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-          -> std::optional<std::any> {
+      [](const auto &arguments) -> std::optional<std::any> {
         auto T_val =
             std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
                 arguments.at(0).get());
@@ -200,27 +192,26 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
       }});
 
   production_vector.emplace_back("T", CFG_production::body_type{"F"});
-  rules.emplace_back(SDD::semantic_rule{
-      "$0.node",
-      {"$1.node"},
-      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-          -> std::optional<std::any> { return arguments.at(0).get(); }});
+  rules.emplace_back(
+      SDD::semantic_rule{"$0.node",
+                         {"$1.node"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   production_vector.emplace_back("F", CFG_production::body_type{'(', "E", ')'});
 
-  rules.emplace_back(SDD::semantic_rule{
-      "$0.node",
-      {"$2.node"},
-      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-          -> std::optional<std::any> { return arguments.at(0).get(); }});
+  rules.emplace_back(
+      SDD::semantic_rule{"$0.node",
+                         {"$2.node"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   auto number_token = static_cast<CFG::terminal_type>(common_token::number);
   production_vector.emplace_back("F", CFG_production::body_type{number_token});
   rules.emplace_back(SDD::semantic_rule{
-      "$0.node",
-      {"$1"},
-      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-          -> std::optional<std::any> {
+      "$0.node", {"$1"}, [](const auto &arguments) -> std::optional<std::any> {
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::symbol_node>(
                 std::any_cast<token>(arguments.at(0)).lexeme));
@@ -229,10 +220,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
   auto id_token = static_cast<CFG::terminal_type>(common_token::id);
   production_vector.emplace_back("F", CFG_production::body_type{id_token});
   rules.emplace_back(SDD::semantic_rule{
-      "$0.node",
-      {"$1"},
-      [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-          -> std::optional<std::any> {
+      "$0.node", {"$1"}, [](const auto &arguments) -> std::optional<std::any> {
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::symbol_node>(
                 std::any_cast<token>(arguments.at(0)).lexeme));

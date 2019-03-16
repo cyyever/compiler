@@ -45,74 +45,64 @@ TEST_CASE("run") {
 
   sdd.add_inherited_attribute(
       production_vector[0],
-      SDD::semantic_rule{
-          "$2.inh",
-          {"$1.val"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            return arguments.at(0).get();
-          }});
+      SDD::semantic_rule{"$2.inh",
+                         {"$1.val"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   sdd.add_synthesized_attribute(
       production_vector[0],
-      SDD::semantic_rule{
-          "$0.val",
-          {"$2.syn"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            return arguments.at(0).get();
-          }});
+      SDD::semantic_rule{"$0.val",
+                         {"$2.syn"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   sdd.add_inherited_attribute(
       production_vector[0],
-      SDD::semantic_rule{
-          "$2.inh2",
-          {"$1.val", "$2.syn"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            REQUIRE(std::any_cast<int>(arguments.at(1).get()) == 15);
-            return arguments.at(1).get();
-          }});
+      SDD::semantic_rule{"$2.inh2",
+                         {"$1.val", "$2.syn"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           REQUIRE(std::any_cast<int>(arguments.at(1).get()) ==
+                                   15);
+                           return arguments.at(1).get();
+                         }});
 
   sdd.add_inherited_attribute(
       production_vector[1],
-      SDD::semantic_rule{
-          "$3.inh",
-          {"$0.inh", "$2.val"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            auto T_inh = std::any_cast<int>(arguments.at(0).get());
-            auto F_val = std::any_cast<int>(arguments.at(1).get());
-            return std::make_any<int>(T_inh * F_val);
-          }});
+      SDD::semantic_rule{"$3.inh",
+                         {"$0.inh", "$2.val"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           auto T_inh =
+                               std::any_cast<int>(arguments.at(0).get());
+                           auto F_val =
+                               std::any_cast<int>(arguments.at(1).get());
+                           return std::make_any<int>(T_inh * F_val);
+                         }});
 
   sdd.add_synthesized_attribute(
       production_vector[1],
-      SDD::semantic_rule{
-          "$0.syn",
-          {"$3.syn"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            return arguments.at(0).get();
-          }});
+      SDD::semantic_rule{"$0.syn",
+                         {"$3.syn"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   sdd.add_synthesized_attribute(
       production_vector[2],
-      SDD::semantic_rule{
-          "$0.syn",
-          {"$0.inh"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
-            return arguments.at(0).get();
-          }});
+      SDD::semantic_rule{"$0.syn",
+                         {"$0.inh"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return arguments.at(0).get();
+                         }});
 
   sdd.add_synthesized_attribute(
       production_vector[3],
       SDD::semantic_rule{
           "$0.val",
           {"$1"},
-          [](const std::vector<std::reference_wrapper<const std::any>>
-                 &arguments) -> std::optional<std::any> {
+          [](const auto &arguments) -> std::optional<std::any> {
             return std::make_any<int>(
                 static_cast<char>(
                     std::any_cast<token>(arguments.at(0)).lexeme[0]) -
