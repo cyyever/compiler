@@ -27,11 +27,9 @@ TEST_CASE("types and storage layout") {
   std::vector<CFG_production> production_vector;
 
   production_vector.emplace_back(
-      "D", CFG_production::body_type{
-               "T",
-               static_cast<CFG::terminal_type>(
-                   static_cast<CFG::terminal_type>(common_token::id)),
-               ';', "D"});
+      "D",
+      CFG_production::body_type{
+          "T", static_cast<CFG::terminal_type>(common_token::id), ';', "D"});
   production_vector.emplace_back(
       "D",
       CFG_production::body_type{ALPHABET::get("common_tokens")->get_epsilon()});
@@ -54,6 +52,11 @@ TEST_CASE("types and storage layout") {
                '[', static_cast<CFG::terminal_type>(common_token::number), ']',
                "C"});
 
+  production_vector.emplace_back(
+      "T",
+      CFG_production::body_type{
+          static_cast<CFG::terminal_type>(common_token::CLASS),
+          static_cast<CFG::terminal_type>(common_token::id), '{', "D", '}'});
   production_vector.emplace_back("P", CFG_production::body_type{"D"});
 
   std::map<CFG::nonterminal_type, std::vector<CFG_production::body_type>>
@@ -237,14 +240,14 @@ TEST_CASE("types and storage layout") {
   }
 
   sdd.add_inherited_attribute(
-      production_vector[8],
+      production_vector[9],
       SDD::semantic_rule{
           "$1.offset", {}, [](const auto &) -> std::optional<std::any> {
             return std::make_any<size_t>(0);
           }});
 
   sdd.add_inherited_attribute(
-      production_vector[8],
+      production_vector[9],
       SDD::semantic_rule{
           "$1.symbol_table", {}, [](const auto &) -> std::optional<std::any> {
             return std::make_any<std::shared_ptr<symbol_table>>(
@@ -305,64 +308,67 @@ TEST_CASE("types and storage layout") {
     REQUIRE(table->get_entry("x")->relative_address == 0);
   }
 
-  sdd.add_inherited_attribute(
-      production_vector[3],
-      SDD::semantic_rule{
-          "$3.symbol_table",
-          {"$0.symbol_table"},
-          [](const auto &arguments) -> std::optional<std::any> {
-            auto table = std::any_cast<std::shared_ptr<symbol_table>>(
-                arguments.at(0).get());
-            return std::make_any<std::shared_ptr<symbol_table>>(table);
-          }});
-
-  sdd.add_inherited_attribute(
-      production_vector[3],
-      SDD::semantic_rule{
-          "$3.offset", {}, [](const auto &) -> std::optional<std::any> {
-            return std::make_any<size_t>(0);
-          }});
-
-  sdd.add_synthesized_attribute(
-      production_vector[3],
-      SDD::semantic_rule{"$0.width",
-                         {"$3.offset"},
-                         [](const auto &arguments) -> std::optional<std::any> {
-                           return arguments.at(0).get();
-                         }});
-
-  sdd.add_synthesized_attribute(
-      production_vector[3],
-      SDD::semantic_rule{
-          "$0.type",
-          {"$3.symbol_table"},
-          [](const auto &arguments) -> std::optional<std::any> {
-            std::vector<symbol_table::entry> sorted_entries;
-
-            std::any_cast<std::shared_ptr<symbol_table>>(arguments.at(0).get())
-                ->foreach_entry([&sorted_entries](auto const &e) {
-                  sorted_entries.push_back(e);
-                });
-
-            std::sort(sorted_entries.begin(), sorted_entries.end(),
-                      [](const auto &a, const auto &b) {
-                        return a.relative_address < b.relative_address;
-                      });
-
-            std::vector<std::pair<
-                std::string,
-                std::shared_ptr<cyy::compiler::type_expression::expression>>>
-                field_types;
-            for (auto const &entry : sorted_entries) {
-              field_types.emplace_back(entry.lexeme, entry.type);
-            }
-
-            return std::make_any<
-                std::shared_ptr<cyy::compiler::type_expression::expression>>(
-                std::make_shared<cyy::compiler::type_expression::record_type>(
-                    field_types));
-          }});
   SUBCASE("records") {
+    sdd.add_inherited_attribute(
+        production_vector[3],
+        SDD::semantic_rule{
+            "$3.symbol_table",
+            {"$0.symbol_table"},
+            [](const auto &arguments) -> std::optional<std::any> {
+              auto table = std::any_cast<std::shared_ptr<symbol_table>>(
+                  arguments.at(0).get());
+              return std::make_any<std::shared_ptr<symbol_table>>(table);
+            }});
+
+    sdd.add_inherited_attribute(
+        production_vector[3],
+        SDD::semantic_rule{
+            "$3.offset", {}, [](const auto &) -> std::optional<std::any> {
+              return std::make_any<size_t>(0);
+            }});
+
+    sdd.add_synthesized_attribute(
+        production_vector[3],
+        SDD::semantic_rule{
+            "$0.width",
+            {"$3.offset"},
+            [](const auto &arguments) -> std::optional<std::any> {
+              return arguments.at(0).get();
+            }});
+
+    sdd.add_synthesized_attribute(
+        production_vector[3],
+        SDD::semantic_rule{
+            "$0.type",
+            {"$3.symbol_table"},
+            [](const auto &arguments) -> std::optional<std::any> {
+              std::vector<symbol_table::entry> sorted_entries;
+
+              std::any_cast<std::shared_ptr<symbol_table>>(
+                  arguments.at(0).get())
+                  ->foreach_entry([&sorted_entries](auto const &e) {
+                    sorted_entries.push_back(e);
+                  });
+
+              std::sort(sorted_entries.begin(), sorted_entries.end(),
+                        [](const auto &a, const auto &b) {
+                          return a.relative_address < b.relative_address;
+                        });
+
+              std::vector<std::pair<
+                  std::string,
+                  std::shared_ptr<cyy::compiler::type_expression::expression>>>
+                  field_types;
+              for (auto const &entry : sorted_entries) {
+                field_types.emplace_back(entry.lexeme, entry.type);
+              }
+
+              return std::make_any<
+                  std::shared_ptr<cyy::compiler::type_expression::expression>>(
+                  std::make_shared<cyy::compiler::type_expression::record_type>(
+                      field_types));
+            }});
+
     std::vector<token> tokens;
     tokens.push_back(
         token{static_cast<symbol_type>(common_token::record), "record", {}});
@@ -432,5 +438,113 @@ TEST_CASE("types and storage layout") {
 
     REQUIRE(record_type->equivalent_with(
         cyy::compiler::type_expression::record_type(field_types)));
+  }
+
+  SUBCASE("classes") {
+    sdd.add_inherited_attribute(
+        production_vector[8],
+        SDD::semantic_rule{
+            "$4.symbol_table",
+            {"$0.symbol_table"},
+            [](const auto &arguments) -> std::optional<std::any> {
+              auto table = std::any_cast<std::shared_ptr<symbol_table>>(
+                  arguments.at(0).get());
+              return std::make_any<std::shared_ptr<symbol_table>>(table);
+            }});
+
+    sdd.add_inherited_attribute(
+        production_vector[8],
+        SDD::semantic_rule{
+            "$4.offset", {}, [](const auto &) -> std::optional<std::any> {
+              return std::make_any<size_t>(0);
+            }});
+
+    sdd.add_synthesized_attribute(
+        production_vector[8],
+        SDD::semantic_rule{
+            "$0.width",
+            {"$4.offset"},
+            [](const auto &arguments) -> std::optional<std::any> {
+              return arguments.at(0).get();
+            }});
+
+    sdd.add_synthesized_attribute(
+        production_vector[8],
+        SDD::semantic_rule{
+            "$0.type",
+            {"$2", "$4.symbol_table"},
+            [](const auto &arguments) -> std::optional<std::any> {
+              std::vector<symbol_table::entry> sorted_entries;
+
+              std::any_cast<std::shared_ptr<symbol_table>>(
+                  arguments.at(1).get())
+                  ->foreach_entry([&sorted_entries](auto const &e) {
+                    sorted_entries.push_back(e);
+                  });
+
+              std::sort(sorted_entries.begin(), sorted_entries.end(),
+                        [](const auto &a, const auto &b) {
+                          return a.relative_address < b.relative_address;
+                        });
+
+              std::vector<std::pair<
+                  std::string,
+                  std::shared_ptr<cyy::compiler::type_expression::expression>>>
+                  field_types;
+              for (auto const &entry : sorted_entries) {
+                field_types.emplace_back(entry.lexeme, entry.type);
+              }
+
+              auto const &class_name =
+                  std::any_cast<token>(arguments.at(0).get()).lexeme;
+              auto class_type =
+                  std::make_shared<cyy::compiler::type_expression::class_type>(
+                      nullptr, field_types);
+              return std::make_any<
+                  std::shared_ptr<cyy::compiler::type_expression::expression>>(
+                  std::make_shared<cyy::compiler::type_expression::type_name>(
+                      class_name, class_type));
+            }});
+
+    std::vector<token> tokens;
+    tokens.push_back(
+        token{static_cast<symbol_type>(common_token::CLASS), "class", {}});
+    tokens.push_back(
+        token{static_cast<symbol_type>(common_token::id), "A", {}});
+    tokens.push_back(token{'{', "{", {}});
+    tokens.push_back(
+        token{static_cast<symbol_type>(common_token::INT), "int", {}});
+    tokens.push_back(
+        token{static_cast<symbol_type>(common_token::id), "tag", {}});
+    tokens.push_back(token{';', ";", {}});
+    tokens.push_back(token{'}', "}", {}});
+    tokens.push_back(
+        token{static_cast<symbol_type>(common_token::id), "q", {}});
+    tokens.push_back(token{';', ";", {}});
+
+    auto attributes = sdd.run(tokens, {"T.type", "D.symbol_table"});
+    REQUIRE(attributes);
+
+    auto const &table = std::any_cast<std::shared_ptr<symbol_table>>(
+        attributes.value()["D.symbol_table"]);
+    REQUIRE(table->get_entry("tag")->type->equivalent_with(
+        cyy::compiler::type_expression::basic_type(
+            cyy::compiler::type_expression::basic_type::type_enum::INT)));
+    REQUIRE(table->get_entry("tag")->relative_address == 0);
+    auto const &record_type = std::any_cast<
+        std::shared_ptr<cyy::compiler::type_expression::expression>>(
+        attributes.value()["T.type"]);
+
+    std::vector<
+        std::pair<std::string,
+                  std::shared_ptr<cyy::compiler::type_expression::expression>>>
+        field_types;
+    field_types.emplace_back(
+        "tag",
+        std::shared_ptr<cyy::compiler::type_expression::expression>(
+            std::make_shared<cyy::compiler::type_expression::basic_type>(
+                cyy::compiler::type_expression::basic_type::type_enum::INT)));
+    REQUIRE(record_type->equivalent_with(
+        cyy::compiler::type_expression::class_type(nullptr, field_types)));
   }
 }

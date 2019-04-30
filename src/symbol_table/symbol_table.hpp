@@ -36,7 +36,7 @@ namespace cyy::compiler {
 
   public:
     symbol_table() = default;
-    symbol_table(explicit std::shared_ptr<symbol_table> prev_table_)
+    explicit symbol_table(std::shared_ptr<symbol_table> prev_table_)
         : prev_table(prev_table_) {}
     ~symbol_table() = default;
 

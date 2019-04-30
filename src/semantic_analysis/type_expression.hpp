@@ -47,24 +47,19 @@ namespace cyy::compiler::type_expression {
 
   class type_name : public expression {
   public:
-    type_name(std::string name_, std::shared_ptr<expression> expr)
-        : name(std::move(name_)) {
-      if (!name_and_expressions.try_emplace(name, expr).second) {
-        throw exception::type_name_confliction(name);
-      }
-    }
+    type_name(std::string name_, std::shared_ptr<expression> named_type_)
+        : name(std::move(name_)), named_type(named_type_) {}
     ~type_name() override = default;
 
-    std::shared_ptr<expression> &get_expression() const;
+    const std::shared_ptr<expression> &get_expression() const;
     bool _equivalent_with(const expression &rhs) const override;
 
     static void make_stand_for_self();
 
   private:
     std::string name;
+    std::shared_ptr<expression> named_type;
     static inline bool stand_for_self{false};
-    static inline std::unordered_map<std::string, std::shared_ptr<expression>>
-        name_and_expressions;
   };
 
   class array_type : public expression {
@@ -84,8 +79,9 @@ namespace cyy::compiler::type_expression {
 
   class record_type : public expression {
   public:
-    record_type(std::vector<std::pair<std::string, std::shared_ptr<expression>>>
-                    field_types_)
+    explicit record_type(
+        std::vector<std::pair<std::string, std::shared_ptr<expression>>>
+            field_types_)
         : field_types(std::move(field_types_)) {}
     ~record_type() override = default;
 
@@ -96,11 +92,34 @@ namespace cyy::compiler::type_expression {
         field_types;
   };
 
+  class class_type : public expression {
+  public:
+    class_type(std::shared_ptr<expression> parent_class_type_,
+               std::vector<std::pair<std::string, std::shared_ptr<expression>>>
+                   field_types_)
+        : parent_class_type(std::move(parent_class_type_)),
+          field_types(std::move(field_types_)) {
+      if (parent_class_type && !is_class_type(*parent_class_type)) {
+        throw exception::not_class_type("parent class");
+      }
+    }
+    ~class_type() override = default;
+
+    bool _equivalent_with(const expression &rhs) const override;
+
+    static bool is_class_type(const expression &type_expr);
+
+  private:
+    std::shared_ptr<expression> parent_class_type;
+    std::vector<std::pair<std::string, std::shared_ptr<expression>>>
+        field_types;
+  };
+
   class function_type : public expression {
   public:
     function_type(std::shared_ptr<expression> from_type_,
                   std::shared_ptr<expression> to_type_)
-        : from_type(std::move(from_type_)), to_type(to_type_) {}
+        : from_type(from_type_), to_type(to_type_) {}
     ~function_type() override = default;
 
     bool _equivalent_with(const expression &rhs) const override;
@@ -114,7 +133,7 @@ namespace cyy::compiler::type_expression {
   public:
     Cartesian_product_type(std::shared_ptr<expression> first_type_,
                            std::shared_ptr<expression> second_type_)
-        : first_type(std::move(first_type_)), second_type(second_type_) {}
+        : first_type(first_type_), second_type(second_type_) {}
     ~Cartesian_product_type() override = default;
 
     bool _equivalent_with(const expression &rhs) const override;

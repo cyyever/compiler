@@ -24,10 +24,8 @@ namespace cyy::compiler::type_expression {
     return ptr && ptr->type == type;
   }
 
-  std::shared_ptr<expression> &type_name::get_expression() const {
-    auto it = name_and_expressions.find(name);
-    assert(it != name_and_expressions.end());
-    return it->second;
+  const std::shared_ptr<expression> &type_name::get_expression() const {
+    return named_type;
   }
 
   bool type_name::_equivalent_with(const expression &rhs) const {
@@ -50,6 +48,45 @@ namespace cyy::compiler::type_expression {
            element_type->equivalent_with(*(ptr->element_type));
   }
 
+  bool class_type::_equivalent_with(const expression &rhs) const {
+    auto ptr = dynamic_cast<const class_type *>(&rhs);
+    if (!ptr) {
+      return false;
+    }
+    if (parent_class_type) {
+      if (!ptr->parent_class_type) {
+        return false;
+      }
+      if (!parent_class_type->equivalent_with(*(ptr->parent_class_type))) {
+        return false;
+      }
+    } else {
+      if (ptr->parent_class_type) {
+        return false;
+      }
+    }
+    if (ptr->field_types.size() != field_types.size()) {
+      return false;
+    }
+    for (size_t i = 0; i < field_types.size(); i++) {
+      if (field_types[i].first != ptr->field_types[i].first) {
+        return false;
+      }
+      if (!field_types[i].second->equivalent_with(
+              *(ptr->field_types[i].second))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool class_type::is_class_type(const expression &type_expr) {
+    auto type_name_ptr = dynamic_cast<const type_name *>(&type_expr);
+    if (type_name_ptr) {
+      return is_class_type(*type_name_ptr);
+    }
+    return dynamic_cast<const class_type *>(&type_expr) != nullptr;
+  }
   bool record_type::_equivalent_with(const expression &rhs) const {
     auto ptr = dynamic_cast<const record_type *>(&rhs);
     if (!ptr) {
