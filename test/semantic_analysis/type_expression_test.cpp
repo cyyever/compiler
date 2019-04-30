@@ -422,8 +422,8 @@ TEST_CASE("types and storage layout") {
     REQUIRE(table->get_entry("tag"));
     REQUIRE(table->get_entry("tag")->type->equivalent_with(
         cyy::compiler::type_expression::basic_type(
-            REQUIRE(table->get_entry("tag")->relative_address == 0);
             cyy::compiler::type_expression::basic_type::type_enum::INT)));
+    REQUIRE(table->get_entry("tag")->relative_address == 0);
     REQUIRE(table->get_entry("x"));
     REQUIRE(table->get_entry("x")->type->equivalent_with(
         cyy::compiler::type_expression::basic_type(
