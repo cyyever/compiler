@@ -46,6 +46,25 @@ namespace cyy::compiler {
       if (it != entries.end()) {
         return it->second;
       }
+      if (prev_table) {
+        return prev_table->get_entry(lexeme);
+      }
+      return {};
+    }
+
+    bool add_type_name(std::shared_ptr<type_expression::type_name> expr) {
+      return type_names.emplace(expr->get_name(), expr).second;
+    }
+
+    std::optional<std::shared_ptr<type_expression::type_name>>
+    get_type(const std::string &type_name) {
+      auto it = type_names.find(type_name);
+      if (it != type_names.end()) {
+        return it->second;
+      }
+      if (prev_table) {
+        return prev_table->get_type(type_name);
+      }
       return {};
     }
 
@@ -58,6 +77,8 @@ namespace cyy::compiler {
 
   private:
     std::unordered_map<std::string, entry> entries;
+    std::unordered_map<std::string, std::shared_ptr<type_expression::type_name>>
+        type_names;
     std::shared_ptr<symbol_table> prev_table;
   };
 } // namespace cyy::compiler

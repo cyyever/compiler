@@ -51,6 +51,7 @@ namespace cyy::compiler::type_expression {
         : name(std::move(name_)), named_type(named_type_) {}
     ~type_name() override = default;
 
+    const std::string &get_name() const { return name; }
     const std::shared_ptr<expression> &get_expression() const;
     bool _equivalent_with(const expression &rhs) const override;
 
