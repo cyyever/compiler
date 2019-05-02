@@ -12,7 +12,7 @@
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
 
   using namespace cyy::computation;
-  cyy::computation::symbol_string source_code;
+  std::string source_code;
 
   for (size_t i = 0; i < Size; i++) {
     source_code.push_back(Data[i] % 95 + 32);
@@ -35,7 +35,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
       analyzer.append_pattern('=', U"=");
       inited = true;
     }
-    analyzer.set_source_code(symbol_istringstream(source_code));
+    analyzer.set_source_code(std::istringstream(source_code));
     analyzer.scan();
   } catch (const std::invalid_argument &) {
   }

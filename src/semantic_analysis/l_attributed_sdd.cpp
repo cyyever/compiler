@@ -89,8 +89,7 @@ namespace cyy::compiler {
                       continue;
                     }
 
-                    std::vector<std::reference_wrapper<const std::any>>
-                        argument_values;
+                    std::vector<const std::any *> argument_values;
                     for (auto const &argument : rule.arguments) {
                       auto index = argument.get_index();
 
@@ -103,7 +102,7 @@ namespace cyy::compiler {
                         throw exception::unexisted_grammar_symbol_attribute(
                             argument.get_name());
                       }
-                      argument_values.emplace_back(it2->second);
+                      argument_values.emplace_back(&(it2->second));
                     }
 
                     auto result_value_opt = rule.action(argument_values);
@@ -156,8 +155,7 @@ namespace cyy::compiler {
                     continue;
                   }
 
-                  std::vector<std::reference_wrapper<const std::any>>
-                      argument_values;
+                  std::vector<const std::any *> argument_values;
                   for (auto const &argument : rule.arguments) {
                     auto index = argument.get_index();
                     auto &grammar_symbol_attributes =
@@ -170,7 +168,7 @@ namespace cyy::compiler {
                       throw exception::unexisted_grammar_symbol_attribute(
                           argument.get_name());
                     }
-                    argument_values.emplace_back(it2->second);
+                    argument_values.emplace_back(&(it2->second));
                   }
 
                   auto result_value_opt = rule.action(argument_values);
@@ -202,8 +200,7 @@ namespace cyy::compiler {
                       continue;
                     }
 
-                    std::vector<std::reference_wrapper<const std::any>>
-                        argument_values;
+                    std::vector<const std::any *> argument_values;
                     for (auto const &argument : rule.arguments) {
                       auto index = argument.get_index();
 
@@ -217,7 +214,7 @@ namespace cyy::compiler {
                         throw exception::unexisted_grammar_symbol_attribute(
                             argument.get_full_name(production));
                       }
-                      argument_values.emplace_back(it2->second);
+                      argument_values.emplace_back(&(it2->second));
                     }
 
                     auto result_value_opt = rule.action(argument_values);
@@ -247,7 +244,7 @@ namespace cyy::compiler {
       return {};
     }
     assert(grammal_symbol_attributes_stack.size() == 1);
-    return final_attributes;
+    return std::move(final_attributes);
   }
 
   void L_attributed_SDD::check_attributes() const {
@@ -275,7 +272,7 @@ namespace cyy::compiler {
           if (index == 0) {
             if (!inherited_attributes.count(
                     argument.get_full_name(production))) {
-              throw exception::no_synthesized_grammar_symbol_attribute(
+              throw exception::no_inherited_grammar_symbol_attribute(
                   argument.get_name());
             }
           }

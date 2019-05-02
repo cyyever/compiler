@@ -59,8 +59,7 @@ namespace cyy::compiler {
               auto it = all_rules.find(production);
               if (it != all_rules.end()) {
                 for (auto const &rule : it->second) {
-                  std::vector<std::reference_wrapper<const std::any>>
-                      argument_values;
+                  std::vector<const std::any *> argument_values;
                   for (auto const &argument : rule.arguments) {
                     auto index = argument.get_index();
                     auto &grammar_symbol_attributes =
@@ -76,7 +75,7 @@ namespace cyy::compiler {
                       throw exception::unexisted_grammar_symbol_attribute(
                           argument.get_name());
                     }
-                    argument_values.emplace_back(it2->second);
+                    argument_values.emplace_back(&(it2->second));
                   }
                   auto result_value_opt = rule.action(argument_values);
                   if (rule.result_attribute) {
@@ -106,7 +105,7 @@ namespace cyy::compiler {
     }
     assert(grammal_symbol_attributes_stack.size() == 1);
 
-    return final_attributes;
+    return std::move(final_attributes);
   }
 
   void S_attributed_SDD::check_attributes() const {

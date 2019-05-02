@@ -40,7 +40,7 @@ namespace cyy::compiler {
       std::optional<grammar_symbol_attribute_name> result_attribute;
       std::vector<grammar_symbol_attribute_name> arguments;
       using semantic_action_type = std::function<std::optional<std::any>(
-          const std::vector<std::reference_wrapper<const std::any>> &)>;
+          const std::vector<const std::any *> &)>;
       semantic_action_type action;
     };
 

@@ -72,9 +72,10 @@ namespace cyy::compiler {
     token cur_token;
     cur_token.attribute = cur_attribute;
     while (!cur_view.empty()) {
-      symbol_type c = cur_view.front();
+      auto c = cur_view.front();
       cur_view.remove_prefix(1);
-      auto cur_state_opt = dfa_opt->move(cur_state, c);
+      auto cur_state_opt = dfa_opt->move(
+          cur_state, static_cast<cyy::computation::symbol_type>(c));
 
       if (c == '\n') {
         cur_attribute.line_no++;

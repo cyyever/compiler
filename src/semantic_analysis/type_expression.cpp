@@ -39,6 +39,9 @@ namespace cyy::compiler::type_expression {
     }
     return get_expression()->equivalent_with(rhs);
   }
+  bool type_name::is_type_name(const expression &type_expr) {
+    return dynamic_cast<const type_name *>(&type_expr) != nullptr;
+  }
 
   void type_name::make_stand_for_self() { stand_for_self = true; }
 
@@ -83,10 +86,11 @@ namespace cyy::compiler::type_expression {
   bool class_type::is_class_type(const expression &type_expr) {
     auto type_name_ptr = dynamic_cast<const type_name *>(&type_expr);
     if (type_name_ptr) {
-      return is_class_type(*type_name_ptr);
+      return is_class_type(*type_name_ptr->get_expression());
     }
     return dynamic_cast<const class_type *>(&type_expr) != nullptr;
   }
+
   bool record_type::_equivalent_with(const expression &rhs) const {
     auto ptr = dynamic_cast<const record_type *>(&rhs);
     if (!ptr) {
@@ -105,6 +109,14 @@ namespace cyy::compiler::type_expression {
       }
     }
     return true;
+  }
+
+  bool record_type::is_record_type(const expression &type_expr) {
+    auto type_name_ptr = dynamic_cast<const type_name *>(&type_expr);
+    if (type_name_ptr) {
+      return is_record_type(*type_name_ptr);
+    }
+    return dynamic_cast<const record_type *>(&type_expr) != nullptr;
   }
 
   bool function_type::_equivalent_with(const expression &rhs) const {

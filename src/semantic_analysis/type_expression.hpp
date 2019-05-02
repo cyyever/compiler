@@ -34,7 +34,6 @@ namespace cyy::compiler::type_expression {
       CHAR,
       INT,
       FLOAT,
-      VOID,
     };
     basic_type(type_enum type_) : type(type_) {}
     ~basic_type() override = default;
@@ -55,6 +54,7 @@ namespace cyy::compiler::type_expression {
     const std::shared_ptr<expression> &get_expression() const;
     bool _equivalent_with(const expression &rhs) const override;
 
+    static bool is_type_name(const expression &type_expr);
     static void make_stand_for_self();
 
   private:
@@ -87,6 +87,7 @@ namespace cyy::compiler::type_expression {
     ~record_type() override = default;
 
     bool _equivalent_with(const expression &rhs) const override;
+    static bool is_record_type(const expression &type_expr);
 
   private:
     std::vector<std::pair<std::string, std::shared_ptr<expression>>>

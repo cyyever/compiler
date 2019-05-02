@@ -17,85 +17,82 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
 
   std::unique_ptr<S_attributed_SDD> sdd_ptr;
   if (!sdd_ptr) {
-    std::vector<std::pair<CFG::nonterminal_type, CFG::production_body_type>>
-        production_vector;
+    std::vector<CFG_production> production_vector;
 
     std::vector<SDD::semantic_rule> rules;
 
-    production_vector.emplace_back("L", CFG::production_body_type{"E"});
+    production_vector.emplace_back("L", CFG_production::body_type{"E"});
 
     rules.emplace_back(SDD::semantic_rule{
         "L.val",
         {"E.val"},
-        [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-            -> std::optional<std::any> { return arguments.at(0).get(); }});
+        [](const auto &arguments) -> std::optional<std::any> {
+          return *arguments[0];
+        }});
 
     production_vector.emplace_back("E",
-                                   CFG::production_body_type{"E", '+', "T"});
+                                   CFG_production::body_type{"E", '+', "T"});
 
     rules.emplace_back(SDD::semantic_rule{
         "E.val",
         {"E.val", "T.val"},
-        [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-            -> std::optional<std::any> {
-          auto E_val = std::any_cast<int>(arguments.at(0).get());
-          auto T_val = std::any_cast<int>(arguments.at(1).get());
+        [](const auto &arguments) -> std::optional<std::any> {
+          auto E_val = std::any_cast<int>(*arguments[0]);
+          auto T_val = std::any_cast<int>(*arguments[1]);
           return std::make_any<int>(E_val + T_val);
         }});
 
-    production_vector.emplace_back("E", CFG::production_body_type{"T"});
+    production_vector.emplace_back("E", CFG_production::body_type{"T"});
     rules.emplace_back(SDD::semantic_rule{
         "E.val",
         {"T.val"},
-        [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-            -> std::optional<std::any> { return arguments.at(0).get(); }});
+        [](const auto &arguments) -> std::optional<std::any> {
+          return *arguments[0];
+        }});
     production_vector.emplace_back("T",
-                                   CFG::production_body_type{"T", '*', "F"});
+                                   CFG_production::body_type{"T", '*', "F"});
 
     rules.emplace_back(SDD::semantic_rule{
         "T.val",
         {"T.val", "F.val"},
-        [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-            -> std::optional<std::any> {
-          auto T_val = std::any_cast<int>(arguments.at(0).get());
-          auto F_val = std::any_cast<int>(arguments.at(1).get());
+        [](const auto &arguments) -> std::optional<std::any> {
+          auto T_val = std::any_cast<int>(*arguments[0]);
+          auto F_val = std::any_cast<int>(*arguments[1]);
           return std::make_any<int>(T_val * F_val);
         }});
 
-    production_vector.emplace_back("T", CFG::production_body_type{"F"});
+    production_vector.emplace_back("T", CFG_production::body_type{"F"});
     rules.emplace_back(SDD::semantic_rule{
         "T.val",
         {"F.val"},
-        [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-            -> std::optional<std::any> { return arguments.at(0).get(); }});
+        [](const auto &arguments) -> std::optional<std::any> {
+          return *arguments[0];
+        }});
 
     production_vector.emplace_back("F",
-                                   CFG::production_body_type{'(', "E", ')'});
+                                   CFG_production::body_type{'(', "E", ')'});
 
     rules.emplace_back(SDD::semantic_rule{
         "F.val",
         {"E.val"},
-        [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-            -> std::optional<std::any> { return arguments.at(0).get(); }});
+        [](const auto &arguments) -> std::optional<std::any> {
+          return *arguments[0];
+        }});
 
     auto digit_token = static_cast<CFG::terminal_type>(common_token::digit);
-    production_vector.emplace_back("F", CFG::production_body_type{digit_token});
+    production_vector.emplace_back("F", CFG_production::body_type{digit_token});
 
     rules.emplace_back(SDD::semantic_rule{
-        "F.val",
-        {"$0"},
-        [](const std::vector<std::reference_wrapper<const std::any>> &arguments)
-            -> std::optional<std::any> {
+        "F.val", {"$0"}, [](const auto &arguments) -> std::optional<std::any> {
           return std::make_any<int>(
-              static_cast<char>(
-                  std::any_cast<token>(arguments.at(0)).lexeme[0]) -
+              static_cast<char>(std::any_cast<token>(*arguments[0]).lexeme[0]) -
               '0');
         }});
 
-    std::map<CFG::nonterminal_type, std::vector<CFG::production_body_type>>
+    std::map<CFG::nonterminal_type, std::vector<CFG_production::body_type>>
         productions;
-    for (auto const &[head, body] : production_vector) {
-      productions[head].emplace_back(body);
+    for (auto const &p : production_vector) {
+      productions[p.get_head()].emplace_back(p.get_body());
     }
 
     SLR_grammar grammar("common_tokens", "L", productions);
@@ -111,10 +108,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
     std::vector<token> tokens;
     for (size_t i = 0; i < Size; i++) {
       symbol_type symbol = Data[i] % 95 + 32;
-      tokens.push_back(token{symbol, symbol_string{symbol}, {}});
+      tokens.push_back(
+          token{symbol, std::string{static_cast<char>(symbol)}, {}});
     }
 
-    sdd_ptr->run(tokens);
+    sdd_ptr->run(tokens, {"L.val"});
   } catch (const std::exception &) {
   }
   return 0; // Non-zero return values are reserved for future use.

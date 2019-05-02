@@ -35,10 +35,10 @@ TEST_CASE("syntax tree") {
       [](const auto &arguments) -> std::optional<std::any> {
         auto E_val =
             std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
-                arguments.at(0).get());
+                *(arguments[0]));
         auto T_val =
             std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
-                arguments.at(1).get());
+                *(arguments[1]));
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::binary_expression_node>(
                 syntax_tree::binary_operator::addtion, E_val, T_val));
@@ -52,10 +52,10 @@ TEST_CASE("syntax tree") {
       [](const auto &arguments) -> std::optional<std::any> {
         auto E_val =
             std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
-                arguments.at(0).get());
+                *(arguments[0]));
         auto T_val =
             std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
-                arguments.at(1).get());
+                *(arguments[1]));
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::binary_expression_node>(
                 syntax_tree::binary_operator::subtraction, E_val, T_val));
@@ -66,7 +66,7 @@ TEST_CASE("syntax tree") {
       SDD::semantic_rule{"$0.node",
                          {"$1.node"},
                          [](const auto &arguments) -> std::optional<std::any> {
-                           return arguments.at(0).get();
+                           return *(arguments[0]);
                          }});
 
   production_vector.emplace_back("T", CFG_production::body_type{'(', "E", ')'});
@@ -75,7 +75,7 @@ TEST_CASE("syntax tree") {
       SDD::semantic_rule{"$0.node",
                          {"$2.node"},
                          [](const auto &arguments) -> std::optional<std::any> {
-                           return arguments.at(0).get();
+                           return *(arguments[0]);
                          }});
 
   auto number_token = static_cast<CFG::terminal_type>(common_token::number);
@@ -84,7 +84,7 @@ TEST_CASE("syntax tree") {
       "$0.node", {"$1"}, [](const auto &arguments) -> std::optional<std::any> {
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::symbol_node>(
-                std::any_cast<token>(arguments.at(0)).lexeme)
+                std::any_cast<token>(*arguments[0]).lexeme)
                 ->common_subexpression_elimination_by_DAG());
       }});
 
@@ -94,7 +94,7 @@ TEST_CASE("syntax tree") {
       "$0.node", {"$1"}, [](const auto &arguments) -> std::optional<std::any> {
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::symbol_node>(
-                std::any_cast<token>(arguments.at(0)).lexeme)
+                std::any_cast<token>(*arguments[0]).lexeme)
                 ->common_subexpression_elimination_by_DAG());
       }});
 
@@ -139,10 +139,10 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
       [](const auto &arguments) -> std::optional<std::any> {
         auto E_val =
             std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
-                arguments.at(0).get());
+                *(arguments[0]));
         auto T_val =
             std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
-                arguments.at(1).get());
+                *(arguments[1]));
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::binary_expression_node>(
                 syntax_tree::binary_operator::addtion, E_val, T_val)
@@ -157,10 +157,10 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
       [](const auto &arguments) -> std::optional<std::any> {
         auto E_val =
             std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
-                arguments.at(0).get());
+                *(arguments[0]));
         auto T_val =
             std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
-                arguments.at(1).get());
+                *(arguments[1]));
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::binary_expression_node>(
                 syntax_tree::binary_operator::subtraction, E_val, T_val)
@@ -172,7 +172,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
       SDD::semantic_rule{"$0.node",
                          {"$1.node"},
                          [](const auto &arguments) -> std::optional<std::any> {
-                           return arguments.at(0).get();
+                           return *(arguments[0]);
                          }});
 
   production_vector.emplace_back("T", CFG_production::body_type{"T", '*', "F"});
@@ -182,10 +182,10 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
       [](const auto &arguments) -> std::optional<std::any> {
         auto T_val =
             std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
-                arguments.at(0).get());
+                *(arguments[0]));
         auto F_val =
             std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
-                arguments.at(1).get());
+                *(arguments[1]));
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::binary_expression_node>(
                 syntax_tree::binary_operator::multiplication, T_val, F_val));
@@ -196,7 +196,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
       SDD::semantic_rule{"$0.node",
                          {"$1.node"},
                          [](const auto &arguments) -> std::optional<std::any> {
-                           return arguments.at(0).get();
+                           return *(arguments[0]);
                          }});
 
   production_vector.emplace_back("F", CFG_production::body_type{'(', "E", ')'});
@@ -205,7 +205,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
       SDD::semantic_rule{"$0.node",
                          {"$2.node"},
                          [](const auto &arguments) -> std::optional<std::any> {
-                           return arguments.at(0).get();
+                           return *(arguments[0]);
                          }});
 
   auto number_token = static_cast<CFG::terminal_type>(common_token::number);
@@ -214,7 +214,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
       "$0.node", {"$1"}, [](const auto &arguments) -> std::optional<std::any> {
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::symbol_node>(
-                std::any_cast<token>(arguments.at(0)).lexeme));
+                std::any_cast<token>(*arguments[0]).lexeme));
       }});
 
   auto id_token = static_cast<CFG::terminal_type>(common_token::id);
@@ -223,7 +223,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
       "$0.node", {"$1"}, [](const auto &arguments) -> std::optional<std::any> {
         return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
             std::make_shared<syntax_tree::symbol_node>(
-                std::any_cast<token>(arguments.at(0)).lexeme));
+                std::any_cast<token>(*arguments[0]).lexeme));
       }});
 
   REQUIRE(production_vector.size() == rules.size());

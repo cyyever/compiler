@@ -32,44 +32,44 @@ TEST_CASE("run") {
       SDD::semantic_rule{"$0.val",
                          {"$1.val"},
                          [](const auto &arguments) -> std::optional<std::any> {
-                           return arguments.at(0).get();
+                           return *(arguments[0]);
                          }});
 
   production_vector.emplace_back("E", CFG_production::body_type{"E", '+', "T"});
 
-  rules.emplace_back(SDD::semantic_rule{
-      "$0.val",
-      {"$1.val", "$3.val"},
-      [](const auto &arguments) -> std::optional<std::any> {
-        auto E_val = std::any_cast<int>(arguments.at(0).get());
-        auto T_val = std::any_cast<int>(arguments.at(1).get());
-        return std::make_any<int>(E_val + T_val);
-      }});
+  rules.emplace_back(
+      SDD::semantic_rule{"$0.val",
+                         {"$1.val", "$3.val"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           auto E_val = std::any_cast<int>(*(arguments[0]));
+                           auto T_val = std::any_cast<int>(*(arguments[1]));
+                           return std::make_any<int>(E_val + T_val);
+                         }});
 
   production_vector.emplace_back("E", CFG_production::body_type{"T"});
   rules.emplace_back(
       SDD::semantic_rule{"$0.val",
                          {"$1.val"},
                          [](const auto &arguments) -> std::optional<std::any> {
-                           return arguments.at(0).get();
+                           return *(arguments[0]);
                          }});
   production_vector.emplace_back("T", CFG_production::body_type{"T", '*', "F"});
 
-  rules.emplace_back(SDD::semantic_rule{
-      "$0.val",
-      {"$1.val", "$3.val"},
-      [](const auto &arguments) -> std::optional<std::any> {
-        auto T_val = std::any_cast<int>(arguments.at(0).get());
-        auto F_val = std::any_cast<int>(arguments.at(1).get());
-        return std::make_any<int>(T_val * F_val);
-      }});
+  rules.emplace_back(
+      SDD::semantic_rule{"$0.val",
+                         {"$1.val", "$3.val"},
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           auto T_val = std::any_cast<int>(*(arguments[0]));
+                           auto F_val = std::any_cast<int>(*(arguments[1]));
+                           return std::make_any<int>(T_val * F_val);
+                         }});
 
   production_vector.emplace_back("T", CFG_production::body_type{"F"});
   rules.emplace_back(
       SDD::semantic_rule{"$0.val",
                          {"$1.val"},
                          [](const auto &arguments) -> std::optional<std::any> {
-                           return arguments.at(0).get();
+                           return *(arguments[0]);
                          }});
 
   production_vector.emplace_back("F", CFG_production::body_type{'(', "E", ')'});
@@ -78,7 +78,7 @@ TEST_CASE("run") {
       SDD::semantic_rule{"$0.val",
                          {"$2.val"},
                          [](const auto &arguments) -> std::optional<std::any> {
-                           return arguments.at(0).get();
+                           return *(arguments[0]);
                          }});
 
   auto digit_token = static_cast<CFG::terminal_type>(common_token::digit);
@@ -87,8 +87,7 @@ TEST_CASE("run") {
   rules.emplace_back(SDD::semantic_rule{
       "$0.val", {"$1"}, [](const auto &arguments) -> std::optional<std::any> {
         return std::make_any<int>(
-            static_cast<char>(
-                std::any_cast<token>(arguments.at(0).get()).lexeme[0]) -
+            static_cast<char>(std::any_cast<token>(*(arguments[0])).lexeme[0]) -
             '0');
       }});
 
@@ -111,8 +110,7 @@ TEST_CASE("run") {
       SDD::semantic_rule{"$0.val_inc",
                          {"$0.val"},
                          [](const auto &arguments) -> std::optional<std::any> {
-                           auto L_val =
-                               std::any_cast<int>(arguments.at(0).get());
+                           auto L_val = std::any_cast<int>(*(arguments[0]));
                            return std::make_any<int>(L_val + 1);
                          }});
 
@@ -121,8 +119,7 @@ TEST_CASE("run") {
       SDD::semantic_rule{{},
                          {"$0.val_inc"},
                          [](const auto &arguments) -> std::optional<std::any> {
-                           auto L_val_inc =
-                               std::any_cast<int>(arguments.at(0).get());
+                           auto L_val_inc = std::any_cast<int>(*(arguments[0]));
 
                            std::cout << "in semantic procedure val_inc is "
                                      << L_val_inc << std::endl;

@@ -17,7 +17,9 @@ namespace cyy::compiler {
   public:
     class address {
     public:
-      address(symbol_string lexeme_) : lexeme{std::move(lexeme_)} {}
+      explicit address(symbol_string lexeme_) : lexeme{std::move(lexeme_)} {}
+      address(const address &) = default;
+      address(address &&) = default;
       virtual ~address() = default;
 
     protected:
