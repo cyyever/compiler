@@ -37,14 +37,18 @@ namespace cyy::compiler {
     }
     return {};
   }
-  bool symbol_table::add_type_name(
-      std::shared_ptr<type_expression::type_name> expr) {
-    return type_names.emplace(expr->get_name(), expr).second;
+  bool symbol_table::add_type(
+      std::shared_ptr<type_expression::type_name> expr,
+      std::shared_ptr<symbol_table> associated_symbol_table) {
+    return types
+        .emplace(expr->get_name(), std::pair{expr, associated_symbol_table})
+        .second;
   }
-  std::optional<std::shared_ptr<type_expression::type_name>>
-  symbol_table::get_type(const std::string &type_name) {
-    auto it = type_names.find(type_name);
-    if (it != type_names.end()) {
+  std::optional<std::pair<std::shared_ptr<type_expression::type_name>,
+                          std::shared_ptr<symbol_table>>>
+  symbol_table::get_type(const std::string &type_name) const {
+    auto it = types.find(type_name);
+    if (it != types.end()) {
       return it->second;
     }
     if (prev_table) {

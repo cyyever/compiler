@@ -259,18 +259,19 @@ TEST_CASE("types and storage layout") {
       production_vector[0],
       SDD::semantic_rule{
           "$4.symbol_table",
-          {"$0.symbol_table", "$0.offset", "$1.type",
+          {"$0.symbol_table", "$0.offset", "$1.type", "$1.width",
            "$1.associated_symbol_table", "$2"},
           [](const auto &arguments) -> std::optional<std::any> {
             symbol_table_entry e;
-            e.lexeme = std::any_cast<token>(*(arguments.at(4))).lexeme;
+            e.lexeme = std::any_cast<token>(*(arguments.at(5))).lexeme;
             e.type =
                 std::any_cast<std::shared_ptr<type_expression::expression>>(
                     *(arguments.at(2)));
             e.relative_address = std::any_cast<size_t>(*(arguments.at(1)));
+            e.width = std::any_cast<size_t>(*(arguments.at(3)));
             e.associated_symbol_table =
                 std::any_cast<std::shared_ptr<symbol_table>>(
-                    *(arguments.at(3)));
+                    *(arguments.at(4)));
             auto table = std::any_cast<std::shared_ptr<symbol_table>>(
                 *(arguments.at(0)));
             if (!table->add_entry(e)) {
@@ -280,8 +281,7 @@ TEST_CASE("types and storage layout") {
             auto type_name_ptr =
                 std::dynamic_pointer_cast<type_expression::type_name>(e.type);
             if (type_name_ptr) {
-              std::cout << "add type" << type_name_ptr->get_name() << std::endl;
-              table->add_type_name(type_name_ptr);
+              table->add_type(type_name_ptr, e.associated_symbol_table);
             }
             return std::make_any<std::shared_ptr<symbol_table>>(table);
           }});
@@ -448,6 +448,7 @@ TEST_CASE("types and storage layout") {
 
     auto e = table->get_entry("q");
     REQUIRE(e.has_value());
+
     REQUIRE(e->associated_symbol_table);
     REQUIRE(e->associated_symbol_table->get_entry("tag")->type->equivalent_with(
         cyy::compiler::type_expression::basic_type(
@@ -532,7 +533,7 @@ TEST_CASE("types and storage layout") {
             [](const auto &arguments) -> std::optional<std::any> {
               std::vector<symbol_table_entry> sorted_entries;
 
-              auto const &table = std::any_cast<std::shared_ptr<symbol_table>>(
+              auto table = std::any_cast<std::shared_ptr<symbol_table>>(
                   *arguments.at(3));
               table->foreach_entry([&sorted_entries](auto const &e) {
                 sorted_entries.push_back(e);
@@ -557,6 +558,8 @@ TEST_CASE("types and storage layout") {
                   std::any_cast<std::string>(*(arguments.at(2)));
               std::shared_ptr<cyy::compiler::type_expression::expression>
                   parent_class;
+              std::shared_ptr<cyy::compiler::symbol_table>
+                  parent_class_symbol_table;
               if (!parent_class_name.empty()) {
                 auto const &scope_symbol_table =
                     std::any_cast<std::shared_ptr<symbol_table>>(
@@ -564,11 +567,14 @@ TEST_CASE("types and storage layout") {
                 auto parent_class_opt =
                     scope_symbol_table->get_type(parent_class_name);
                 if (!parent_class_opt) {
-                  std::cout << "no type" << parent_class_name << std::endl;
                   throw cyy::compiler::exception::no_parent_class(
                       parent_class_name);
                 }
-                parent_class = *parent_class_opt;
+                std::tie(parent_class, parent_class_symbol_table) =
+                    *parent_class_opt;
+                table->add_relative_address_offset(
+                    parent_class_symbol_table->get_total_width());
+                table->set_prev_table(parent_class_symbol_table);
               }
               auto class_type = std::make_shared<
                   cyy::compiler::type_expression::type_name>(

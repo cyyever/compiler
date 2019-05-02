@@ -24,6 +24,7 @@ namespace cyy::compiler {
     std::string lexeme;
     std::shared_ptr<type_expression::expression> type;
     size_t relative_address{};
+    size_t width{};
     std::shared_ptr<symbol_table> associated_symbol_table;
 
     bool operator==(const symbol_table_entry &rhs) const {
@@ -56,15 +57,20 @@ namespace cyy::compiler {
     symbol_table() = default;
     virtual ~symbol_table() = default;
 
+    void set_prev_table(std::shared_ptr<symbol_table> prev_table_) {
+      prev_table = prev_table_;
+    }
     bool has_entry(const std::string &lexeme) const;
     bool add_entry(const symbol_table_entry &e);
     std::optional<symbol_table_entry>
     get_entry(const std::string &lexeme) const;
 
-    bool add_type_name(std::shared_ptr<type_expression::type_name> expr);
+    bool add_type(std::shared_ptr<type_expression::type_name> expr,
+                  std::shared_ptr<symbol_table> associated_symbol_table);
 
-    std::optional<std::shared_ptr<type_expression::type_name>>
-    get_type(const std::string &type_name);
+    std::optional<std::pair<std::shared_ptr<type_expression::type_name>,
+                            std::shared_ptr<symbol_table>>>
+    get_type(const std::string &type_name) const;
 
     void foreach_entry(
         const std::function<void(const symbol_table_entry &)> &callback) const {
@@ -73,10 +79,32 @@ namespace cyy::compiler {
       }
     }
 
+    size_t get_total_width() const {
+      size_t total_width = 0;
+      for (auto const &e : entries) {
+        total_width += e.width;
+      }
+      return total_width;
+    }
+
+    void add_relative_address_offset(size_t offset) {
+      /*
+      decltype(entries) new_entries;
+      while (!entries.empty()) {
+        auto node = entries.extract(entries.begin());
+      }
+      */
+      for (auto &e : entries) {
+        const_cast<symbol_table_entry &>(e).relative_address += offset;
+      }
+    }
+
   private:
     std::unordered_set<symbol_table_entry> entries;
-    std::unordered_map<std::string, std::shared_ptr<type_expression::type_name>>
-        type_names;
+    std::unordered_map<std::string,
+                       std::pair<std::shared_ptr<type_expression::type_name>,
+                                 std::shared_ptr<symbol_table>>>
+        types;
     std::shared_ptr<symbol_table> prev_table;
   };
 } // namespace cyy::compiler
