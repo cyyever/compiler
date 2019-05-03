@@ -33,7 +33,6 @@ namespace cyy::compiler {
         grammal_symbol_attributes_stack;
     // for start symbol
     grammal_symbol_attributes_stack.emplace_back();
-    std::vector<size_t> terminal_positions;
     size_t next_position = 0;
 
     std::map<std::string, std::any> final_attributes;
@@ -51,7 +50,7 @@ namespace cyy::compiler {
                 if (!cfg.get_alphabet().is_epsilon(terminal)) {
                   assert(next_position < static_cast<size_t>(span.size()));
                   grammal_symbol_attributes_stack.back().emplace(
-                      "token", span[next_position]);
+                      "token", span[static_cast<ssize_t>(next_position)]);
                   next_position++;
                 }
               }

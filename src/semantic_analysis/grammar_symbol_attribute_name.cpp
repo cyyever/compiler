@@ -43,10 +43,7 @@ namespace cyy::compiler {
   bool grammar_symbol_attribute_name::belong_to_production(
       const cyy::computation::CFG_production &production) const {
     if (index == 0) {
-      if (!match(production.get_head())) {
-        return false;
-      }
-      return true;
+      return match(production.get_head());
     }
 
     if (index > production.get_body().size()) {

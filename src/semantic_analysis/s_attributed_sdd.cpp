@@ -32,7 +32,6 @@ namespace cyy::compiler {
 
     std::vector<std::map<std::string, std::any>>
         grammal_symbol_attributes_stack;
-    std::vector<size_t> terminal_positions;
     size_t next_position = 0;
     std::map<std::string, std::any> final_attributes;
     if (!dynamic_cast<const LR_grammar &>(cfg).parse(
@@ -46,10 +45,10 @@ namespace cyy::compiler {
               assert(next_position < static_cast<size_t>(span.size()));
               grammal_symbol_attributes_stack.emplace_back();
               grammal_symbol_attributes_stack.back().emplace(
-                  "token", span[next_position]);
+                  "token", span[static_cast<ssize_t>(next_position)]);
               next_position++;
             },
-            [&span, &result_attribute_names, &final_attributes,
+            [&result_attribute_names, &final_attributes,
              &grammal_symbol_attributes_stack, this](auto const &production) {
               const auto body_size = production.get_body().size();
               const auto stake_size = grammal_symbol_attributes_stack.size();
