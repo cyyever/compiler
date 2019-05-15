@@ -50,7 +50,8 @@ namespace cyy::compiler {
                 if (!cfg.get_alphabet().is_epsilon(terminal)) {
                   assert(next_position < static_cast<size_t>(span.size()));
                   grammal_symbol_attributes_stack.back().emplace(
-                      "token", span[static_cast<ssize_t>(next_position)]);
+                      "token",
+                      span[static_cast<std::ptrdiff_t>(next_position)]);
                   next_position++;
                 }
               }
@@ -261,7 +262,7 @@ namespace cyy::compiler {
         }
 
         for (auto const &argument : rule.arguments) {
-          auto index = argument.get_index();
+          const auto index = argument.get_index();
           if (index > result_attribute_index) {
             throw exception::no_inherited_grammar_symbol_attribute(
                 rule.result_attribute->get_name());
