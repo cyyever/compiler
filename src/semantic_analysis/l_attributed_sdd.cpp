@@ -258,7 +258,7 @@ namespace cyy::compiler {
         }
 
         for (auto const &argument : rule.arguments) {
-          auto index = argument.get_index();
+          const auto index = argument.get_index();
           if (index > result_attribute_index) {
             throw exception::no_inherited_grammar_symbol_attribute(
                 rule.result_attribute->get_name());

@@ -41,7 +41,7 @@ namespace cyy::compiler {
               assert(next_position < static_cast<size_t>(span.size()));
               grammal_symbol_attributes_stack.emplace_back();
               grammal_symbol_attributes_stack.back().emplace(
-                  "token", span[static_cast<ssize_t>(next_position)]);
+                  "token", span[static_cast<std::ptrdiff_t>(next_position)]);
               next_position++;
             },
             [&result_attribute_names, &final_attributes,
