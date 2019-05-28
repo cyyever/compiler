@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <cyy/computation/lang/lang.hpp>
+#include <cyy/computation/lang/symbol.hpp>
 #include <memory>
 
 namespace cyy::compiler {

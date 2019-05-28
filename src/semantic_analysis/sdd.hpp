@@ -18,7 +18,6 @@
 #include <vector>
 
 #include <cyy/computation/contex_free_lang/cfg.hpp>
-#include <cyy/computation/lang/lang.hpp>
 
 #include "../token/token.hpp"
 #include "grammar_symbol_attribute_name.hpp"

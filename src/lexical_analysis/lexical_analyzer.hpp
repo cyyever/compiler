@@ -8,11 +8,12 @@
 #pragma once
 
 #include <optional>
+#include <sstream>
 #include <string>
 #include <variant>
 #include <vector>
 
-#include <cyy/computation/lang/lang.hpp>
+#include <cyy/computation/lang/symbol.hpp>
 #include <cyy/computation/regular_lang/dfa.hpp>
 
 #include "../token/token.hpp"

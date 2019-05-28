@@ -12,7 +12,7 @@
 #include <set>
 #include <unordered_set>
 
-#include <cyy/computation/lang/lang.hpp>
+#include <cyy/computation/lang/symbol.hpp>
 
 #include "../semantic_analysis/type_expression.hpp"
 #include "../token/token.hpp"

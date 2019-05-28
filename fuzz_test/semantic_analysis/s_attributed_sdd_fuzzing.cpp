@@ -9,6 +9,7 @@
 #include "../../src/semantic_analysis/s_attributed_sdd.hpp"
 #include <cyy/computation/contex_free_lang/slr_grammar.hpp>
 #include <cyy/computation/lang/common_tokens.hpp>
+#include <memory>
 #include <mutex>
 
 using namespace cyy::computation;
@@ -105,7 +106,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
       }
 
       static SLR_grammar grammar("common_tokens", "L", productions);
-      sdd_ptr.reset(new S_attributed_SDD(grammar));
+      sdd_ptr = std::make_unique<S_attributed_SDD>(grammar);
 
       for (size_t i = 0; i < production_vector.size(); i++) {
         sdd_ptr->add_synthesized_attribute(production_vector[i],

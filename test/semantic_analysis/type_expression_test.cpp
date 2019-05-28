@@ -31,9 +31,7 @@ TEST_CASE("types and storage layout") {
       "D",
       CFG_production::body_type{
           "T", static_cast<CFG::terminal_type>(common_token::id), ';', "D"});
-  production_vector.emplace_back(
-      "D",
-      CFG_production::body_type{ALPHABET::get("common_tokens")->get_epsilon()});
+  production_vector.emplace_back("D", CFG_production::body_type{});
   production_vector.emplace_back("T", CFG_production::body_type{"B", "C"});
   production_vector.emplace_back(
       "T", CFG_production::body_type{
@@ -45,9 +43,7 @@ TEST_CASE("types and storage layout") {
   production_vector.emplace_back(
       "B", CFG_production::body_type{
                static_cast<CFG::terminal_type>(common_token::FLOAT)});
-  production_vector.emplace_back(
-      "C",
-      CFG_production::body_type{ALPHABET::get("common_tokens")->get_epsilon()});
+  production_vector.emplace_back("C", CFG_production::body_type{});
   production_vector.emplace_back(
       "C", CFG_production::body_type{
                '[', static_cast<CFG::terminal_type>(common_token::number), ']',
@@ -64,9 +60,7 @@ TEST_CASE("types and storage layout") {
                           static_cast<CFG::terminal_type>(':'),
                           static_cast<CFG::terminal_type>(common_token::id)});
 
-  production_vector.emplace_back(
-      "parent_class",
-      CFG_production::body_type{ALPHABET::get("common_tokens")->get_epsilon()});
+  production_vector.emplace_back("parent_class", CFG_production::body_type{});
   production_vector.emplace_back("P", CFG_production::body_type{"D"});
 
   std::map<CFG::nonterminal_type, std::vector<CFG_production::body_type>>

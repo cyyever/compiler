@@ -36,12 +36,8 @@ namespace cyy::compiler {
     std::map<std::string, std::any> final_attributes;
     if (!dynamic_cast<const LR_grammar &>(cfg).parse(
             token_names,
-            [this, &span, &next_position,
-             &grammal_symbol_attributes_stack](auto terminal) {
-              if (cfg.get_alphabet().is_epsilon(terminal)) {
-                grammal_symbol_attributes_stack.emplace_back();
-                return;
-              }
+            [&span, &next_position,
+             &grammal_symbol_attributes_stack]([[maybe_unused]] auto terminal) {
               assert(next_position < static_cast<size_t>(span.size()));
               grammal_symbol_attributes_stack.emplace_back();
               grammal_symbol_attributes_stack.back().emplace(

@@ -34,7 +34,9 @@ namespace cyy::compiler {
       auto sub_nfa = regex(alphabet_name, p.second).to_NFA(start_state);
       assert(sub_nfa.get_final_states().size() == 1);
       auto final_state = *(sub_nfa.get_final_states().begin());
-      nfa.add_sub_NFA(sub_nfa, true);
+      auto sub_start_state = sub_nfa.get_start_state();
+      nfa.add_sub_NFA(std::move(sub_nfa));
+      nfa.add_epsilon_transition(nfa.get_start_state(), {sub_start_state});
       pattern_final_states[final_state] = p.first;
       start_state = final_state + 1;
     }
@@ -58,7 +60,6 @@ namespace cyy::compiler {
       }
     }
     pattern_final_states = std::move(pattern_DFA_final_states);
-
     dfa_opt = std::move(dfa);
   }
 
