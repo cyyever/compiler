@@ -17,7 +17,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include <cyy/computation/contex_free_lang/cfg.hpp>
+#include <cyy/computation/context_free_lang/cfg.hpp>
 
 #include "../token/token.hpp"
 #include "grammar_symbol_attribute_name.hpp"

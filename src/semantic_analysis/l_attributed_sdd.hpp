@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <cyy/computation/contex_free_lang/ll_grammar.hpp>
+#include <cyy/computation/context_free_lang/ll_grammar.hpp>
 
 #include "sdd.hpp"
 
