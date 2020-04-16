@@ -8,8 +8,9 @@
 
 #pragma once
 
+#include <cyy/computation/context_free_lang/lr_grammar.hpp>
+
 #include "sdd.hpp"
-#include <cyy/computation/contex_free_lang/lr_grammar.hpp>
 
 namespace cyy::compiler {
   class S_attributed_SDD : public SDD {

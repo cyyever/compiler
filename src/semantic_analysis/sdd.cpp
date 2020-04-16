@@ -59,7 +59,7 @@ namespace cyy::compiler {
     if (rule.result_attribute) {
       auto it = all_rules.find(production);
       if (it != all_rules.end()) {
-        if (ranges::v3::any_of(it->second, [&rule](auto &r) {
+        if (ranges::any_of(it->second, [&rule](auto &r) {
               return r.result_attribute == rule.result_attribute;
             })) {
           throw exception::semantic_rule_confliction(production.get_head());

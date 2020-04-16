@@ -12,7 +12,7 @@
 #include <string_view>
 
 #include <cyy/computation/context_free_lang/cfg_production.hpp>
-#include <cyy/computation/formal_grammar/grammar.hpp>
+#include <cyy/computation/formal_grammar/grammar_symbol.hpp>
 
 namespace cyy::compiler {
   class grammar_symbol_attribute_name final {

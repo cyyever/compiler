@@ -19,11 +19,10 @@ struct token_attribute {
 
 struct token {
   symbol_type name{};
-  //symbol_
     std::string lexeme;
   token_attribute attribute;
 };
 
 using token_istream = std::basic_istream<token>;
-using token_span = ranges::v3::span<token>;
+using token_span = ranges::span<token>;
 } // namespace cyy::compiler
