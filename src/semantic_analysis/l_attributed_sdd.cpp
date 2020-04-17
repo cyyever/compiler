@@ -72,7 +72,7 @@ namespace cyy::compiler {
                       continue;
                     }
 
-                    if (ranges::v3::any_of(
+                    if (ranges::any_of(
                             rule.arguments,
                             [this, &production,
                              result_attribute_index](auto const &argument) {
@@ -139,7 +139,7 @@ namespace cyy::compiler {
                     continue;
                   }
 
-                  if (!ranges::v3::any_of(
+                  if (!ranges::any_of(
                           rule.arguments,
                           [this, &production,
                            result_attribute_index](auto const &argument) {
@@ -240,7 +240,7 @@ namespace cyy::compiler {
       return {};
     }
     assert(grammal_symbol_attributes_stack.size() == 1);
-    return std::move(final_attributes);
+    return final_attributes;
   }
 
   void L_attributed_SDD::check_attributes() const {

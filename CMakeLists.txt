@@ -8,15 +8,19 @@ file(GLOB SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.cpp)
 
 find_package(range-v3 REQUIRED)
 find_package(Boost REQUIRED)
+find_package(MicrosoftGSL REQUIRED)
 
 add_library(MyCompilerLib ${SOURCE})
+
+target_include_directories(
+  MyCompilerLib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+                       $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(MyCompilerLib PUBLIC range-v3)
 
 find_package(MyComputationLib REQUIRED)
 target_link_libraries(MyCompilerLib PRIVATE MyComputationLib)
 
-find_package(MicrosoftGSL REQUIRED)
 target_link_libraries(MyCompilerLib PUBLIC Microsoft::GSL)
 if(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
   find_package(libcxx REQUIRED)
@@ -56,4 +60,4 @@ install(
   PATTERN "*.hpp")
 
 # install cmake config file
-install(EXPORT MyCompilerLibConfig DESTINATION lib/cmake/${PROJECT_NAME})
+install(EXPORT MyCompilerLibConfig DESTINATION lib/cmake/MyCompilerLib)

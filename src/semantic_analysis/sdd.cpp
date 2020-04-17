@@ -8,6 +8,7 @@
 #include <cassert>
 #include <cyy/computation/util.hpp>
 #include <range/v3/algorithm.hpp>
+#include <unordered_map>
 
 #include "../exception.hpp"
 #include "sdd.hpp"
@@ -93,7 +94,7 @@ namespace cyy::compiler {
         }
       }
 
-      std::map<size_t, std::set<size_t>> dependency_graph;
+      std::unordered_map<size_t, std::set<size_t>> dependency_graph;
       for (size_t i = 0; i < rules.size(); i++) {
         auto const &rule = rules[i];
         for (auto const &argument : rule.arguments) {
