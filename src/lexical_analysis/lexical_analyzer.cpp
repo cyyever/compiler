@@ -63,7 +63,7 @@ namespace cyy::compiler {
     dfa_opt = std::move(dfa);
   }
 
-  std::variant<token, int> lexical_analyzer::scan() {
+  std::optional<token> lexical_analyzer::scan() {
     make_NFA();
 
     auto cur_state = dfa_opt->get_start_state();
@@ -100,9 +100,9 @@ namespace cyy::compiler {
     }
 
     if (!cur_token.lexeme.empty()) {
-      return {cur_token};
+      return cur_token;
     }
-    return {1};
+    return {};
   }
 
 } // namespace cyy::compiler

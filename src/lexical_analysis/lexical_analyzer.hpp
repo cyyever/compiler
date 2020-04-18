@@ -51,9 +51,7 @@ namespace cyy::compiler {
     }
 
     //! \brief scan the input stream,return first token
-    //! \return when successed,return token
-    //	when no token in remain input,return 1
-    std::variant<token, int> scan();
+    std::optional<token> scan();
 
   private:
     void make_NFA();

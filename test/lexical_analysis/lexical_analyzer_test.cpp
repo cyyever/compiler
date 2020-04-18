@@ -53,8 +53,8 @@ TEST_CASE("scan") {
   size_t column_no = 1;
   for (auto const &[lexeme, name] : tokens) {
     auto res = analyzer.scan();
-    REQUIRE(res.index() == 0);
-    auto token = std::get<0>(res);
+    REQUIRE(res.has_value());
+    auto const & token = res.value();
     REQUIRE_EQ((int)token.name , (int)name);
     REQUIRE_EQ(token.lexeme , lexeme);
     REQUIRE_EQ(token.attribute.line_no , 1);
