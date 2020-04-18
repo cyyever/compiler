@@ -5,11 +5,6 @@
  * \author cyy
  * \date 2018-10-28
  */
-#if __has_include(<CppCoreCheck\Warnings.h>)
-#include <CppCoreCheck\Warnings.h>
-#pragma warning(disable : ALL_CPPCORECHECK_WARNINGS)
-#endif
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest/doctest.h>
 #include <utility>
 
@@ -60,10 +55,10 @@ TEST_CASE("scan") {
     auto res = analyzer.scan();
     REQUIRE(res.index() == 0);
     auto token = std::get<0>(res);
-    REQUIRE(token.name == name);
-    REQUIRE(token.lexeme == lexeme);
-    REQUIRE(token.attribute.line_no == 1);
-    REQUIRE(token.attribute.column_no == column_no);
+    REQUIRE_EQ((int)token.name , (int)name);
+    REQUIRE_EQ(token.lexeme , lexeme);
+    REQUIRE_EQ(token.attribute.line_no , 1);
+    REQUIRE_EQ(token.attribute.column_no , column_no);
     column_no += lexeme.size();
   }
 }

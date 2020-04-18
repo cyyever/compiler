@@ -5,15 +5,8 @@
  * \author cyy
  * \date 2018-10-29
  */
-#if __has_include(<CppCoreCheck\Warnings.h>)
-#include <CppCoreCheck\Warnings.h>
-#pragma warning(disable : ALL_CPPCORECHECK_WARNINGS)
-#endif
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#define DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
 #include <doctest/doctest.h>
-
-#include <cyy/computation/contex_free_lang/ll_grammar.hpp>
+#include <cyy/computation/context_free_lang/ll_grammar.hpp>
 #include <cyy/computation/lang/common_tokens.hpp>
 
 #include "../../src/semantic_analysis/l_attributed_sdd.hpp"

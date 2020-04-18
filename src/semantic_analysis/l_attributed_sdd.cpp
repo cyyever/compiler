@@ -48,7 +48,7 @@ namespace cyy::compiler {
                 grammal_symbol_attributes_stack.emplace_back();
                 assert(next_position < static_cast<size_t>(span.size()));
                 grammal_symbol_attributes_stack.back().emplace(
-                    "token", span[static_cast<ssize_t>(next_position)]);
+                    "token", span[next_position]);
                 next_position++;
               }
 

@@ -2,9 +2,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/../cmake/test.cmake)
 
 find_package(doctest REQUIRED)
 
-file(GLOB test_sources 
-  ${CMAKE_CURRENT_SOURCE_DIR}/*/*.cpp
-  )
+file(GLOB test_sources ${CMAKE_CURRENT_SOURCE_DIR}/*/*.cpp)
 
 foreach(test_source ${test_sources})
   get_filename_component(test_prog ${test_source} NAME_WE)
@@ -12,5 +10,9 @@ foreach(test_source ${test_sources})
   target_link_libraries(${test_prog} PRIVATE MyCompilerLib)
   target_link_libraries(${test_prog} PRIVATE MyComputationLib)
   target_link_libraries(${test_prog} PRIVATE doctest::doctest)
+  target_compile_definitions(${test_prog}
+                             PRIVATE DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN)
+  target_compile_definitions(
+    ${test_prog} PRIVATE DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS)
   add_test_with_runtime_analysis(TARGET ${test_prog})
 endforeach()
