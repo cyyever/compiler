@@ -31,14 +31,12 @@ elseif(MSVC)
 endif()
 
 # test
-add_subdirectory(test)
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  option(BUILD_FUZZING "Build fuzzing" ON)
-else()
-  option(BUILD_FUZZING "Build fuzzing" OFF)
+option(BUILD_TEST "Build test" OFF)
+if(BUILD_TEST)
+  add_subdirectory(test)
 endif()
 
+option(BUILD_FUZZING "Build fuzzing" OFF)
 if(BUILD_FUZZING)
   add_subdirectory(fuzz_test)
 endif()
