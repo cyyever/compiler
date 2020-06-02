@@ -1,9 +1,5 @@
 /*!
  * \file l_attributed_sdd.hpp
- *
- * \brief
- * \author cyy
- * \date 2018-10-28
  */
 
 #pragma once

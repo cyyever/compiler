@@ -75,8 +75,8 @@ namespace cyy::compiler {
     while (!cur_view.empty()) {
       auto c = cur_view.front();
       cur_view.remove_prefix(1);
-      auto cur_state_opt = dfa_opt->move(
-          cur_state, static_cast<cyy::computation::symbol_type>(c));
+      auto cur_state_opt =
+          dfa_opt->go(cur_state, static_cast<cyy::computation::symbol_type>(c));
 
       if (c == '\n') {
         cur_attribute.line_no++;

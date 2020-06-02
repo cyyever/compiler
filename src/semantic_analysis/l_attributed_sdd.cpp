@@ -1,13 +1,10 @@
 /*!
- * \file s_attributed_sdd.cpp
+ * \file l_attributed_sdd.cpp
  *
- * \brief
- * \author cyy
- * \date 2018-10-28
  */
+#include <algorithm>
 #include <cassert>
 #include <functional>
-#include <range/v3/algorithm.hpp>
 #include <set>
 
 #include "../exception.hpp"
@@ -72,7 +69,7 @@ namespace cyy::compiler {
                       continue;
                     }
 
-                    if (ranges::any_of(
+                    if (std::ranges::any_of(
                             rule.arguments,
                             [this, &production,
                              result_attribute_index](auto const &argument) {
@@ -139,7 +136,7 @@ namespace cyy::compiler {
                     continue;
                   }
 
-                  if (!ranges::any_of(
+                  if (!std::ranges::any_of(
                           rule.arguments,
                           [this, &production,
                            result_attribute_index](auto const &argument) {

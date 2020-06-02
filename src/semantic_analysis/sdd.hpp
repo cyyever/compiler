@@ -62,7 +62,8 @@ namespace cyy::compiler {
         const = 0;
 
   protected:
-    mutable std::unordered_map<CFG_production, std::vector<semantic_rule>> all_rules;
+    mutable std::unordered_map<CFG_production, std::vector<semantic_rule>>
+        all_rules;
     std::set<std::string> synthesized_attributes;
     std::set<std::string> inherited_attributes;
     const CFG &cfg;

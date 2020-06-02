@@ -6,9 +6,7 @@ include(cmake/all.cmake)
 
 file(GLOB SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.cpp)
 
-find_package(range-v3 REQUIRED)
 find_package(Boost REQUIRED)
-find_package(MicrosoftGSL REQUIRED)
 
 add_library(MyCompilerLib ${SOURCE})
 
@@ -28,10 +26,7 @@ elseif(MSVC)
 endif()
 
 # test
-option(BUILD_TEST "Build test" OFF)
-if(BUILD_TEST)
-  add_subdirectory(test)
-endif()
+add_subdirectory(test)
 
 option(BUILD_FUZZING "Build fuzzing" OFF)
 if(BUILD_FUZZING)

@@ -35,16 +35,16 @@ namespace cyy::compiler {
 
 namespace std {
   template <> struct hash<cyy::compiler::symbol_table_entry> {
-    size_t operator()(const cyy::compiler::symbol_table_entry &e) const
-        noexcept {
+    size_t
+    operator()(const cyy::compiler::symbol_table_entry &e) const noexcept {
       return ::std::hash<std::string>()(e.lexeme);
     }
   };
 
   template <> struct less<cyy::compiler::symbol_table_entry> {
-    bool operator()(const cyy::compiler::symbol_table_entry &lhs,
-                    const cyy::compiler::symbol_table_entry &rhs) const
-        noexcept {
+    bool
+    operator()(const cyy::compiler::symbol_table_entry &lhs,
+               const cyy::compiler::symbol_table_entry &rhs) const noexcept {
       return lhs.lexeme < rhs.lexeme;
     }
   };

@@ -100,7 +100,7 @@ namespace cyy::compiler {
     }
     assert(grammal_symbol_attributes_stack.size() == 1);
 
-    return std::move(final_attributes);
+    return final_attributes;
   }
 
   void S_attributed_SDD::check_attributes() const {

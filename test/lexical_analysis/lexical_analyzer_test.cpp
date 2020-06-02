@@ -54,11 +54,11 @@ TEST_CASE("scan") {
   for (auto const &[lexeme, name] : tokens) {
     auto res = analyzer.scan();
     REQUIRE(res.has_value());
-    auto const & token = res.value();
-    REQUIRE_EQ((int)token.name , (int)name);
-    REQUIRE_EQ(token.lexeme , lexeme);
-    REQUIRE_EQ(token.attribute.line_no , 1);
-    REQUIRE_EQ(token.attribute.column_no , column_no);
+    auto const &token = res.value();
+    REQUIRE_EQ((int)token.name, (int)name);
+    REQUIRE_EQ(token.lexeme, lexeme);
+    REQUIRE_EQ(token.attribute.line_no, 1);
+    REQUIRE_EQ(token.attribute.column_no, column_no);
     column_no += lexeme.size();
   }
 }

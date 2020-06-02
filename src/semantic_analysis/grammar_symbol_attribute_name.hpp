@@ -57,10 +57,9 @@ namespace cyy::compiler {
 
 namespace std {
   template <> struct less<cyy::compiler::grammar_symbol_attribute_name> {
-    bool
-    operator()(const cyy::compiler::grammar_symbol_attribute_name &lhs,
-               const cyy::compiler::grammar_symbol_attribute_name &rhs) const
-        noexcept {
+    bool operator()(const cyy::compiler::grammar_symbol_attribute_name &lhs,
+                    const cyy::compiler::grammar_symbol_attribute_name &rhs)
+        const noexcept {
       return lhs.get_name() < rhs.get_name();
     }
   };
