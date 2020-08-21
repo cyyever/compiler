@@ -25,8 +25,7 @@ TEST_CASE("run") {
   auto digit_token = static_cast<CFG::terminal_type>(common_token::digit);
   production_vector.emplace_back("F", CFG_production::body_type{digit_token});
 
-  std::map<CFG::nonterminal_type, std::vector<CFG_production::body_type>>
-      productions;
+  CFG::production_set_type productions;
   for (auto const &production : production_vector) {
     productions[production.get_head()].emplace_back(production.get_body());
   }

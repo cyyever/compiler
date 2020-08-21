@@ -7,8 +7,10 @@
 
 #include <algorithm>
 #include <cassert>
-#include <cyy/computation/util.hpp>
+#include <iostream>
 #include <unordered_map>
+
+#include <cyy/computation/util.hpp>
 
 #include "../exception.hpp"
 #include "sdd.hpp"

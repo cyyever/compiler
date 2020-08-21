@@ -93,8 +93,7 @@ TEST_CASE("syntax tree") {
       }});
 
   REQUIRE(production_vector.size() == rules.size());
-  std::map<CFG::nonterminal_type, std::vector<CFG_production::body_type>>
-      productions;
+  CFG::production_set_type productions;
   for (auto const &production : production_vector) {
     productions[production.get_head()].emplace_back(production.get_body());
   }
@@ -221,8 +220,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
       }});
 
   REQUIRE(production_vector.size() == rules.size());
-  std::map<CFG::nonterminal_type, std::vector<CFG_production::body_type>>
-      productions;
+  CFG::production_set_type productions;
   for (auto const &production : production_vector) {
     productions[production.get_head()].emplace_back(production.get_body());
   }
