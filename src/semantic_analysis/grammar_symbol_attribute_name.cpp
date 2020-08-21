@@ -76,8 +76,7 @@ namespace cyy::compiler {
   bool grammar_symbol_attribute_name::match(
       const cyy::computation::grammar_symbol_type &grammar_symbol) const {
     bool is_nonterminal = grammar_symbol.is_nonterminal();
-    return (is_nonterminal && !suffix.empty()) ||
-           (!is_nonterminal && suffix.empty());
+    return is_nonterminal != suffix.empty();
   }
 
 } // namespace cyy::compiler

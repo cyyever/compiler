@@ -57,8 +57,7 @@ TEST_CASE("types and storage layout") {
   production_vector.emplace_back("parent_class", CFG_production::body_type{});
   production_vector.emplace_back("P", CFG_production::body_type{"D"});
 
-    CFG::production_set_type
-      productions;
+  CFG::production_set_type productions;
   for (auto const &production : production_vector) {
     productions[production.get_head()].emplace_back(production.get_body());
   }
