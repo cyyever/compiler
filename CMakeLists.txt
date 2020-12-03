@@ -17,10 +17,7 @@ target_include_directories(
 find_package(MyComputationLib REQUIRED)
 target_link_libraries(MyCompilerLib PRIVATE MyComputationLib)
 
-if(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
-  find_package(libcxx REQUIRED)
-  target_link_libraries(MyCompilerLib PUBLIC libcxx::libcxx)
-elseif(MSVC)
+if(MSVC)
   find_package(MicrosoftSTL REQUIRED)
   target_link_libraries(MyCompilerLib PUBLIC Microsoft::STL)
 endif()
