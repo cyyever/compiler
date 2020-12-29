@@ -6,7 +6,6 @@
  */
 
 #include <cassert>
-#include <cyy/computation/regular_lang/dfa.hpp>
 #include <cyy/computation/regular_lang/regex.hpp>
 
 #include "lexical_analyzer.hpp"
@@ -29,7 +28,7 @@ namespace cyy::compiler {
 
     NFA nfa({0}, alphabet_name, 0, {}, {});
 
-    uint64_t start_state = 1;
+    DFA::state_type start_state = 1;
     for (auto const &p : patterns) {
       auto sub_nfa = regex(alphabet_name, p.second).to_NFA(start_state);
       assert(sub_nfa.get_final_states().size() == 1);

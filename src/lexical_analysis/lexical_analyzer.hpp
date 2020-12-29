@@ -13,7 +13,6 @@
 #include <variant>
 #include <vector>
 
-#include <cyy/computation/lang/symbol.hpp>
 #include <cyy/computation/regular_lang/dfa.hpp>
 
 #include "../token/token.hpp"
@@ -33,9 +32,7 @@ namespace cyy::compiler {
     }
 
     bool set_source_code(std::istringstream &&is) {
-      source_code =
-          is.str(); // symbol_string(std::istreambuf_iterator<symbol_type>(is),
-                    //            std::istreambuf_iterator<symbol_type>{});
+      source_code = is.str();
       if (is.bad() || is.fail()) {
         std::cerr << "read symbol stream failed";
         return false;
@@ -65,7 +62,7 @@ namespace cyy::compiler {
     // symbol_
     std::string_view last_view;
     std::optional<DFA> dfa_opt;
-    std::map<uint64_t, symbol_type> pattern_final_states;
+    std::map<DFA::state_type, symbol_type> pattern_final_states;
   };
 
 } // namespace cyy::compiler

@@ -10,6 +10,8 @@
 
 #include <cyy/computation/lang/symbol.hpp>
 #include <memory>
+#include <unordered_map>
+#include <map>
 
 namespace cyy::compiler {
   using namespace cyy::computation;
@@ -52,7 +54,7 @@ namespace cyy::compiler {
 
     class symbol_node : public expression_node {
     public:
-      symbol_node(std::string lexeme_) : lexeme{std::move(lexeme_)} {}
+      explicit symbol_node(std::string lexeme_) : lexeme{std::move(lexeme_)} {}
 
       std::shared_ptr<expression_node>
       common_subexpression_elimination_by_DAG() override {
