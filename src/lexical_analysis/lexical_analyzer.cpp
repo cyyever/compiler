@@ -23,14 +23,13 @@ namespace cyy::compiler {
 
     pattern_final_states.clear();
 
-    std::shared_ptr<ALPHABET> alphabet =
-        ::cyy::computation::ALPHABET::get(alphabet_name);
+    auto alphabet = ::cyy::computation::ALPHABET::get(alphabet_name);
 
-    NFA nfa({0}, alphabet_name, 0, {}, {});
+    NFA nfa({0}, alphabet, 0, {}, {});
 
     DFA::state_type start_state = 1;
     for (auto const &p : patterns) {
-      auto sub_nfa = regex(alphabet_name, p.second).to_NFA(start_state);
+      auto sub_nfa = regex(alphabet, p.second).to_NFA(start_state);
       assert(sub_nfa.get_final_states().size() == 1);
       auto final_state = *(sub_nfa.get_final_states().begin());
       auto sub_start_state = sub_nfa.get_start_state();
