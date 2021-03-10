@@ -44,7 +44,7 @@ namespace cyy::compiler {
 
     decltype(pattern_final_states) pattern_DFA_final_states;
 
-    for (auto const &[dfa_state, nfa_states] : state_mapping) {
+    for (auto const &[nfa_states,dfa_state] : state_mapping) {
       if (!dfa.is_final_state(dfa_state)) {
         continue;
       }
