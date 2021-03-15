@@ -7,13 +7,16 @@
 
 #pragma once
 
+#include <iostream>
 #include <optional>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <variant>
 #include <vector>
 
 #include <cyy/computation/regular_lang/dfa.hpp>
+#include <cyy/computation/regular_lang/nfa.hpp>
 
 #include "../token/token.hpp"
 
@@ -26,7 +29,7 @@ namespace cyy::compiler {
         : alphabet_name(alphabet_name_) {}
 
     void append_pattern(const symbol_type &token_name, symbol_string pattern) {
-      patterns.emplace_back(token_name, std::move(pattern));
+      patterns.emplace(token_name, std::move(pattern));
       dfa_opt.reset();
       reset_input();
     }
@@ -55,13 +58,13 @@ namespace cyy::compiler {
 
   private:
     std::string alphabet_name;
-    std::vector<std::pair<symbol_type, symbol_string>> patterns;
+    std::unordered_map<symbol_type, symbol_string> patterns;
     token_attribute last_attribute;
     // symbol_
     std::string source_code;
     // symbol_
     std::string_view last_view;
-    std::optional<DFA> dfa_opt;
+    std::optional<NFA> dfa_opt;
     std::map<DFA::state_type, symbol_type> pattern_final_states;
   };
 
