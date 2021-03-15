@@ -8,6 +8,7 @@
 #pragma once
 
 #include <iostream>
+#include <lang/alphabet.hpp>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -15,7 +16,6 @@
 #include <variant>
 #include <vector>
 
-#include <cyy/computation/regular_lang/dfa.hpp>
 #include <cyy/computation/regular_lang/nfa.hpp>
 
 #include "../token/token.hpp"
@@ -25,12 +25,12 @@ namespace cyy::compiler {
 
   class lexical_analyzer {
   public:
-    explicit lexical_analyzer(const std::string &alphabet_name_)
-        : alphabet_name(alphabet_name_) {}
+    explicit lexical_analyzer(const ALPHABET_ptr &alphabet_)
+        : alphabet(alphabet_) {}
 
-    void append_pattern(const symbol_type &token_name, symbol_string pattern) {
+    void add_pattern(const symbol_type &token_name, symbol_string pattern) {
       patterns.emplace(token_name, std::move(pattern));
-      dfa_opt.reset();
+      nfa_opt.reset();
       reset_input();
     }
 
@@ -57,15 +57,13 @@ namespace cyy::compiler {
     void make_NFA();
 
   private:
-    std::string alphabet_name;
+    ALPHABET_ptr alphabet;
     std::unordered_map<symbol_type, symbol_string> patterns;
     token_attribute last_attribute;
-    // symbol_
     std::string source_code;
-    // symbol_
     std::string_view last_view;
-    std::optional<NFA> dfa_opt;
-    std::map<DFA::state_type, symbol_type> pattern_final_states;
+    std::optional<NFA> nfa_opt;
+    std::unordered_map<NFA::state_type, symbol_type> pattern_final_states;
   };
 
 } // namespace cyy::compiler
