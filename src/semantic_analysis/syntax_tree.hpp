@@ -9,9 +9,9 @@
 #pragma once
 
 #include <cyy/computation/lang/symbol.hpp>
+#include <map>
 #include <memory>
 #include <unordered_map>
-#include <map>
 
 namespace cyy::compiler {
   using namespace cyy::computation;
