@@ -18,15 +18,15 @@ using namespace cyy::compiler;
 TEST_CASE("scan") {
   lexical_analyzer analyzer("common_tokens");
 
-  analyzer.append_pattern(static_cast<symbol_type>(common_token::id),
-                          U"[a-zA-Z_][a-zA-Z_0-9]*");
-  analyzer.append_pattern(static_cast<symbol_type>(common_token::number),
-                          U"[0-9]+");
-  analyzer.append_pattern(static_cast<symbol_type>(common_token::whitespace),
-                          U"[ \\v\\f\\t\\n\\r\\t]*");
-  analyzer.append_pattern('+', U"\\+");
-  analyzer.append_pattern('*', U"\\*");
-  analyzer.append_pattern('=', U"=");
+  analyzer.add_pattern(static_cast<symbol_type>(common_token::id),
+                       U"[a-zA-Z_][a-zA-Z_0-9]*");
+  analyzer.add_pattern(static_cast<symbol_type>(common_token::number),
+                       U"[0-9]+");
+  analyzer.add_pattern(static_cast<symbol_type>(common_token::whitespace),
+                       U"[ \\v\\f\\t\\n\\r\\t]*");
+  analyzer.add_pattern('+', U"\\+");
+  analyzer.add_pattern('*', U"\\*");
+  analyzer.add_pattern('=', U"=");
 
   std::vector<std::pair<std::string, symbol_type>> tokens;
   tokens.emplace_back("position", static_cast<symbol_type>(common_token::id));

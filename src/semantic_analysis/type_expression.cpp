@@ -12,7 +12,7 @@
 namespace cyy::compiler::type_expression {
 
   bool expression::equivalent_with(const expression &rhs) const {
-    auto type_name_ptr = dynamic_cast<const type_name *>(&rhs);
+    const auto type_name_ptr = dynamic_cast<const type_name *>(&rhs);
     if (type_name_ptr && type_name_ptr->_equivalent_with(*this)) {
       return true;
     }
