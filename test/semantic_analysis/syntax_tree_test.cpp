@@ -106,11 +106,11 @@ TEST_CASE("syntax tree") {
   }
 
   std::vector<token> tokens;
-  tokens.push_back(token{id_token, "a", {}});
-  tokens.push_back(token{'-', "-", {}});
-  tokens.push_back(token{number_token, "4", {}});
-  tokens.push_back(token{'+', "+", {}});
-  tokens.push_back(token{id_token, "c", {}});
+  tokens.emplace_back(id_token, "a");
+  tokens.emplace_back('-', "-");
+  tokens.emplace_back(number_token, "4");
+  tokens.emplace_back('+', "+");
+  tokens.emplace_back(id_token, "c");
 
   auto attriubtes = sdd.run(tokens, {"E.node"});
   REQUIRE(attriubtes);
@@ -233,23 +233,23 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
   }
 
   std::vector<token> tokens;
-  tokens.push_back(token{id_token, "a", {}});
-  tokens.push_back(token{'+', "+", {}});
-  tokens.push_back(token{id_token, "a", {}});
-  tokens.push_back(token{'*', "*", {}});
-  tokens.push_back(token{'(', "(", {}});
-  tokens.push_back(token{id_token, "b", {}});
-  tokens.push_back(token{'-', "-", {}});
-  tokens.push_back(token{id_token, "c", {}});
-  tokens.push_back(token{')', ")", {}});
-  tokens.push_back(token{'+', "+", {}});
-  tokens.push_back(token{'(', "(", {}});
-  tokens.push_back(token{id_token, "b", {}});
-  tokens.push_back(token{'-', "-", {}});
-  tokens.push_back(token{id_token, "c", {}});
-  tokens.push_back(token{')', ")", {}});
-  tokens.push_back(token{'*', "*", {}});
-  tokens.push_back(token{id_token, "d", {}});
+  tokens.emplace_back(id_token, "a");
+  tokens.emplace_back('+', "+");
+  tokens.emplace_back(id_token, "a");
+  tokens.emplace_back('*', "*");
+  tokens.emplace_back('(', "(");
+  tokens.emplace_back(id_token, "b");
+  tokens.emplace_back('-', "-");
+  tokens.emplace_back(id_token, "c");
+  tokens.emplace_back(')', ")");
+  tokens.emplace_back('+', "+");
+  tokens.emplace_back('(', "(");
+  tokens.emplace_back(id_token, "b");
+  tokens.emplace_back('-', "-");
+  tokens.emplace_back(id_token, "c");
+  tokens.emplace_back(')', ")");
+  tokens.emplace_back('*', "*");
+  tokens.emplace_back(id_token, "d");
 
   auto attriubtes = sdd.run(tokens, {"E.node"});
   REQUIRE(attriubtes);
