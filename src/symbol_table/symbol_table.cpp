@@ -11,9 +11,7 @@ namespace cyy::compiler {
   bool symbol_table::has_entry(const std::string &lexeme) const {
     symbol_table_entry e;
     e.lexeme = lexeme;
-
-    auto it = entries.find(e);
-    if (it != entries.end()) {
+    if(entries.contains(e)) {
       return true;
     }
     if (prev_table) {
