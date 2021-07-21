@@ -8,10 +8,9 @@
 #include <algorithm>
 #include <cassert>
 #include <functional>
-#include <iostream>
 #include <set>
 
-#include "../exception.hpp"
+#include "exception.hpp"
 #include "s_attributed_sdd.hpp"
 
 namespace cyy::compiler {

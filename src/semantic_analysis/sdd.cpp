@@ -7,12 +7,12 @@
 
 #include <algorithm>
 #include <cassert>
-#include <iostream>
+#include <ranges>
 #include <unordered_map>
 
 #include <cyy/computation/util.hpp>
 
-#include "../exception.hpp"
+#include "exception.hpp"
 #include "sdd.hpp"
 
 namespace cyy::compiler {
