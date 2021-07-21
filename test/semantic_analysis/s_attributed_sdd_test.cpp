@@ -119,13 +119,13 @@ TEST_CASE("run") {
                          }});
 
   std::vector<token> tokens;
-  tokens.push_back(token{'(', "(", {}});
-  tokens.push_back(token{digit_token, "1", {}});
-  tokens.push_back(token{'+', "+", {}});
-  tokens.push_back(token{digit_token, "2", {}});
-  tokens.push_back(token{')', ")", {}});
-  tokens.push_back(token{'*', "*", {}});
-  tokens.push_back(token{digit_token, "3", {}});
+  tokens.emplace_back('(', "(");
+  tokens.emplace_back(digit_token, "1");
+  tokens.emplace_back('+', "+");
+  tokens.emplace_back(digit_token, "2");
+  tokens.emplace_back(')', ")");
+  tokens.emplace_back('*', "*");
+  tokens.emplace_back(digit_token, "3");
 
   auto attriubtes = sdd.run(tokens, {"L.val", "L.val_inc"});
   REQUIRE(attriubtes);

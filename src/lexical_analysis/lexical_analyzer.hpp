@@ -34,7 +34,7 @@ namespace cyy::compiler {
       reset_input();
     }
 
-    bool set_source_code(std::istringstream &&is) {
+    bool set_source_code(const std::istringstream &is) {
       source_code = is.str();
       if (is.bad() || is.fail()) {
         std::cerr << "read symbol stream failed";

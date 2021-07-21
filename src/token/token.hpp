@@ -20,7 +20,7 @@ struct token_attribute {
 struct token {
   symbol_type name{};
   std::string lexeme;
-  token_attribute attribute;
+  token_attribute attribute{};
 };
 
 using token_istream = std::basic_istream<token>;
