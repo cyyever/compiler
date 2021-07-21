@@ -17,11 +17,6 @@ target_include_directories(
 find_package(MyComputationLib REQUIRED)
 target_link_libraries(MyCompilerLib PRIVATE MyComputationLib)
 
-if(MSVC)
-  find_package(MicrosoftSTL REQUIRED)
-  target_link_libraries(MyCompilerLib PUBLIC Microsoft::STL)
-endif()
-
 # test
 add_subdirectory(test)
 
