@@ -284,19 +284,15 @@ TEST_CASE("types and storage layout") {
                          }});
   SUBCASE("types and widths") {
     std::vector<token> tokens;
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::INT), "int", {}});
-    tokens.push_back(token{'[', "[", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::number), "2", {}});
-    tokens.push_back(token{']', "]", {}});
-    tokens.push_back(token{'[', "[", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::number), "3", {}});
-    tokens.push_back(token{']', "]", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::id), "a", {}});
-    tokens.push_back(token{';', ";", {}});
+    tokens.emplace_back(static_cast<symbol_type>(common_token::INT), "int");
+    tokens.emplace_back('[', "[");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::number), "2");
+    tokens.emplace_back(']', "]");
+    tokens.emplace_back('[', "[");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::number), "3");
+    tokens.emplace_back(']', "]");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "a");
+    tokens.emplace_back(';', ";");
 
     auto attributes = sdd.run(tokens, {"T.width", "T.type"});
     REQUIRE(attributes);
@@ -320,11 +316,9 @@ TEST_CASE("types and storage layout") {
 
   SUBCASE("relative addresses") {
     std::vector<token> tokens;
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::FLOAT), "float", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::id), "x", {}});
-    tokens.push_back(token{';', ";", {}});
+    tokens.emplace_back(static_cast<symbol_type>(common_token::FLOAT), "float");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "x");
+    tokens.emplace_back(';', ";");
 
     auto attributes = sdd.run(tokens, {"P.symbol_table"});
     REQUIRE(attributes);
@@ -403,29 +397,21 @@ TEST_CASE("types and storage layout") {
             }});
 
     std::vector<token> tokens;
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::record), "record", {}});
-    tokens.push_back(token{'{', "{", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::INT), "int", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::id), "tag", {}});
-    tokens.push_back(token{';', ";", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::FLOAT), "float", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::id), "x", {}});
-    tokens.push_back(token{';', ";", {}});
+    tokens.emplace_back(static_cast<symbol_type>(common_token::record), "record");
+    tokens.emplace_back('{', "{");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::INT), "int");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "tag");
+    tokens.emplace_back(';', ";");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::FLOAT), "float");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "x");
+    tokens.emplace_back(';', ";");
 
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::FLOAT), "float", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::id), "y", {}});
-    tokens.push_back(token{';', ";", {}});
-    tokens.push_back(token{'}', "}", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::id), "q", {}});
-    tokens.push_back(token{';', ";", {}});
+    tokens.emplace_back(static_cast<symbol_type>(common_token::FLOAT), "float");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "y");
+    tokens.emplace_back(';', ";");
+    tokens.emplace_back('}', "}");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "q");
+    tokens.emplace_back(';', ";");
 
     auto attributes = sdd.run(tokens, {"P.symbol_table"});
     REQUIRE(attributes);
@@ -590,20 +576,15 @@ TEST_CASE("types and storage layout") {
               return std::make_any<std::string>("");
             }});
     std::vector<token> tokens;
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::CLASS), "class", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::id), "A", {}});
-    tokens.push_back(token{'{', "{", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::INT), "int", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::id), "x", {}});
-    tokens.push_back(token{';', ";", {}});
-    tokens.push_back(token{'}', "}", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::id), "q", {}});
-    tokens.push_back(token{';', ";", {}});
+    tokens.emplace_back(static_cast<symbol_type>(common_token::CLASS), "class");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "A");
+    tokens.emplace_back('{', "{");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::INT), "int");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "x");
+    tokens.emplace_back(';', ";");
+    tokens.emplace_back('}', "}");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "q");
+    tokens.emplace_back(';', ";");
 
     auto attributes = sdd.run(tokens, {"P.symbol_table"});
     REQUIRE(attributes);
@@ -632,23 +613,17 @@ TEST_CASE("types and storage layout") {
     REQUIRE(e->type->equivalent_with(
         cyy::compiler::type_expression::class_type(nullptr, field_types)));
 
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::CLASS), "class", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::id), "B", {}});
-    tokens.push_back(token{':', ":", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::id), "A", {}});
-    tokens.push_back(token{'{', "{", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::INT), "int", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::id), "y", {}});
-    tokens.push_back(token{';', ";", {}});
-    tokens.push_back(token{'}', "}", {}});
-    tokens.push_back(
-        token{static_cast<symbol_type>(common_token::id), "p", {}});
-    tokens.push_back(token{';', ";", {}});
+    tokens.emplace_back(static_cast<symbol_type>(common_token::CLASS), "class");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "B");
+    tokens.emplace_back(':', ":");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "A");
+    tokens.emplace_back('{', "{");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::INT), "int");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "y");
+    tokens.emplace_back(';', ";");
+    tokens.emplace_back('}', "}");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "p");
+    tokens.emplace_back(';', ";");
 
     attributes = sdd.run(tokens, {"P.symbol_table"});
     REQUIRE(attributes);
