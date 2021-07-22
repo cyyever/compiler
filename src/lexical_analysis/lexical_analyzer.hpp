@@ -7,8 +7,6 @@
 
 #pragma once
 
-#include <iostream>
-#include <lang/alphabet.hpp>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -16,6 +14,7 @@
 #include <variant>
 #include <vector>
 
+#include <cyy/computation/lang/alphabet.hpp>
 #include <cyy/computation/regular_lang/nfa.hpp>
 
 #include "../token/token.hpp"
