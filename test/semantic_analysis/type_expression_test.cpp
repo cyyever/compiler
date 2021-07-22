@@ -59,7 +59,7 @@ TEST_CASE("types and storage layout") {
 
   CFG::production_set_type productions;
   for (auto const &production : production_vector) {
-    productions[production.get_head()].emplace_back(production.get_body());
+    productions[production.get_head()].emplace(production.get_body());
   }
 
   LL_grammar grammar("common_tokens", "P", productions);
@@ -397,7 +397,8 @@ TEST_CASE("types and storage layout") {
             }});
 
     std::vector<token> tokens;
-    tokens.emplace_back(static_cast<symbol_type>(common_token::record), "record");
+    tokens.emplace_back(static_cast<symbol_type>(common_token::record),
+                        "record");
     tokens.emplace_back('{', "{");
     tokens.emplace_back(static_cast<symbol_type>(common_token::INT), "int");
     tokens.emplace_back(static_cast<symbol_type>(common_token::id), "tag");

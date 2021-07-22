@@ -87,7 +87,7 @@ TEST_CASE("run") {
   REQUIRE(production_vector.size() == rules.size());
   CFG::production_set_type productions;
   for (auto const &production : production_vector) {
-    productions[production.get_head()].emplace_back(production.get_body());
+    productions[production.get_head()].emplace(production.get_body());
   }
 
   SLR_grammar grammar("common_tokens", "L", productions);

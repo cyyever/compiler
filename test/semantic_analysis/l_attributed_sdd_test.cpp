@@ -27,7 +27,7 @@ TEST_CASE("run") {
 
   CFG::production_set_type productions;
   for (auto const &production : production_vector) {
-    productions[production.get_head()].emplace_back(production.get_body());
+    productions[production.get_head()].emplace(production.get_body());
   }
 
   LL_grammar grammar("common_tokens", "T", productions);
@@ -98,7 +98,7 @@ TEST_CASE("run") {
 
   std::vector<token> tokens;
   tokens.emplace_back(digit_token, "3");
-  tokens.emplace_back('*', "*" );
+  tokens.emplace_back('*', "*");
   tokens.emplace_back(digit_token, "5");
 
   auto attriubtes = sdd.run(tokens, {"T.val"});
