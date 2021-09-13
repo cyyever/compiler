@@ -14,8 +14,8 @@
 
 #include <cyy/computation/lang/symbol.hpp>
 
-#include "../semantic_analysis/type_expression.hpp"
-#include "../token/token.hpp"
+#include "semantic_analysis/type_expression.hpp"
+#include "token/token.hpp"
 
 namespace cyy::compiler {
 
@@ -30,6 +30,9 @@ namespace cyy::compiler {
     bool operator==(const symbol_table_entry &rhs) const {
       return lexeme == rhs.lexeme;
     }
+    auto operator<=>(const symbol_table_entry &rhs) const {
+      return lexeme<=> rhs.lexeme;
+    }
   };
 } // namespace cyy::compiler
 
@@ -40,15 +43,6 @@ namespace std {
       return ::std::hash<std::string>()(e.lexeme);
     }
   };
-
-  template <> struct less<cyy::compiler::symbol_table_entry> {
-    bool
-    operator()(const cyy::compiler::symbol_table_entry &lhs,
-               const cyy::compiler::symbol_table_entry &rhs) const noexcept {
-      return lhs.lexeme < rhs.lexeme;
-    }
-  };
-
 } // namespace std
 namespace cyy::compiler {
   using namespace cyy::computation;

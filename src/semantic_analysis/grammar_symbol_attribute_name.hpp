@@ -24,6 +24,10 @@ namespace cyy::compiler {
     grammar_symbol_attribute_name(std::string_view name_);
 
     const std::string &get_name() const { return name; }
+    auto operator<=>(const grammar_symbol_attribute_name & rhs)  const {
+      return get_name()<=>rhs.get_name();
+
+    }
 
     std::string
     get_full_name(const cyy::computation::CFG_production &production) const;
@@ -55,13 +59,3 @@ namespace cyy::compiler {
   };
 } // namespace cyy::compiler
 
-namespace std {
-  template <> struct less<cyy::compiler::grammar_symbol_attribute_name> {
-    bool operator()(const cyy::compiler::grammar_symbol_attribute_name &lhs,
-                    const cyy::compiler::grammar_symbol_attribute_name &rhs)
-        const noexcept {
-      return lhs.get_name() < rhs.get_name();
-    }
-  };
-
-} // namespace std

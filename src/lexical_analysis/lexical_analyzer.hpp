@@ -10,14 +10,13 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <unordered_map>
-#include <variant>
-#include <vector>
 
 #include <cyy/computation/lang/alphabet.hpp>
 #include <cyy/computation/regular_lang/nfa.hpp>
 
-#include "../token/token.hpp"
+#include "token/token.hpp"
 
 namespace cyy::compiler {
   using namespace cyy::computation;
