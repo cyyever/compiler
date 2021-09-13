@@ -82,12 +82,6 @@ namespace cyy::compiler {
     }
 
     void add_relative_address_offset(size_t offset) {
-      /*
-      decltype(entries) new_entries;
-      while (!entries.empty()) {
-        auto node = entries.extract(entries.begin());
-      }
-      */
       for (auto &e : entries) {
         const_cast<symbol_table_entry &>(e).relative_address += offset;
       }
