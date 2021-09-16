@@ -9,10 +9,10 @@
 
 #include <functional>
 #include <optional>
-#include <set>
 #include <unordered_set>
 
 #include <cyy/computation/lang/symbol.hpp>
+#include <utility>
 
 #include "semantic_analysis/type_expression.hpp"
 #include "token/token.hpp"
@@ -52,11 +52,11 @@ namespace cyy::compiler {
     virtual ~symbol_table() = default;
 
     void set_prev_table(std::shared_ptr<symbol_table> prev_table_) {
-      prev_table = prev_table_;
+      prev_table = std::move(prev_table_);
     }
     bool has_entry(const std::string &lexeme) const;
-    bool add_entry(const symbol_table_entry &e);
-    std::optional<symbol_table_entry>
+    bool add_entry(symbol_table_entry e);
+    std::shared_ptr<symbol_table_entry>
     get_entry(const std::string &lexeme) const;
 
     bool add_type(std::shared_ptr<type_expression::type_name> expr,
@@ -68,27 +68,28 @@ namespace cyy::compiler {
 
     void foreach_entry(
         const std::function<void(const symbol_table_entry &)> &callback) const {
-      for (auto const &e : entries) {
-        callback(e);
+      for (const auto &[_, e] : entries) {
+        callback(*e);
       }
     }
 
     size_t get_total_width() const {
       size_t total_width = 0;
-      for (auto const &e : entries) {
-        total_width += e.width;
+      for (const auto &[_, e] : entries) {
+        total_width += e->width;
       }
       return total_width;
     }
 
     void add_relative_address_offset(size_t offset) {
-      for (auto &e : entries) {
-        const_cast<symbol_table_entry &>(e).relative_address += offset;
+      for (const auto &[_, e] : entries) {
+        const_cast<symbol_table_entry &>(*e).relative_address += offset;
       }
     }
 
   private:
-    std::unordered_set<symbol_table_entry> entries;
+    std::unordered_map<std::string, std::shared_ptr<symbol_table_entry>>
+        entries;
     std::unordered_map<std::string,
                        std::pair<std::shared_ptr<type_expression::type_name>,
                                  std::shared_ptr<symbol_table>>>

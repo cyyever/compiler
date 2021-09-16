@@ -6,29 +6,31 @@
  */
 
 #include "symbol_table.hpp"
+#include <algorithm>
+#include <iostream>
 
 namespace cyy::compiler {
   bool symbol_table::has_entry(const std::string &lexeme) const {
-    symbol_table_entry e;
-    e.lexeme = lexeme;
-    if (entries.contains(e)) {
+    if (entries.contains(lexeme)) {
       return true;
     }
+
     if (prev_table) {
       return prev_table->has_entry(lexeme);
     }
     return false;
   }
-  bool symbol_table::add_entry(const symbol_table_entry &e) {
-    return entries.emplace(e).second;
+  bool symbol_table::add_entry(symbol_table_entry e) {
+    auto lexeme = e.lexeme;
+    return entries
+        .emplace(lexeme, std::make_shared<symbol_table_entry>(std::move(e)))
+        .second;
   }
-  std::optional<symbol_table_entry>
+  std::shared_ptr<symbol_table_entry>
   symbol_table::get_entry(const std::string &lexeme) const {
-    symbol_table_entry e;
-    e.lexeme = lexeme;
-    auto it = entries.find(e);
+    auto it = entries.find(lexeme);
     if (it != entries.end()) {
-      return *it;
+      return it->second;
     }
     if (prev_table) {
       return prev_table->get_entry(lexeme);
@@ -40,6 +42,7 @@ namespace cyy::compiler {
       std::shared_ptr<symbol_table> associated_symbol_table) {
     return types
         .emplace(expr->get_name(), std::pair{expr, associated_symbol_table})
+
         .second;
   }
   std::optional<std::pair<std::shared_ptr<type_expression::type_name>,
