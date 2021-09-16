@@ -7,8 +7,8 @@
  */
 #include <doctest/doctest.h>
 
-#include "../../src/semantic_analysis/s_attributed_sdd.hpp"
-#include "../../src/semantic_analysis/syntax_tree.hpp"
+#include "intermediate_representation/syntax_tree.hpp"
+#include "semantic_analysis/s_attributed_sdd.hpp"
 #include <cyy/computation/context_free_lang/slr_grammar.hpp>
 #include <cyy/computation/lang/common_tokens.hpp>
 

@@ -25,7 +25,7 @@ namespace std {
       }
       return seed;
     }
-  } ;
+  };
 } // namespace std
 
 namespace cyy::compiler::syntax_tree {
@@ -38,7 +38,6 @@ namespace cyy::compiler::syntax_tree {
 
   class node {
   public:
-    using node_ptr = std::shared_ptr<node>;
     node() = default;
     virtual ~node() = default;
   };
@@ -103,9 +102,9 @@ namespace cyy::compiler::syntax_tree {
                                                           std::move(right_))} {}
 
     expression_node_ptr make_node() override {
-                      return std::make_shared<binary_expression_node>(
-                           op, left->common_subexpression_elimination_by_DAG(),
-                           right->common_subexpression_elimination_by_DAG());
+      return std::make_shared<binary_expression_node>(
+          op, left->common_subexpression_elimination_by_DAG(),
+          right->common_subexpression_elimination_by_DAG());
     }
 
     size_t get_value_number() override {
