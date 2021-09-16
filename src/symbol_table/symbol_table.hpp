@@ -42,7 +42,7 @@ namespace std {
     operator()(const cyy::compiler::symbol_table_entry &e) const noexcept {
       return ::std::hash<std::string>()(e.lexeme);
     }
-  };
+  } __attribute__((aligned(0)));
 } // namespace std
 namespace cyy::compiler {
   using namespace cyy::computation;

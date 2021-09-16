@@ -32,7 +32,7 @@ namespace std {
 namespace cyy::compiler::syntax_tree {
   using namespace cyy::computation;
   enum class binary_operator : uint64_t {
-    addtion,
+    addition,
     subtraction,
     multiplication,
   };
@@ -80,9 +80,9 @@ namespace cyy::compiler::syntax_tree {
         : entry{std::move(std::move(entry_))} {}
 
     size_t get_value_number() override {
-      auto [it, has] =
+      auto [it, has_insertion] =
           value_numbers.try_emplace(reinterpret_cast<size_t>(entry.get()), 0);
-      if (!has) {
+      if (has_insertion) {
         it->second = alloc_value_number();
       }
       return it->second;
@@ -105,15 +105,17 @@ namespace cyy::compiler::syntax_tree {
                                                           std::move(right_))} {}
 
     expression_node_ptr make_DAG_node() override {
-      return std::make_shared<binary_expression_node>(op, left->common_subexpression_elimination_by_DAG(), right->common_subexpression_elimination_by_DAG());
+      return std::make_shared<binary_expression_node>(
+          op, left->common_subexpression_elimination_by_DAG(),
+          right->common_subexpression_elimination_by_DAG());
     }
 
     size_t get_value_number() override {
-      auto [it, has] = value_numbers.try_emplace(
+      auto [it, has_insertion] = value_numbers.try_emplace(
           std::make_tuple(op, left->get_value_number(),
                           right->get_value_number()),
           0);
-      if (!has) {
+      if (has_insertion) {
         it->second = alloc_value_number();
       }
       return it->second;
@@ -123,6 +125,7 @@ namespace cyy::compiler::syntax_tree {
     binary_operator op;
     std::shared_ptr<expression_node> left;
     std::shared_ptr<expression_node> right;
+
   private:
     static inline std::map<
         std::tuple<binary_operator, value_number_type, value_number_type>,
