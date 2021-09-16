@@ -33,10 +33,9 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
             std::any_cast<syntax_tree::expression_node_ptr>(*(arguments[0]));
         auto T_val =
             std::any_cast<syntax_tree::expression_node_ptr>(*(arguments[1]));
-        return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
+        return std::make_any<syntax_tree::expression_node_ptr>(
             std::make_shared<syntax_tree::binary_expression_node>(
-                syntax_tree::binary_operator::addtion, E_val, T_val)
-                ->common_subexpression_elimination_by_DAG());
+                syntax_tree::binary_operator::addtion, E_val, T_val));
       }});
 
   production_vector.emplace_back("E", CFG_production::body_type{"E", '-', "T"});
@@ -49,10 +48,9 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
             std::any_cast<syntax_tree::expression_node_ptr>(*(arguments[0]));
         auto T_val =
             std::any_cast<syntax_tree::expression_node_ptr>(*(arguments[1]));
-        return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
+        return std::make_any<syntax_tree::expression_node_ptr>(
             std::make_shared<syntax_tree::binary_expression_node>(
-                syntax_tree::binary_operator::subtraction, E_val, T_val)
-                ->common_subexpression_elimination_by_DAG());
+                syntax_tree::binary_operator::subtraction, E_val, T_val));
       }});
 
   production_vector.emplace_back("E", CFG_production::body_type{"T"});
@@ -72,7 +70,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
             std::any_cast<syntax_tree::expression_node_ptr>(*(arguments[0]));
         auto F_val =
             std::any_cast<syntax_tree::expression_node_ptr>(*(arguments[1]));
-        return std::make_any<std::shared_ptr<syntax_tree::expression_node>>(
+        return std::make_any<syntax_tree::expression_node_ptr>(
             std::make_shared<syntax_tree::binary_expression_node>(
                 syntax_tree::binary_operator::multiplication, T_val, F_val));
       }});
@@ -157,7 +155,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
   auto attriubtes = sdd.run(tokens, {"E.node"});
   REQUIRE(attriubtes);
   auto expression_node_ptr =
-      std::any_cast<std::shared_ptr<syntax_tree::expression_node>>(
+      std::any_cast<syntax_tree::expression_node_ptr>(
           attriubtes.value()["E.node"]);
   REQUIRE(expression_node_ptr);
 }

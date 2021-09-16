@@ -57,11 +57,11 @@ namespace cyy::compiler::syntax_tree {
       if (it != DAG_nodes.end()) {
         return it->second;
       }
-      return DAG_nodes.try_emplace(value_number, make_node()).first->second;
+      return DAG_nodes.try_emplace(value_number, make_DAG_node()).first->second;
     }
 
     virtual size_t get_value_number() = 0;
-    virtual expression_node_ptr make_node() = 0;
+    virtual expression_node_ptr make_DAG_node() = 0;
 
   protected:
     static size_t alloc_value_number() { return next_value_number++; }
@@ -87,7 +87,7 @@ namespace cyy::compiler::syntax_tree {
       }
       return it->second;
     }
-    expression_node_ptr make_node() override {
+    expression_node_ptr make_DAG_node() override {
       return std::make_shared<symbol_node>(entry);
     }
 
@@ -104,9 +104,8 @@ namespace cyy::compiler::syntax_tree {
         : op{op_}, left{std::move(std::move(left_))}, right{std::move(
                                                           std::move(right_))} {}
 
-    expression_node_ptr make_node() override {
-      return std::make_shared<binary_expression_node>(
-          op, left,right);
+    expression_node_ptr make_DAG_node() override {
+      return std::make_shared<binary_expression_node>(op, left->common_subexpression_elimination_by_DAG(), right->common_subexpression_elimination_by_DAG());
     }
 
     size_t get_value_number() override {
@@ -120,13 +119,15 @@ namespace cyy::compiler::syntax_tree {
       return it->second;
     }
 
-  private:
+  public:
     binary_operator op;
     std::shared_ptr<expression_node> left;
     std::shared_ptr<expression_node> right;
+  private:
     static inline std::map<
         std::tuple<binary_operator, value_number_type, value_number_type>,
         value_number_type>
         value_numbers;
   };
+  using binary_expression_node_ptr = std::shared_ptr<binary_expression_node>;
 } // namespace cyy::compiler::syntax_tree
