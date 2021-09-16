@@ -24,9 +24,8 @@ namespace cyy::compiler {
     grammar_symbol_attribute_name(std::string_view name_);
 
     const std::string &get_name() const { return name; }
-    auto operator<=>(const grammar_symbol_attribute_name & rhs)  const {
-      return get_name()<=>rhs.get_name();
-
+    auto operator<=>(const grammar_symbol_attribute_name &rhs) const {
+      return get_name() <=> rhs.get_name();
     }
 
     std::string
@@ -58,4 +57,3 @@ namespace cyy::compiler {
     std::string suffix;
   };
 } // namespace cyy::compiler
-

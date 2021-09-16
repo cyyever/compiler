@@ -31,7 +31,7 @@ namespace cyy::compiler {
       return lexeme == rhs.lexeme;
     }
     auto operator<=>(const symbol_table_entry &rhs) const {
-      return lexeme<=> rhs.lexeme;
+      return lexeme <=> rhs.lexeme;
     }
   };
 } // namespace cyy::compiler
