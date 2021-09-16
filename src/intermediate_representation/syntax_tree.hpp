@@ -47,7 +47,7 @@ namespace cyy::compiler::syntax_tree {
 
   class expression_node : public node {
   public:
-    using value_number_type = uint64_t;
+    using value_number_type = size_t;
     expression_node() = default;
     ~expression_node() override = default;
 
@@ -60,17 +60,25 @@ namespace cyy::compiler::syntax_tree {
       return DAG_nodes.try_emplace(value_number, make_DAG_node()).first->second;
     }
 
-    virtual size_t get_value_number() = 0;
-    virtual expression_node_ptr make_DAG_node() = 0;
+    value_number_type get_value_number() {
+      auto [it, has_insertion] = value_numbers.try_emplace(get_signature(), 0);
+      if (has_insertion) {
+        it->second = alloc_value_number();
+      }
+      return it->second;
+    }
 
-  protected:
+  private:
+    virtual std::vector<size_t> get_signature() = 0;
+
+    virtual expression_node_ptr make_DAG_node() = 0;
     static size_t alloc_value_number() { return next_value_number++; }
 
-  protected:
     static inline std::unordered_map<value_number_type, expression_node_ptr>
         DAG_nodes;
 
-  private:
+    static inline std::map<std::vector<size_t>, value_number_type>
+        value_numbers;
     static inline value_number_type next_value_number{0};
   };
 
@@ -79,13 +87,8 @@ namespace cyy::compiler::syntax_tree {
     explicit symbol_node(std::shared_ptr<symbol_table_entry> entry_)
         : entry{std::move(std::move(entry_))} {}
 
-    size_t get_value_number() override {
-      auto [it, has_insertion] =
-          value_numbers.try_emplace(reinterpret_cast<size_t>(entry.get()), 0);
-      if (has_insertion) {
-        it->second = alloc_value_number();
-      }
-      return it->second;
+    std::vector<size_t> get_signature() override {
+      return {reinterpret_cast<size_t>(entry.get())};
     }
     expression_node_ptr make_DAG_node() override {
       return std::make_shared<symbol_node>(entry);
@@ -93,7 +96,6 @@ namespace cyy::compiler::syntax_tree {
 
   private:
     std::shared_ptr<symbol_table_entry> entry;
-    static inline std::unordered_map<size_t, value_number_type> value_numbers;
   };
 
   class binary_expression_node : public expression_node {
@@ -109,28 +111,16 @@ namespace cyy::compiler::syntax_tree {
           op, left->common_subexpression_elimination_by_DAG(),
           right->common_subexpression_elimination_by_DAG());
     }
-
-    size_t get_value_number() override {
-      auto [it, has_insertion] = value_numbers.try_emplace(
-          std::make_tuple(op, left->get_value_number(),
-                          right->get_value_number()),
-          0);
-      if (has_insertion) {
-        it->second = alloc_value_number();
-      }
-      return it->second;
+    std::vector<size_t> get_signature() override {
+      return std::vector<size_t>{static_cast<size_t>(op),
+                                 left->get_value_number(),
+                                 right->get_value_number()};
     }
 
   public:
     binary_operator op;
     std::shared_ptr<expression_node> left;
     std::shared_ptr<expression_node> right;
-
-  private:
-    static inline std::map<
-        std::tuple<binary_operator, value_number_type, value_number_type>,
-        value_number_type>
-        value_numbers;
   };
   using binary_expression_node_ptr = std::shared_ptr<binary_expression_node>;
 } // namespace cyy::compiler::syntax_tree
