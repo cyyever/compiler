@@ -9,10 +9,10 @@
 
 #include <cyy/computation/lang/common_tokens.hpp>
 
-#include "../../src/exception.hpp"
-#include "../../src/semantic_analysis/l_attributed_sdd.hpp"
-#include "../../src/semantic_analysis/type_expression.hpp"
-#include "../../src/symbol_table/symbol_table.hpp"
+#include "exception.hpp"
+#include "semantic_analysis/l_attributed_sdd.hpp"
+#include "semantic_analysis/type_expression.hpp"
+#include "symbol_table/symbol_table.hpp"
 
 using namespace cyy::computation;
 using namespace cyy::compiler;
@@ -324,6 +324,7 @@ TEST_CASE("types and storage layout") {
     REQUIRE(attributes);
     auto const &table = std::any_cast<std::shared_ptr<symbol_table>>(
         attributes.value()["P.symbol_table"]);
+    REQUIRE(table->get_entry("x"));
     REQUIRE(table->get_entry("x")->type->equivalent_with(
         cyy::compiler::type_expression::basic_type(
             cyy::compiler::type_expression::basic_type::type_enum::FLOAT)));
@@ -421,7 +422,7 @@ TEST_CASE("types and storage layout") {
         attributes.value()["P.symbol_table"]);
 
     auto e = table->get_entry("q");
-    REQUIRE(e.has_value());
+    REQUIRE(e);
 
     REQUIRE(e->associated_symbol_table);
     REQUIRE(e->associated_symbol_table->get_entry("tag")->type->equivalent_with(
@@ -594,7 +595,7 @@ TEST_CASE("types and storage layout") {
         attributes.value()["P.symbol_table"]);
 
     auto e = table->get_entry("q");
-    REQUIRE(e.has_value());
+    REQUIRE(e);
     REQUIRE(e->associated_symbol_table);
     REQUIRE(e->associated_symbol_table->get_entry("x"));
     REQUIRE(e->associated_symbol_table->get_entry("x")->type->equivalent_with(
@@ -633,7 +634,7 @@ TEST_CASE("types and storage layout") {
         attributes.value()["P.symbol_table"]);
 
     e = table->get_entry("p");
-    REQUIRE(e.has_value());
+    REQUIRE(e);
     REQUIRE(e->associated_symbol_table);
     REQUIRE(e->associated_symbol_table->get_entry("x"));
     REQUIRE(e->associated_symbol_table->get_entry("x")->type->equivalent_with(

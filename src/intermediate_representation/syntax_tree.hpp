@@ -12,13 +12,14 @@
 #include <cyy/computation/lang/symbol.hpp>
 #include <map>
 #include <memory>
+#include <symbol_table/symbol_table.hpp>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
 namespace std {
-  template <> struct hash<std::vector<uint64_t>> {
-    size_t operator()(const std::vector<uint64_t> &x) const noexcept {
+  template <> struct hash<std::vector<size_t>> {
+    size_t operator()(const std::vector<size_t> &x) const noexcept {
       std::size_t seed = 0;
       for (auto n : x) {
         boost::hash_combine(seed, n);
@@ -41,10 +42,11 @@ namespace cyy::compiler::syntax_tree {
     node() = default;
     virtual ~node() = default;
   };
+  class expression_node;
+  using expression_node_ptr = std::shared_ptr<expression_node>;
 
   class expression_node : public node {
   public:
-    using expression_node_ptr = std::shared_ptr<expression_node>;
     using value_number_type = uint64_t;
     expression_node() = default;
     ~expression_node() override = default;
@@ -74,23 +76,24 @@ namespace cyy::compiler::syntax_tree {
 
   class symbol_node : public expression_node {
   public:
-    explicit symbol_node(std::string lexeme_) : lexeme{std::move(lexeme_)} {}
+    explicit symbol_node(std::shared_ptr<symbol_table_entry> entry_)
+        : entry{std::move(std::move(entry_))} {}
 
     size_t get_value_number() override {
-      auto [it, has] = value_numbers.try_emplace(lexeme, 0);
+      auto [it, has] =
+          value_numbers.try_emplace(reinterpret_cast<size_t>(entry.get()), 0);
       if (!has) {
         it->second = alloc_value_number();
       }
       return it->second;
     }
     expression_node_ptr make_node() override {
-      return std::make_shared<symbol_node>(lexeme);
+      return std::make_shared<symbol_node>(entry);
     }
 
   private:
-    std::string lexeme;
-    static inline std::unordered_map<std::string, value_number_type>
-        value_numbers;
+    std::shared_ptr<symbol_table_entry> entry;
+    static inline std::unordered_map<size_t, value_number_type> value_numbers;
   };
 
   class binary_expression_node : public expression_node {
@@ -103,8 +106,7 @@ namespace cyy::compiler::syntax_tree {
 
     expression_node_ptr make_node() override {
       return std::make_shared<binary_expression_node>(
-          op, left->common_subexpression_elimination_by_DAG(),
-          right->common_subexpression_elimination_by_DAG());
+          op, left,right);
     }
 
     size_t get_value_number() override {
