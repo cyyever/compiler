@@ -8,10 +8,25 @@
 
 #pragma once
 
+#include <boost/container_hash/hash.hpp>
 #include <cyy/computation/lang/symbol.hpp>
 #include <map>
 #include <memory>
 #include <unordered_map>
+#include <utility>
+#include <vector>
+
+namespace std {
+  template <> struct hash<std::vector<uint64_t>> {
+    size_t operator()(const std::vector<uint64_t> &x) const noexcept {
+      std::size_t seed = 0;
+      for (auto n : x) {
+        boost::hash_combine(seed, n);
+      }
+      return seed;
+    }
+  } ;
+} // namespace std
 
 namespace cyy::compiler::syntax_tree {
   using namespace cyy::computation;
@@ -23,27 +38,35 @@ namespace cyy::compiler::syntax_tree {
 
   class node {
   public:
+    using node_ptr = std::shared_ptr<node>;
     node() = default;
     virtual ~node() = default;
   };
 
   class expression_node : public node {
   public:
+    using expression_node_ptr = std::shared_ptr<expression_node>;
     using value_number_type = uint64_t;
     expression_node() = default;
-    virtual ~expression_node() = default;
+    ~expression_node() override = default;
 
-    virtual std::shared_ptr<expression_node>
-    common_subexpression_elimination_by_DAG() = 0;
+    expression_node_ptr common_subexpression_elimination_by_DAG() {
+      auto value_number = get_value_number();
+      auto it = DAG_nodes.find(value_number);
+      if (it != DAG_nodes.end()) {
+        return it->second;
+      }
+      return DAG_nodes.try_emplace(value_number, make_node()).first->second;
+    }
 
     virtual size_t get_value_number() = 0;
+    virtual expression_node_ptr make_node() = 0;
 
   protected:
     static size_t alloc_value_number() { return next_value_number++; }
 
   protected:
-    static inline std::unordered_map<value_number_type,
-                                     std::shared_ptr<expression_node>>
+    static inline std::unordered_map<value_number_type, expression_node_ptr>
         DAG_nodes;
 
   private:
@@ -54,24 +77,15 @@ namespace cyy::compiler::syntax_tree {
   public:
     explicit symbol_node(std::string lexeme_) : lexeme{std::move(lexeme_)} {}
 
-    std::shared_ptr<expression_node>
-    common_subexpression_elimination_by_DAG() override {
-      auto value_number = get_value_number();
-      auto it = DAG_nodes.find(value_number);
-      if (it != DAG_nodes.end()) {
-        return it->second;
-      }
-      return DAG_nodes
-          .try_emplace(value_number, std::make_shared<symbol_node>(lexeme))
-          .first->second;
-    }
-
     size_t get_value_number() override {
       auto [it, has] = value_numbers.try_emplace(lexeme, 0);
-      if (has) {
+      if (!has) {
         it->second = alloc_value_number();
       }
       return it->second;
+    }
+    expression_node_ptr make_node() override {
+      return std::make_shared<symbol_node>(lexeme);
     }
 
   private:
@@ -85,21 +99,13 @@ namespace cyy::compiler::syntax_tree {
     binary_expression_node(binary_operator op_,
                            std::shared_ptr<expression_node> left_,
                            std::shared_ptr<expression_node> right_)
-        : op{op_}, left{left_}, right{right_} {}
+        : op{op_}, left{std::move(std::move(left_))}, right{std::move(
+                                                          std::move(right_))} {}
 
-    std::shared_ptr<expression_node>
-    common_subexpression_elimination_by_DAG() override {
-      auto value_number = get_value_number();
-      auto it = DAG_nodes.find(value_number);
-      if (it != DAG_nodes.end()) {
-        return it->second;
-      }
-      return DAG_nodes
-          .try_emplace(value_number,
-                       std::make_shared<binary_expression_node>(
+    expression_node_ptr make_node() override {
+                      return std::make_shared<binary_expression_node>(
                            op, left->common_subexpression_elimination_by_DAG(),
-                           right->common_subexpression_elimination_by_DAG()))
-          .first->second;
+                           right->common_subexpression_elimination_by_DAG());
     }
 
     size_t get_value_number() override {
@@ -107,7 +113,7 @@ namespace cyy::compiler::syntax_tree {
           std::make_tuple(op, left->get_value_number(),
                           right->get_value_number()),
           0);
-      if (has) {
+      if (!has) {
         it->second = alloc_value_number();
       }
       return it->second;
