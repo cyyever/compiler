@@ -374,18 +374,10 @@ TEST_CASE("types and storage layout") {
             "$0.type",
             {"$3.symbol_table"},
             [](const auto &arguments) -> std::optional<std::any> {
-              std::vector<symbol_table::symbol_entry> sorted_entries;
-
-              std::any_cast<std::shared_ptr<symbol_table>>(*(arguments.at(0)))
-                  ->foreach_symbol([&sorted_entries](auto const &e) {
-                    sorted_entries.push_back(e);
-                  });
-
-              std::sort(sorted_entries.begin(), sorted_entries.end(),
-                        [](const auto &a, const auto &b) {
-                          return a.relative_address < b.relative_address;
-                        });
-
+              auto sorted_entries =
+                  std::any_cast<std::shared_ptr<symbol_table>>(
+                      *(arguments.at(0)))
+                      ->get_ordered_symbol_list();
               std::vector<std::pair<
                   std::string,
                   std::shared_ptr<cyy::compiler::type_expression::expression>>>
@@ -516,7 +508,7 @@ TEST_CASE("types and storage layout") {
               auto table = std::any_cast<std::shared_ptr<symbol_table>>(
                   *arguments.at(3));
               for (const auto &e : table->get_symbol_view()) {
-                sorted_entries.push_back(*e);
+                sorted_entries.push_back(e);
               }
 
               std::sort(sorted_entries.begin(), sorted_entries.end(),
@@ -556,7 +548,7 @@ TEST_CASE("types and storage layout") {
                 size_t total_width = 0;
                 for (const auto &e :
                      parent_class_symbol_table->get_symbol_view()) {
-                  total_width += e->width;
+                  total_width += e.width;
                 }
                 table->add_relative_address_offset(total_width);
                 table->set_prev_table(parent_class_symbol_table);

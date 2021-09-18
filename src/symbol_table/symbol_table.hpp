@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -52,20 +53,17 @@ namespace cyy::compiler {
     bool add_symbol(symbol_entry e);
     std::shared_ptr<symbol_entry> get_symbol(const std::string &lexeme) const;
     bool has_symbol(const std::string &lexeme) const;
-    auto get_symbol_view() const { return symbols | std::views::values; }
-    void foreach_symbol(
-        const std::function<void(const symbol_entry &)> &callback) const {
-      for (const auto &[_, e] : symbols) {
-        callback(*e);
-      }
+    auto get_symbol_view() const {
+      return symbols | std::views::values |
+             std::views::transform([](const auto &ptr) { return *ptr; });
     }
-
-    size_t get_total_width() const {
-      size_t total_width = 0;
-      for (const auto &[_, e] : symbols) {
-        total_width += e->width;
-      }
-      return total_width;
+    auto get_ordered_symbol_list() const {
+      auto view = get_symbol_view();
+      std::vector<symbol_entry> symbol_list(view.begin(), view.end());
+      std::ranges::sort(symbol_list, [](auto const &a, auto const &b) {
+        return a.relative_address < b.relative_address;
+      });
+      return symbol_list;
     }
 
     void add_relative_address_offset(size_t offset) {
