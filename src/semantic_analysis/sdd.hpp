@@ -41,9 +41,10 @@ namespace cyy::compiler {
       using semantic_action_type = std::function<std::optional<std::any>(
           const std::vector<const std::any *> &)>;
       semantic_action_type action;
-      static inline semantic_action_type copy_action{[](const auto &arguments) -> std::optional<std::any> {
-                           return *arguments.at(0);
-                         }};
+      static inline semantic_action_type copy_action{
+          [](const auto &arguments) -> std::optional<std::any> {
+            return *arguments.at(0);
+          }};
     };
 
   protected:

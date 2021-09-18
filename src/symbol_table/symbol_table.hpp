@@ -8,10 +8,10 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 #include <optional>
 #include <unordered_set>
 #include <utility>
-#include <memory>
 
 #include <cyy/computation/lang/symbol.hpp>
 
@@ -28,11 +28,11 @@ namespace cyy::compiler {
       std::shared_ptr<symbol_table> associated_symbol_table;
 
       auto operator<=>(const entry &rhs) const { return lexeme <=> rhs.lexeme; }
-    } ;
+    };
     struct symbol_entry : public entry {
       size_t relative_address{};
       size_t width{};
-    } ;
+    };
     struct type_entry : public entry {};
 
   public:

@@ -21,10 +21,8 @@ TEST_CASE("run") {
 
   production_vector.emplace_back("L", CFG_production::body_type{"E"});
 
-  rules.emplace_back(
-      SDD::semantic_rule{"$0.val",
-                         {"$1.val"},
-                         SDD::semantic_rule::copy_action});
+  rules.emplace_back(SDD::semantic_rule{
+      "$0.val", {"$1.val"}, SDD::semantic_rule::copy_action});
 
   production_vector.emplace_back("E", CFG_production::body_type{"E", '+', "T"});
 
@@ -38,10 +36,8 @@ TEST_CASE("run") {
                          }});
 
   production_vector.emplace_back("E", CFG_production::body_type{"T"});
-  rules.emplace_back(
-      SDD::semantic_rule{"$0.val",
-                         {"$1.val"},
-                         SDD::semantic_rule::copy_action});
+  rules.emplace_back(SDD::semantic_rule{
+      "$0.val", {"$1.val"}, SDD::semantic_rule::copy_action});
   production_vector.emplace_back("T", CFG_production::body_type{"T", '*', "F"});
 
   rules.emplace_back(
@@ -54,17 +50,13 @@ TEST_CASE("run") {
                          }});
 
   production_vector.emplace_back("T", CFG_production::body_type{"F"});
-  rules.emplace_back(
-      SDD::semantic_rule{"$0.val",
-                         {"$1.val"},
-                         SDD::semantic_rule::copy_action});
+  rules.emplace_back(SDD::semantic_rule{
+      "$0.val", {"$1.val"}, SDD::semantic_rule::copy_action});
 
   production_vector.emplace_back("F", CFG_production::body_type{'(', "E", ')'});
 
-  rules.emplace_back(
-      SDD::semantic_rule{"$0.val",
-                         {"$2.val"},
-                         SDD::semantic_rule::copy_action});
+  rules.emplace_back(SDD::semantic_rule{
+      "$0.val", {"$2.val"}, SDD::semantic_rule::copy_action});
 
   auto digit_token = static_cast<CFG::terminal_type>(common_token::digit);
   production_vector.emplace_back("F", CFG_production::body_type{digit_token});

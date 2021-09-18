@@ -37,7 +37,8 @@ namespace cyy::compiler {
     return {};
   }
   bool symbol_table::add_type(type_entry t) {
-    return types.emplace(t.lexeme, std::make_shared<type_entry>(std::move(t)))
+    auto lexeme = t.lexeme;
+    return types.emplace(lexeme, std::make_shared<type_entry>(std::move(t)))
         .second;
   }
   std::shared_ptr<symbol_table::type_entry>

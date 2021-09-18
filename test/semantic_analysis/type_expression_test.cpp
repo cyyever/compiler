@@ -7,7 +7,6 @@
  */
 #include <doctest/doctest.h>
 
-#include <algorithm>
 #include <cyy/computation/lang/common_tokens.hpp>
 
 #include "exception.hpp"
@@ -69,15 +68,17 @@ TEST_CASE("types and storage layout") {
       production_vector[0],
       SDD::semantic_rule{"$1.symbol_table",
                          {"$0.symbol_table"},
-                         SDD::semantic_rule::copy_action
-                         });
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return *arguments.at(0);
+                         }});
 
   sdd.add_synthesized_attribute(
       production_vector[2],
       SDD::semantic_rule{"$0.type",
                          {"$2.type"},
-                         SDD::semantic_rule::copy_action
-                         });
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return *arguments.at(0);
+                         }});
 
   sdd.add_synthesized_attribute(
       production_vector[2],
@@ -93,19 +94,25 @@ TEST_CASE("types and storage layout") {
       production_vector[2],
       SDD::semantic_rule{"$0.width",
                          {"$2.width"},
-                         SDD::semantic_rule::copy_action});
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return *arguments.at(0);
+                         }});
 
   sdd.add_inherited_attribute(
       production_vector[2],
       SDD::semantic_rule{"$2.inh_type",
                          {"$1.type"},
-                         SDD::semantic_rule::copy_action});
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return *arguments.at(0);
+                         }});
 
   sdd.add_inherited_attribute(
       production_vector[2],
       SDD::semantic_rule{"$2.inh_width",
                          {"$1.width"},
-                         SDD::semantic_rule::copy_action});
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return *arguments.at(0);
+                         }});
 
   sdd.add_synthesized_attribute(
       production_vector[4],
@@ -147,26 +154,32 @@ TEST_CASE("types and storage layout") {
       production_vector[6],
       SDD::semantic_rule{"$0.type",
                          {"$0.inh_type"},
-                         SDD::semantic_rule::copy_action});
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return *arguments.at(0);
+                         }});
   sdd.add_synthesized_attribute(
       production_vector[6],
       SDD::semantic_rule{"$0.width",
                          {"$0.inh_width"},
-                         SDD::semantic_rule::copy_action});
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return *arguments.at(0);
+                         }});
 
   sdd.add_inherited_attribute(
       production_vector[7],
       SDD::semantic_rule{"$4.inh_type",
                          {"$0.inh_type"},
-                         SDD::semantic_rule::copy_action
-                         });
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return *arguments.at(0);
+                         }});
 
   sdd.add_inherited_attribute(
       production_vector[7],
       SDD::semantic_rule{"$4.inh_width",
                          {"$0.inh_width"},
-                         SDD::semantic_rule::copy_action
-                         });
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return *arguments.at(0);
+                         }});
   sdd.add_synthesized_attribute(
       production_vector[7],
       SDD::semantic_rule{
@@ -225,7 +238,9 @@ TEST_CASE("types and storage layout") {
       production_vector[11],
       SDD::semantic_rule{"$0.symbol_table",
                          {"$1.symbol_table"},
-                         SDD::semantic_rule::copy_action});
+                         [](const auto &arguments) -> std::optional<std::any> {
+                           return *arguments.at(0);
+                         }});
 
   sdd.add_inherited_attribute(
       production_vector[0],
@@ -252,11 +267,11 @@ TEST_CASE("types and storage layout") {
 
             auto type_name_ptr =
                 std::dynamic_pointer_cast<type_expression::type_name>(e.type);
-            symbol_table::type_entry t;
-            t.lexeme = type_name_ptr->get_name();
-            t.type = type_name_ptr;
-            t.associated_symbol_table = e.associated_symbol_table;
             if (type_name_ptr) {
+              symbol_table::type_entry t;
+              t.lexeme = type_name_ptr->get_name();
+              t.type = type_name_ptr;
+              t.associated_symbol_table = e.associated_symbol_table;
               table->add_type(t);
             }
             return std::make_any<std::shared_ptr<symbol_table>>(table);
@@ -284,7 +299,6 @@ TEST_CASE("types and storage layout") {
     tokens.emplace_back(';', ";");
 
     auto attributes = sdd.run(tokens, {"T.width", "T.type"});
-#if 0
     REQUIRE(attributes);
 
     REQUIRE(std::any_cast<size_t>(attributes.value()["T.width"]) == 24);
@@ -368,10 +382,10 @@ TEST_CASE("types and storage layout") {
                     sorted_entries.push_back(e);
                   });
 
-              std::ranges::sort(
-                  sorted_entries, [](const auto &a, const auto &b) {
-                    return a.relative_address < b.relative_address;
-                  });
+              std::sort(sorted_entries.begin(), sorted_entries.end(),
+                        [](const auto &a, const auto &b) {
+                          return a.relative_address < b.relative_address;
+                        });
 
               std::vector<std::pair<
                   std::string,
@@ -506,10 +520,10 @@ TEST_CASE("types and storage layout") {
                 sorted_entries.push_back(e);
               });
 
-              std::ranges::sort(
-                  sorted_entries, [](const auto &a, const auto &b) {
-                    return a.relative_address < b.relative_address;
-                  });
+              std::sort(sorted_entries.begin(), sorted_entries.end(),
+                        [](const auto &a, const auto &b) {
+                          return a.relative_address < b.relative_address;
+                        });
 
               std::vector<std::pair<
                   std::string,
@@ -531,18 +545,18 @@ TEST_CASE("types and storage layout") {
                 auto const &scope_symbol_table =
                     std::any_cast<std::shared_ptr<symbol_table>>(
                         *arguments.at(0));
-                auto parent_class_ptr =
+                auto parent_class_opt =
                     scope_symbol_table->get_type(parent_class_name);
-                if (!parent_class_ptr) {
+                if (!parent_class_opt) {
                   throw cyy::compiler::exception::no_parent_class(
                       parent_class_name);
                 }
-                parent_class = parent_class_ptr->type;
+                parent_class = parent_class_opt->type;
+                parent_class_symbol_table =
+                    parent_class_opt->associated_symbol_table;
                 table->add_relative_address_offset(
-                    parent_class_ptr->associated_symbol_table
-                        ->get_total_width());
-                table->set_prev_table(
-                    parent_class_ptr->associated_symbol_table);
+                    parent_class_symbol_table->get_total_width());
+                table->set_prev_table(parent_class_symbol_table);
               }
               auto class_type = std::make_shared<
                   cyy::compiler::type_expression::type_name>(
@@ -640,6 +654,5 @@ TEST_CASE("types and storage layout") {
         cyy::compiler::type_expression::basic_type(
             cyy::compiler::type_expression::basic_type::type_enum::INT)));
     REQUIRE(e->associated_symbol_table->get_symbol("y")->relative_address == 4);
-#endif
   }
 }
