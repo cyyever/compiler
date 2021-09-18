@@ -69,17 +69,15 @@ TEST_CASE("types and storage layout") {
       production_vector[0],
       SDD::semantic_rule{"$1.symbol_table",
                          {"$0.symbol_table"},
-                         [](const auto &arguments) -> std::optional<std::any> {
-                           return *arguments.at(0);
-                         }});
+                         SDD::semantic_rule::copy_action
+                         });
 
   sdd.add_synthesized_attribute(
       production_vector[2],
       SDD::semantic_rule{"$0.type",
                          {"$2.type"},
-                         [](const auto &arguments) -> std::optional<std::any> {
-                           return *arguments.at(0);
-                         }});
+                         SDD::semantic_rule::copy_action
+                         });
 
   sdd.add_synthesized_attribute(
       production_vector[2],
@@ -95,25 +93,19 @@ TEST_CASE("types and storage layout") {
       production_vector[2],
       SDD::semantic_rule{"$0.width",
                          {"$2.width"},
-                         [](const auto &arguments) -> std::optional<std::any> {
-                           return *arguments.at(0);
-                         }});
+                         SDD::semantic_rule::copy_action});
 
   sdd.add_inherited_attribute(
       production_vector[2],
       SDD::semantic_rule{"$2.inh_type",
                          {"$1.type"},
-                         [](const auto &arguments) -> std::optional<std::any> {
-                           return *arguments.at(0);
-                         }});
+                         SDD::semantic_rule::copy_action});
 
   sdd.add_inherited_attribute(
       production_vector[2],
       SDD::semantic_rule{"$2.inh_width",
                          {"$1.width"},
-                         [](const auto &arguments) -> std::optional<std::any> {
-                           return *arguments.at(0);
-                         }});
+                         SDD::semantic_rule::copy_action});
 
   sdd.add_synthesized_attribute(
       production_vector[4],
@@ -155,32 +147,26 @@ TEST_CASE("types and storage layout") {
       production_vector[6],
       SDD::semantic_rule{"$0.type",
                          {"$0.inh_type"},
-                         [](const auto &arguments) -> std::optional<std::any> {
-                           return *arguments.at(0);
-                         }});
+                         SDD::semantic_rule::copy_action});
   sdd.add_synthesized_attribute(
       production_vector[6],
       SDD::semantic_rule{"$0.width",
                          {"$0.inh_width"},
-                         [](const auto &arguments) -> std::optional<std::any> {
-                           return *arguments.at(0);
-                         }});
+                         SDD::semantic_rule::copy_action});
 
   sdd.add_inherited_attribute(
       production_vector[7],
       SDD::semantic_rule{"$4.inh_type",
                          {"$0.inh_type"},
-                         [](const auto &arguments) -> std::optional<std::any> {
-                           return *arguments.at(0);
-                         }});
+                         SDD::semantic_rule::copy_action
+                         });
 
   sdd.add_inherited_attribute(
       production_vector[7],
       SDD::semantic_rule{"$4.inh_width",
                          {"$0.inh_width"},
-                         [](const auto &arguments) -> std::optional<std::any> {
-                           return *arguments.at(0);
-                         }});
+                         SDD::semantic_rule::copy_action
+                         });
   sdd.add_synthesized_attribute(
       production_vector[7],
       SDD::semantic_rule{
@@ -239,9 +225,7 @@ TEST_CASE("types and storage layout") {
       production_vector[11],
       SDD::semantic_rule{"$0.symbol_table",
                          {"$1.symbol_table"},
-                         [](const auto &arguments) -> std::optional<std::any> {
-                           return *arguments.at(0);
-                         }});
+                         SDD::semantic_rule::copy_action});
 
   sdd.add_inherited_attribute(
       production_vector[0],
