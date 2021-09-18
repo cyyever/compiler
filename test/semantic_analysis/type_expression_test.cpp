@@ -269,7 +269,6 @@ TEST_CASE("types and storage layout") {
                 std::dynamic_pointer_cast<type_expression::type_name>(e.type);
             if (type_name_ptr) {
               symbol_table::type_entry t;
-              t.lexeme = type_name_ptr->get_name();
               t.type = type_name_ptr;
               t.associated_symbol_table = e.associated_symbol_table;
               table->add_type(t);
@@ -516,9 +515,9 @@ TEST_CASE("types and storage layout") {
 
               auto table = std::any_cast<std::shared_ptr<symbol_table>>(
                   *arguments.at(3));
-              table->foreach_symbol([&sorted_entries](auto const &e) {
-                sorted_entries.push_back(e);
-              });
+              for (const auto &e : table->get_symbol_view()) {
+                sorted_entries.push_back(*e);
+              }
 
               std::sort(sorted_entries.begin(), sorted_entries.end(),
                         [](const auto &a, const auto &b) {
@@ -554,8 +553,12 @@ TEST_CASE("types and storage layout") {
                 parent_class = parent_class_opt->type;
                 parent_class_symbol_table =
                     parent_class_opt->associated_symbol_table;
-                table->add_relative_address_offset(
-                    parent_class_symbol_table->get_total_width());
+                size_t total_width = 0;
+                for (const auto &e :
+                     parent_class_symbol_table->get_symbol_view()) {
+                  total_width += e->width;
+                }
+                table->add_relative_address_offset(total_width);
                 table->set_prev_table(parent_class_symbol_table);
               }
               auto class_type = std::make_shared<

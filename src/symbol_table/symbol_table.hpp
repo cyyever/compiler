@@ -10,6 +10,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <unordered_set>
 #include <utility>
 
@@ -23,21 +24,24 @@ namespace cyy::compiler {
   class symbol_table {
   public:
     struct entry {
-      std::string lexeme;
-      std::shared_ptr<type_expression::expression> type;
       std::shared_ptr<symbol_table> associated_symbol_table;
-
-      auto operator<=>(const entry &rhs) const { return lexeme <=> rhs.lexeme; }
     };
     struct symbol_entry : public entry {
+      std::shared_ptr<type_expression::expression> type;
+      std::string lexeme;
       size_t relative_address{};
       size_t width{};
+      auto operator<=>(const symbol_entry &rhs) const {
+        return relative_address <=> rhs.relative_address;
+      }
     };
-    struct type_entry : public entry {};
+    struct type_entry : public entry {
+      std::shared_ptr<type_expression::type_name> type;
+    };
 
   public:
     symbol_table() = default;
-    virtual ~symbol_table() = default;
+    ~symbol_table() = default;
 
     void set_prev_table(std::shared_ptr<symbol_table> prev_table_) {
       prev_table = std::move(prev_table_);
@@ -48,6 +52,7 @@ namespace cyy::compiler {
     bool add_symbol(symbol_entry e);
     std::shared_ptr<symbol_entry> get_symbol(const std::string &lexeme) const;
     bool has_symbol(const std::string &lexeme) const;
+    auto get_symbol_view() const { return symbols | std::views::values; }
     void foreach_symbol(
         const std::function<void(const symbol_entry &)> &callback) const {
       for (const auto &[_, e] : symbols) {
