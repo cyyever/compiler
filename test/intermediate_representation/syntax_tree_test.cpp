@@ -99,12 +99,12 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
       "$0.node",
       {"$1"},
       [&table](const auto &arguments) -> std::optional<std::any> {
-        symbol_table_entry entry;
+        symbol_table::symbol_entry entry;
         entry.lexeme = std::any_cast<token>(*arguments[0]).lexeme;
-        table.add_entry(entry);
+        table.add_symbol(entry);
         return std::make_any<syntax_tree::expression_node_ptr>(
             std::make_shared<syntax_tree::symbol_node>(
-                table.get_entry(entry.lexeme)));
+                table.get_symbol(entry.lexeme)));
       }});
 
   REQUIRE(production_vector.size() == rules.size());

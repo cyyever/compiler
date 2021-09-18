@@ -80,7 +80,7 @@ namespace cyy::compiler::syntax_tree {
 
   class symbol_node : public expression_node {
   public:
-    explicit symbol_node(std::shared_ptr<symbol_table_entry> entry_)
+    explicit symbol_node(std::shared_ptr<symbol_table::symbol_entry> entry_)
         : entry{std::move(std::move(entry_))} {}
 
     std::vector<size_t> get_signature() override {
@@ -91,7 +91,7 @@ namespace cyy::compiler::syntax_tree {
     }
 
   private:
-    std::shared_ptr<symbol_table_entry> entry;
+    std::shared_ptr<symbol_table::symbol_entry> entry;
   };
 
   template <typename op_type>

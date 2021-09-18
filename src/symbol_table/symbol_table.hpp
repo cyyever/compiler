@@ -10,43 +10,30 @@
 #include <functional>
 #include <optional>
 #include <unordered_set>
+#include <utility>
 
 #include <cyy/computation/lang/symbol.hpp>
-#include <utility>
 
 #include "semantic_analysis/type_expression.hpp"
 #include "token.hpp"
 
 namespace cyy::compiler {
-
-  class symbol_table;
-  struct symbol_table_entry {
-    std::string lexeme;
-    std::shared_ptr<type_expression::expression> type;
-    size_t relative_address{};
-    size_t width{};
-    std::shared_ptr<symbol_table> associated_symbol_table;
-
-    bool operator==(const symbol_table_entry &rhs) const {
-      return lexeme == rhs.lexeme;
-    }
-    auto operator<=>(const symbol_table_entry &rhs) const {
-      return lexeme <=> rhs.lexeme;
-    }
-  };
-} // namespace cyy::compiler
-
-namespace std {
-  template <> struct hash<cyy::compiler::symbol_table_entry> {
-    size_t
-    operator()(const cyy::compiler::symbol_table_entry &e) const noexcept {
-      return ::std::hash<std::string>()(e.lexeme);
-    }
-  };
-} // namespace std
-namespace cyy::compiler {
   using namespace cyy::computation;
   class symbol_table {
+  public:
+    struct entry {
+      std::string lexeme;
+      std::shared_ptr<type_expression::expression> type;
+      std::shared_ptr<symbol_table> associated_symbol_table;
+
+      auto operator<=>(const entry &rhs) const { return lexeme <=> rhs.lexeme; }
+    };
+    struct symbol_entry : public entry {
+      size_t relative_address{};
+      size_t width{};
+    };
+    struct type_entry : public entry {};
+
   public:
     symbol_table() = default;
     virtual ~symbol_table() = default;
@@ -54,46 +41,36 @@ namespace cyy::compiler {
     void set_prev_table(std::shared_ptr<symbol_table> prev_table_) {
       prev_table = std::move(prev_table_);
     }
-    bool has_entry(const std::string &lexeme) const;
-    bool add_entry(symbol_table_entry e);
-    std::shared_ptr<symbol_table_entry>
-    get_entry(const std::string &lexeme) const;
 
-    bool add_type(std::shared_ptr<type_expression::type_name> expr,
-                  std::shared_ptr<symbol_table> associated_symbol_table);
-
-    std::optional<std::pair<std::shared_ptr<type_expression::type_name>,
-                            std::shared_ptr<symbol_table>>>
-    get_type(const std::string &type_name) const;
-
-    void foreach_entry(
-        const std::function<void(const symbol_table_entry &)> &callback) const {
-      for (const auto &[_, e] : entries) {
+    bool add_type(type_entry entry);
+    std::shared_ptr<type_entry> get_type(const std::string &type_name) const;
+    bool add_symbol(symbol_entry e);
+    std::shared_ptr<symbol_entry> get_symbol(const std::string &lexeme) const;
+    bool has_symbol(const std::string &lexeme) const;
+    void foreach_symbol(
+        const std::function<void(const symbol_entry &)> &callback) const {
+      for (const auto &[_, e] : symbols) {
         callback(*e);
       }
     }
 
     size_t get_total_width() const {
       size_t total_width = 0;
-      for (const auto &[_, e] : entries) {
+      for (const auto &[_, e] : symbols) {
         total_width += e->width;
       }
       return total_width;
     }
 
     void add_relative_address_offset(size_t offset) {
-      for (const auto &[_, e] : entries) {
-        const_cast<symbol_table_entry &>(*e).relative_address += offset;
+      for (auto &[_, e] : symbols) {
+        e->relative_address += offset;
       }
     }
 
   private:
-    std::unordered_map<std::string, std::shared_ptr<symbol_table_entry>>
-        entries;
-    std::unordered_map<std::string,
-                       std::pair<std::shared_ptr<type_expression::type_name>,
-                                 std::shared_ptr<symbol_table>>>
-        types;
+    std::unordered_map<std::string, std::shared_ptr<symbol_entry>> symbols;
+    std::unordered_map<std::string, std::shared_ptr<type_entry>> types;
     std::shared_ptr<symbol_table> prev_table;
   };
 } // namespace cyy::compiler
