@@ -99,16 +99,17 @@ namespace cyy::compiler::syntax_tree {
     std::shared_ptr<symbol_table_entry> entry;
   };
 
-  class binary_expression_node : public expression_node {
+  template <typename op_type>
+  class _binary_expression_node : public expression_node {
   public:
-    binary_expression_node(binary_arithmetic_operator op_,
+    _binary_expression_node(op_type op_,
                            std::shared_ptr<expression_node> left_,
                            std::shared_ptr<expression_node> right_)
         : op{op_}, left{std::move(std::move(left_))}, right{std::move(
                                                           std::move(right_))} {}
 
     expression_node_ptr make_DAG_node() override {
-      return std::make_shared<binary_expression_node>(
+      return std::make_shared<_binary_expression_node<op_type>>(
           op, left->common_subexpression_elimination_by_DAG(),
           right->common_subexpression_elimination_by_DAG());
     }
@@ -119,9 +120,9 @@ namespace cyy::compiler::syntax_tree {
     }
 
   public:
-      binary_arithmetic_operator op;
+    op_type op;
     std::shared_ptr<expression_node> left;
     std::shared_ptr<expression_node> right;
   };
-  using binary_expression_node_ptr = std::shared_ptr<binary_expression_node>;
+  using binary_arithmetic_node=_binary_expression_node<binary_arithmetic_operator>;
 } // namespace cyy::compiler::syntax_tree
