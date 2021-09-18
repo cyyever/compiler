@@ -14,7 +14,7 @@
 #include <utility>
 #include <vector>
 
-#include "../exception.hpp"
+#include "exception.hpp"
 
 namespace cyy::compiler::type_expression {
   class expression {

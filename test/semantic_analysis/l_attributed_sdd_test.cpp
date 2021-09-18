@@ -37,25 +37,21 @@ TEST_CASE("run") {
       production_vector[0],
       SDD::semantic_rule{"$2.inh",
                          {"$1.val"},
-                         [](const auto &arguments) -> std::optional<std::any> {
-                           return *(arguments[0]);
-                         }});
+                         SDD::semantic_rule::copy_action
+                         });
 
   sdd.add_synthesized_attribute(
       production_vector[0],
-      SDD::semantic_rule{"$0.val",
-                         {"$2.syn"},
-                         [](const auto &arguments) -> std::optional<std::any> {
-                           return *(arguments[0]);
-                         }});
+      SDD::semantic_rule{
+          "$0.val", {"$2.syn"}, SDD::semantic_rule::copy_action});
 
   sdd.add_inherited_attribute(
       production_vector[0],
       SDD::semantic_rule{"$2.inh2",
-                         {"$1.val", "$2.syn"},
+                         { "$2.syn"},
                          [](const auto &arguments) -> std::optional<std::any> {
-                           REQUIRE(std::any_cast<int>(*(arguments[1])) == 15);
-                           return *(arguments[1]);
+                           REQUIRE(std::any_cast<int>(*(arguments[0])) == 15);
+                           return *(arguments[0]);
                          }});
 
   sdd.add_inherited_attribute(
@@ -72,17 +68,13 @@ TEST_CASE("run") {
       production_vector[1],
       SDD::semantic_rule{"$0.syn",
                          {"$3.syn"},
-                         [](const auto &arguments) -> std::optional<std::any> {
-                           return *(arguments[0]);
-                         }});
+                         SDD::semantic_rule::copy_action});
 
   sdd.add_synthesized_attribute(
       production_vector[2],
       SDD::semantic_rule{"$0.syn",
                          {"$0.inh"},
-                         [](const auto &arguments) -> std::optional<std::any> {
-                           return *(arguments[0]);
-                         }});
+                         SDD::semantic_rule::copy_action});
 
   sdd.add_synthesized_attribute(
       production_vector[3],

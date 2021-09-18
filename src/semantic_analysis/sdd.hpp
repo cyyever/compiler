@@ -12,7 +12,6 @@
 #include <map>
 #include <memory>
 #include <optional>
-#include <set>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -42,6 +41,9 @@ namespace cyy::compiler {
       using semantic_action_type = std::function<std::optional<std::any>(
           const std::vector<const std::any *> &)>;
       semantic_action_type action;
+      static inline semantic_action_type copy_action{[](const auto &arguments) -> std::optional<std::any> {
+                           return *arguments.at(0);
+                         }};
     };
 
   protected:
@@ -64,8 +66,8 @@ namespace cyy::compiler {
   protected:
     mutable std::unordered_map<CFG_production, std::vector<semantic_rule>>
         all_rules;
-    std::set<std::string> synthesized_attributes;
-    std::set<std::string> inherited_attributes;
+    std::unordered_set<std::string> synthesized_attributes;
+    std::unordered_set<std::string> inherited_attributes;
     const CFG &cfg;
     mutable bool new_rule_flag{false};
   };
