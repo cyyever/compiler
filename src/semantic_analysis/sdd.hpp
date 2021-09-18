@@ -20,8 +20,8 @@
 
 #include <cyy/computation/context_free_lang/cfg.hpp>
 
-#include "../token/token.hpp"
 #include "grammar_symbol_attribute_name.hpp"
+#include "token.hpp"
 
 namespace cyy::compiler {
   using namespace cyy::computation;

@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "operator.hpp"
 #include <boost/container_hash/hash.hpp>
 #include <cyy/computation/lang/symbol.hpp>
 #include <map>
@@ -31,11 +32,11 @@ namespace std {
 
 namespace cyy::compiler::syntax_tree {
   using namespace cyy::computation;
-  enum class binary_operator : uint64_t {
-    addition,
-    subtraction,
-    multiplication,
-  };
+  /* enum class binary_operator : uint64_t { */
+  /*   addition, */
+  /*   subtraction, */
+  /*   multiplication, */
+  /* }; */
 
   class node {
   public:
@@ -100,7 +101,7 @@ namespace cyy::compiler::syntax_tree {
 
   class binary_expression_node : public expression_node {
   public:
-    binary_expression_node(binary_operator op_,
+    binary_expression_node(binary_arithmetic_operator op_,
                            std::shared_ptr<expression_node> left_,
                            std::shared_ptr<expression_node> right_)
         : op{op_}, left{std::move(std::move(left_))}, right{std::move(
@@ -118,7 +119,7 @@ namespace cyy::compiler::syntax_tree {
     }
 
   public:
-    binary_operator op;
+      binary_arithmetic_operator op;
     std::shared_ptr<expression_node> left;
     std::shared_ptr<expression_node> right;
   };

@@ -15,7 +15,7 @@
 #include <utility>
 
 #include "semantic_analysis/type_expression.hpp"
-#include "token/token.hpp"
+#include "token.hpp"
 
 namespace cyy::compiler {
 

@@ -8,6 +8,7 @@
 #include <doctest/doctest.h>
 
 #include "intermediate_representation/syntax_tree.hpp"
+#include "operator.hpp"
 #include "semantic_analysis/s_attributed_sdd.hpp"
 #include "symbol_table/symbol_table.hpp"
 #include <cyy/computation/context_free_lang/slr_grammar.hpp>
@@ -35,7 +36,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
             std::any_cast<syntax_tree::expression_node_ptr>(*(arguments[1]));
         return std::make_any<syntax_tree::expression_node_ptr>(
             std::make_shared<syntax_tree::binary_expression_node>(
-                syntax_tree::binary_operator::addition, E_val, T_val));
+                binary_arithmetic_operator::addition, E_val, T_val));
       }});
 
   production_vector.emplace_back("E", CFG_production::body_type{"E", '-', "T"});
@@ -50,7 +51,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
             std::any_cast<syntax_tree::expression_node_ptr>(*(arguments[1]));
         return std::make_any<syntax_tree::expression_node_ptr>(
             std::make_shared<syntax_tree::binary_expression_node>(
-                syntax_tree::binary_operator::subtraction, E_val, T_val));
+                binary_arithmetic_operator::subtraction, E_val, T_val));
       }});
 
   production_vector.emplace_back("E", CFG_production::body_type{"T"});
@@ -72,7 +73,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
             std::any_cast<syntax_tree::expression_node_ptr>(*(arguments[1]));
         return std::make_any<syntax_tree::expression_node_ptr>(
             std::make_shared<syntax_tree::binary_expression_node>(
-                syntax_tree::binary_operator::multiplication, T_val, F_val));
+                binary_arithmetic_operator::multiplication, T_val, F_val));
       }});
 
   production_vector.emplace_back("T", CFG_production::body_type{"F"});
@@ -148,15 +149,15 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
   auto root_node_ptr =
       std::dynamic_pointer_cast<syntax_tree::binary_expression_node>(
           expression_node_ptr);
-  REQUIRE_EQ(root_node_ptr->op, syntax_tree::binary_operator::addition);
+  REQUIRE_EQ(root_node_ptr->op, binary_arithmetic_operator::addition);
   auto left_child =
       std::dynamic_pointer_cast<syntax_tree::binary_expression_node>(
           root_node_ptr->left);
   auto right_child =
       std::dynamic_pointer_cast<syntax_tree::binary_expression_node>(
           root_node_ptr->right);
-  REQUIRE_EQ(left_child->op, syntax_tree::binary_operator::addition);
-  REQUIRE_EQ(right_child->op, syntax_tree::binary_operator::multiplication);
+  REQUIRE_EQ(left_child->op, binary_arithmetic_operator::addition);
+  REQUIRE_EQ(right_child->op, binary_arithmetic_operator::multiplication);
   REQUIRE_EQ(std::dynamic_pointer_cast<syntax_tree::binary_expression_node>(
                  left_child->right)
                  ->right.get(),

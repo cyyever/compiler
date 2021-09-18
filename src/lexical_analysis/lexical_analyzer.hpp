@@ -16,7 +16,7 @@
 #include <cyy/computation/lang/alphabet.hpp>
 #include <cyy/computation/regular_lang/nfa.hpp>
 
-#include "token/token.hpp"
+#include "token.hpp"
 
 namespace cyy::compiler {
   using namespace cyy::computation;
