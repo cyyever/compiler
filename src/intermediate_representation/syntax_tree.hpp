@@ -32,11 +32,6 @@ namespace std {
 
 namespace cyy::compiler::syntax_tree {
   using namespace cyy::computation;
-  /* enum class binary_operator : uint64_t { */
-  /*   addition, */
-  /*   subtraction, */
-  /*   multiplication, */
-  /* }; */
 
   class node {
   public:
