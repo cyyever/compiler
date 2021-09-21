@@ -52,7 +52,7 @@ namespace cyy::compiler {
     bool add_type(type_entry entry);
     std::shared_ptr<type_entry> get_type(const std::string &type_name) const;
     bool add_symbol(symbol_entry e);
-    std::shared_ptr<symbol_entry> get_symbol(const std::string &lexeme) const;
+    symbol_entry_ptr get_symbol(const std::string &lexeme) const;
     bool has_symbol(const std::string &lexeme) const;
     auto get_symbol_view() const {
       return symbols | std::views::values |
@@ -74,7 +74,7 @@ namespace cyy::compiler {
     }
 
   private:
-    std::unordered_map<std::string, std::shared_ptr<symbol_entry>> symbols;
+    std::unordered_map<std::string, symbol_entry_ptr> symbols;
     std::unordered_map<std::string, std::shared_ptr<type_entry>> types;
     std::shared_ptr<symbol_table> prev_table;
   };
