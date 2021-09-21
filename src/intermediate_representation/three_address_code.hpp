@@ -22,8 +22,8 @@ namespace cyy::compiler::IR::three_address_code {
   };
 
   struct name : public address {
-    explicit name(symbol_table::symbol_entry_ptr entry_) :address(entry->lexeme), entry{std::move(entry_)} {
-    }
+    explicit name(symbol_table::symbol_entry_ptr entry_)
+        : address(entry->lexeme), entry{std::move(entry_)} {}
     symbol_table::symbol_entry_ptr entry;
   };
 
@@ -31,11 +31,11 @@ namespace cyy::compiler::IR::three_address_code {
     using address::address;
   };
 
-  struct temporary_name: public address {
+  struct temporary_name : public address {
     using address::address;
     static std::string generate_new_temporary_name() {
-      static size_t index=0;
-      return std::string("t_")+std::to_string(index++);
+      static size_t index = 0;
+      return std::string("t_") + std::to_string(index++);
     }
   };
 

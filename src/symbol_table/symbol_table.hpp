@@ -36,7 +36,7 @@ namespace cyy::compiler {
         return relative_address <=> rhs.relative_address;
       }
     };
-    using symbol_entry_ptr=std::shared_ptr<symbol_entry>;
+    using symbol_entry_ptr = std::shared_ptr<symbol_entry>;
     struct type_entry : public entry {
       std::shared_ptr<type_expression::type_name> type;
     };
