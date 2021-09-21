@@ -44,28 +44,27 @@ namespace cyy::compiler::IR::three_address_code {
     instruction() = default;
     virtual ~instruction() = default;
     void set_label(std::string_view label_) { label = label_; }
+    virtual std::string to_string() const {return "";}
 
   protected:
     std::string label;
   };
 
   template <typename operator_type>
-  class binary_assignment_instruction : public instruction {
+  struct binary_assignment_instruction : public instruction {
     static_assert(std::is_same_v<operator_type, binary_arithmetic_operator> ||
                   std::is_same_v<operator_type, binary_logical_operator>);
 
-  public:
-    binary_assignment_instruction(operator_type op_, name result_,
-                                  address left_, address right_)
+    binary_assignment_instruction(operator_type op_, std::shared_ptr<name> result_,
+                                  std::shared_ptr<address> left_, std::shared_ptr<address> right_)
         : op(op_), result(std::move(result_)), left(std::move(left_)),
           right(std::move(right_)) {}
     ~binary_assignment_instruction() override = default;
 
-  private:
     operator_type op;
-    name result;
-    address left;
-    address right;
+    std::shared_ptr<name> result;
+    std::shared_ptr<address> left;
+    std::shared_ptr<address> right;
   };
 
   template <typename operator_type>
@@ -74,26 +73,27 @@ namespace cyy::compiler::IR::three_address_code {
                   std::is_same_v<operator_type, unary_logical_operator>);
 
   public:
-    unary_assignment_instruction(operator_type op_, name result_,
-                                 address operand_)
+    unary_assignment_instruction(operator_type op_, std::shared_ptr<name> result_,
+                                 std::shared_ptr<address> operand_)
         : op(op_), result(std::move(result_)), operand(std::move(operand_)) {}
     ~unary_assignment_instruction() override = default;
 
   private:
     operator_type op;
-    name result;
-    address operand;
+    std::shared_ptr<name> result;
+    std::shared_ptr<address> operand;
   };
 
-  class copy_instruction : public instruction {
-  public:
-    copy_instruction(name result_, address operand_)
+  struct copy_instruction : public instruction {
+    copy_instruction(std::shared_ptr<name> result_, std::shared_ptr<address> operand_)
         : result(std::move(result_)), operand(std::move(operand_)) {}
     ~copy_instruction() override = default;
 
-  private:
-    name result;
-    address operand;
+    std::string to_string() const override 
+    {return result->lexeme+"="+operand->lexeme;
+    }
+    std::shared_ptr<name> result;
+    std::shared_ptr<address> operand;
   };
 
   class unconditional_jump_instruction : public instruction {
@@ -109,13 +109,13 @@ namespace cyy::compiler::IR::three_address_code {
   template <bool negative_if>
   class conditional_jump_instruction : public instruction {
   public:
-    conditional_jump_instruction(address operand_,
+    conditional_jump_instruction(std::shared_ptr<address> operand_,
                                  std::string_view target_label_)
         : operand{std::move(operand_)}, target_label{target_label_} {}
     ~conditional_jump_instruction() override = default;
 
   protected:
-    address operand;
+    std::shared_ptr<address> operand;
     std::string target_label;
   };
 
@@ -123,7 +123,7 @@ namespace cyy::compiler::IR::three_address_code {
       : public instruction {
   public:
     relational_operation_and_conditional_jump_instruction(
-        relational_operator op_, address left_, address right_,
+        relational_operator op_, std::shared_ptr<address> left_, std::shared_ptr<address> right_,
         std::string_view target_label_)
         : op(op_), left(std::move(left_)),
           right(std::move(right_)), target_label{target_label_} {}
@@ -131,17 +131,17 @@ namespace cyy::compiler::IR::three_address_code {
 
   protected:
     relational_operator op;
-    address left;
-    address right;
+    std::shared_ptr<address> left;
+    std::shared_ptr<address> right;
     std::string target_label;
   };
   class param_instruction : public instruction {
   public:
-    param_instruction(address param_) : param(std::move(param_)) {}
+    param_instruction(std::shared_ptr<address> param_) : param(std::move(param_)) {}
     ~param_instruction() override = default;
 
   private:
-    address param;
+    std::shared_ptr<address> param;
   };
 
   class procedure_call_instruction : public instruction {
@@ -159,13 +159,13 @@ namespace cyy::compiler::IR::three_address_code {
   class function_call_instruction : public procedure_call_instruction {
   public:
     function_call_instruction(std::string_view function_label_,
-                              size_t param_number_, name result_)
+                              size_t param_number_, std::shared_ptr<name> result_)
         : procedure_call_instruction(function_label_, param_number_),
           result(std::move(result_)) {}
     ~function_call_instruction() override = default;
 
   private:
-    address result;
+    std::shared_ptr<address> result;
   };
 
   class return_instruction : public instruction {
@@ -176,70 +176,70 @@ namespace cyy::compiler::IR::three_address_code {
 
   class return_with_value_instruction : public return_instruction {
   public:
-    return_with_value_instruction(address value_) : value(std::move(value_)) {}
+    return_with_value_instruction(std::shared_ptr<address> value_) : value(std::move(value_)) {}
     ~return_with_value_instruction() override = default;
 
   private:
-    address value;
+    std::shared_ptr<address> value;
   };
 
   class indexed_copy_instruction : public instruction {
   public:
-    indexed_copy_instruction(name result_, name operand_, size_t index_)
+    indexed_copy_instruction(std::shared_ptr<name> result_, std::shared_ptr<name> operand_, size_t index_)
         : result(std::move(result_)), operand(std::move(operand_)),
           index(index_) {}
     ~indexed_copy_instruction() override = default;
 
   private:
-    name result;
-    name operand;
+    std::shared_ptr<name> result;
+    std::shared_ptr<name> operand;
     size_t index;
   };
 
   class result_indexed_copy_instruction : public instruction {
   public:
-    result_indexed_copy_instruction(name result_, size_t index_,
-                                    address operand_)
+    result_indexed_copy_instruction(std::shared_ptr<name> result_, size_t index_,
+                                    std::shared_ptr<address> operand_)
         : result(std::move(result_)), index(index_),
           operand(std::move(operand_)) {}
     ~result_indexed_copy_instruction() override = default;
 
   private:
-    name result;
+    std::shared_ptr<name> result;
     size_t index;
-    address operand;
+    std::shared_ptr<address> operand;
   };
 
   class address_assignment_instruction : public instruction {
   public:
-    address_assignment_instruction(name result_, name operand_)
+    address_assignment_instruction(std::shared_ptr<name> result_, std::shared_ptr<name> operand_)
         : result(std::move(result_)), operand(std::move(operand_)) {}
     ~address_assignment_instruction() override = default;
 
   private:
-    name result;
-    name operand;
+    std::shared_ptr<name> result;
+    std::shared_ptr<name> operand;
   };
 
   class pointer_assignment_instruction : public instruction {
   public:
-    pointer_assignment_instruction(name result_, name operand_)
+    pointer_assignment_instruction(std::shared_ptr<name> result_, std::shared_ptr<name> operand_)
         : result(std::move(result_)), operand(std::move(operand_)) {}
     ~pointer_assignment_instruction() override = default;
 
   private:
-    name result;
-    name operand;
+    std::shared_ptr<name> result;
+    std::shared_ptr<name> operand;
   };
 
   class result_pointer_assignment_instruction : public instruction {
   public:
-    result_pointer_assignment_instruction(name result_, name operand_)
+    result_pointer_assignment_instruction(std::shared_ptr<name> result_, std::shared_ptr<name> operand_)
         : result(std::move(result_)), operand(std::move(operand_)) {}
     ~result_pointer_assignment_instruction() override = default;
 
   private:
-    name result;
-    name operand;
+    std::shared_ptr<name> result;
+    std::shared_ptr<name> operand;
   };
 } // namespace cyy::compiler::IR::three_address_code
