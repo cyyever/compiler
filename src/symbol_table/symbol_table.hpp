@@ -53,6 +53,7 @@ namespace cyy::compiler {
     std::shared_ptr<type_entry> get_type(const std::string &type_name) const;
     bool add_symbol(symbol_entry e);
     symbol_entry_ptr get_symbol(const std::string &lexeme) const;
+    symbol_entry_ptr create_and_get_symbol(const std::string &lexeme);
     bool has_symbol(const std::string &lexeme) const;
     auto get_symbol_view() const {
       return symbols | std::views::values |

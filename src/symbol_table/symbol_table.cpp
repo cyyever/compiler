@@ -36,6 +36,18 @@ namespace cyy::compiler {
     }
     return {};
   }
+  std::shared_ptr<symbol_table::symbol_entry>
+  symbol_table::create_and_get_symbol(const std::string &lexeme) {
+    auto ptr = get_symbol(lexeme);
+    if (ptr) {
+      return ptr;
+    }
+
+    symbol_entry e;
+    e.lexeme = lexeme;
+    add_symbol(std::move(e));
+    return get_symbol(lexeme);
+  }
   bool symbol_table::add_type(type_entry t) {
     auto lexeme = t.type->get_name();
     return types.emplace(lexeme, std::make_shared<type_entry>(std::move(t)))
