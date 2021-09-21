@@ -9,29 +9,34 @@
 #pragma once
 
 #include "operator.hpp"
+#include "symbol_table/symbol_table.hpp"
 #include <cyy/computation/lang/symbol.hpp>
 #include <memory>
 
 namespace cyy::compiler::IR::three_address_code {
   using namespace cyy::computation;
-  class address {
-  public:
-    explicit address(symbol_string lexeme_) : lexeme{std::move(lexeme_)} {}
-    address(const address &) = default;
-    address(address &&) = default;
-    virtual ~address() = default;
-
-  protected:
-    symbol_string lexeme;
+  using namespace cyy::compiler;
+  struct address {
+    explicit address(std::string lexeme_) : lexeme{std::move(lexeme_)} {}
+    std::string lexeme;
   };
 
-  class name : public address {
-  public:
+  struct name : public address {
+    explicit name(symbol_table::symbol_entry_ptr entry_) :address(entry->lexeme), entry{std::move(entry_)} {
+    }
+    symbol_table::symbol_entry_ptr entry;
+  };
+
+  struct constant : public address {
     using address::address;
   };
 
-  class constant : public address {
+  struct temporary_name: public address {
     using address::address;
+    static std::string generate_new_temporary_name() {
+      static size_t index=0;
+      return std::string("t_")+std::to_string(index++);
+    }
   };
 
   class instruction {
