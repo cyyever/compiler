@@ -12,6 +12,7 @@
 #include <memory>
 #include <optional>
 #include <ranges>
+#include <string_view>
 #include <unordered_set>
 #include <utility>
 
@@ -54,6 +55,7 @@ namespace cyy::compiler {
     bool add_symbol(symbol_entry e);
     symbol_entry_ptr get_symbol(const std::string &lexeme) const;
     symbol_entry_ptr create_and_get_symbol(const std::string &lexeme);
+    symbol_entry_ptr create_temporary_symbol(const std::string &lexeme);
     bool has_symbol(const std::string &lexeme) const;
     auto get_symbol_view() const {
       return symbols | std::views::values |

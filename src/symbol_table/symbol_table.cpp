@@ -7,6 +7,7 @@
 
 #include "symbol_table.hpp"
 #include <algorithm>
+#include <cassert>
 #include <iostream>
 
 namespace cyy::compiler {
@@ -48,6 +49,18 @@ namespace cyy::compiler {
     add_symbol(std::move(e));
     return get_symbol(lexeme);
   }
+
+  symbol_table::symbol_entry_ptr
+  symbol_table::create_temporary_symbol(const std::string &lexeme) {
+
+    symbol_entry e;
+    e.lexeme = lexeme;
+
+    auto has_symbol = add_symbol(std::move(e));
+    assert(!has_symbol);
+    return get_symbol(lexeme);
+  }
+
   bool symbol_table::add_type(type_entry t) {
     auto lexeme = t.type->get_name();
     return types.emplace(lexeme, std::make_shared<type_entry>(std::move(t)))
