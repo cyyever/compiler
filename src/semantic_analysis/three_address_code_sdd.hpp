@@ -5,7 +5,7 @@
  */
 
 #include "intermediate_representation/three_address_code.hpp"
-#include "semantic_analysis/l_attributed_sdd.hpp"
+#include "semantic_analysis/s_attributed_sdd.hpp"
 #include "symbol_table/symbol_table.hpp"
 #include "token.hpp"
 
@@ -14,15 +14,15 @@ namespace cyy::compiler {
   class three_address_code_SDD {
   public:
     three_address_code_SDD();
-    std::optional<std::map<std::string, std::any>>
-    run(token_span span,
-        const std::unordered_set<std::string> &result_attribute_names) const;
+    bool run(token_span span, std::shared_ptr<symbol_table> table_ = {});
 
-  private:
-    std::unique_ptr<L_attributed_SDD> sdd;
-    std::shared_ptr<symbol_table> table;
+  public:
     std::vector<std::shared_ptr<IR::three_address_code::instruction>>
         instruction_sequence;
+
+  private:
+    std::unique_ptr<S_attributed_SDD> sdd;
+    std::shared_ptr<symbol_table> table;
   };
 
 } // namespace cyy::compiler

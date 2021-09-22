@@ -3,14 +3,13 @@
  *
  * \brief
  */
+#include <cyy/computation/context_free_lang/slr_grammar.hpp>
 #include <cyy/computation/lang/common_tokens.hpp>
 
 #include "operator.hpp"
 #include "semantic_analysis/l_attributed_sdd.hpp"
 #include "three_address_code_sdd.hpp"
 #include <fmt/format.h>
-
-using namespace cyy::computation;
 
 namespace cyy::compiler {
   three_address_code_SDD::three_address_code_SDD() {
@@ -34,11 +33,11 @@ namespace cyy::compiler {
       productions[production.get_head()].emplace(production.get_body());
     }
 
-    LL_grammar grammar("common_tokens", "S", productions);
-    sdd = std::make_unique<L_attributed_SDD>(grammar);
+    SLR_grammar grammar("common_tokens", "S", productions);
+    sdd = std::make_unique<S_attributed_SDD>(grammar);
     size_t tmp_name_index = 0;
 
-    sdd->add_inherited_attribute(
+    sdd->add_synthesized_attribute(
         production_vector[0],
         SDD::semantic_rule{
             "$0.addr",
@@ -53,10 +52,10 @@ namespace cyy::compiler {
               instruction_sequence.emplace_back(
                   std::make_shared<IR::three_address_code::copy_instruction>(
                       name, address));
-              return name;
+              return std::dynamic_pointer_cast<IR::three_address_code::address>(name);
             }});
 
-    sdd->add_inherited_attribute(
+    sdd->add_synthesized_attribute(
         production_vector[1],
         SDD::semantic_rule{
             "$0.addr",
@@ -79,14 +78,14 @@ namespace cyy::compiler {
               instruction->left = left;
               instruction->right = right;
               instruction_sequence.emplace_back(instruction);
-              return result_name;
+              return std::dynamic_pointer_cast<IR::three_address_code::address>(result_name);
             }});
 
-    sdd->add_inherited_attribute(
+    sdd->add_synthesized_attribute(
         production_vector[2],
         SDD::semantic_rule{
             "$0.addr",
-            {"$1.addr"},
+            {"$2.addr"},
             [this, &tmp_name_index](
                 const auto &arguments) -> std::optional<std::any> {
               auto result_name = std::make_shared<IR::three_address_code::name>(
@@ -101,13 +100,13 @@ namespace cyy::compiler {
               instruction->result = result_name;
               instruction->operand = operand;
               instruction_sequence.emplace_back(instruction);
-              return result_name;
+              return std::dynamic_pointer_cast<IR::three_address_code::address>(result_name);
             }});
-    sdd->add_inherited_attribute(
+    sdd->add_synthesized_attribute(
         production_vector[3],
         SDD::semantic_rule{
-            "$0.addr", {"$1.addr"}, SDD::semantic_rule::copy_action});
-    sdd->add_inherited_attribute(
+            "$0.addr", {"$2.addr"}, SDD::semantic_rule::copy_action});
+    sdd->add_synthesized_attribute(
         production_vector[4],
         SDD::semantic_rule{
             "$0.addr",
@@ -116,12 +115,13 @@ namespace cyy::compiler {
               auto name = std::make_shared<IR::three_address_code::name>(
                   table->create_and_get_symbol(
                       std::any_cast<token>(*arguments[0]).lexeme));
-              return name;
+              return std::dynamic_pointer_cast<IR::three_address_code::address>(name);
             }});
   }
-  std::optional<std::map<std::string, std::any>> three_address_code_SDD::run(
-      token_span span,
-      const std::unordered_set<std::string> &result_attribute_names) const {
-    return sdd->run(span, result_attribute_names);
+  bool three_address_code_SDD::run(token_span span,
+                                   std::shared_ptr<symbol_table> table_) {
+    table = table_;
+    instruction_sequence.clear();
+    return sdd->run(span, {"S.addr"}).has_value();
   }
 } // namespace cyy::compiler
