@@ -9,7 +9,6 @@
 
 #include <any>
 #include <functional>
-#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -31,7 +30,7 @@ namespace cyy::compiler {
 
     virtual ~SDD() = default;
 
-    std::optional<std::map<std::string, std::any>>
+    std::optional<std::unordered_map<std::string, std::any>>
     run(token_span span,
         const std::unordered_set<std::string> &result_attribute_names) const;
 
@@ -59,7 +58,7 @@ namespace cyy::compiler {
     void check_semantic_rule(const CFG_production &production,
                              const semantic_rule &rule) const;
 
-    virtual std::optional<std::map<std::string, std::any>>
+    virtual std::optional<std::unordered_map<std::string, std::any>>
     _run(token_span span,
          const std::unordered_set<std::string> &result_attribute_names)
         const = 0;

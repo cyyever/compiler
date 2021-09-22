@@ -20,7 +20,7 @@ namespace cyy::compiler {
     using SDD::add_synthesized_attribute;
 
   private:
-    std::optional<std::map<std::string, std::any>>
+    std::optional<std::unordered_map<std::string, std::any>>
     _run(token_span span,
          const std::unordered_set<std::string> &result_attribute_names)
         const override;

@@ -15,7 +15,8 @@
 
 namespace cyy::compiler {
 
-  std::optional<std::map<std::string, std::any>> S_attributed_SDD::_run(
+  std::optional<std::unordered_map<std::string, std::any>>
+  S_attributed_SDD::_run(
       token_span span,
       const std::unordered_set<std::string> &result_attribute_names) const {
 
@@ -30,10 +31,10 @@ namespace cyy::compiler {
       token_names.push_back(token.name);
     }
 
-    std::vector<std::map<std::string, std::any>>
+    std::vector<std::unordered_map<std::string, std::any>>
         grammal_symbol_attributes_stack;
     size_t next_position = 0;
-    std::map<std::string, std::any> final_attributes;
+    std::unordered_map<std::string, std::any> final_attributes;
     if (!dynamic_cast<const LR_grammar &>(cfg).parse(
             token_names,
             [&span, &next_position,
@@ -49,7 +50,7 @@ namespace cyy::compiler {
               const auto body_size = production.get_body().size();
               const auto stake_size = grammal_symbol_attributes_stack.size();
 
-              std::map<std::string, std::any> result_attributes;
+              std::unordered_map<std::string, std::any> result_attributes;
 
               auto it = all_rules.find(production);
               if (it != all_rules.end()) {

@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <cassert>
 #include <ranges>
-#include <unordered_map>
 
 #include <cyy/computation/util.hpp>
 
@@ -87,7 +86,7 @@ namespace cyy::compiler {
   void SDD::resolve_semantic_rules_order() const {
     for (auto &[_, rules] : all_rules) {
       assert(!rules.empty());
-      std::map<std::string, size_t> result_attribute_rule_indexes;
+      std::unordered_map<std::string, size_t> result_attribute_rule_indexes;
       for (size_t i = 0; i < rules.size(); i++) {
         auto const &rule = rules[i];
         if (rule.result_attribute) {
@@ -141,7 +140,7 @@ namespace cyy::compiler {
     }
   }
 
-  std::optional<std::map<std::string, std::any>> SDD::run(
+  std::optional<std::unordered_map<std::string, std::any>> SDD::run(
       token_span span,
       const std::unordered_set<std::string> &result_attribute_names) const {
     if (span.empty()) {

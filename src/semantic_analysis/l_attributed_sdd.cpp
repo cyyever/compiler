@@ -12,7 +12,8 @@
 
 namespace cyy::compiler {
 
-  std::optional<std::map<std::string, std::any>> L_attributed_SDD::_run(
+  std::optional<std::unordered_map<std::string, std::any>>
+  L_attributed_SDD::_run(
       token_span span,
       const std::unordered_set<std::string> &result_attribute_names) const {
     if (new_rule_flag) {
@@ -26,13 +27,13 @@ namespace cyy::compiler {
       token_names.push_back(token.name);
     }
 
-    std::vector<std::map<std::string, std::any>>
+    std::vector<std::unordered_map<std::string, std::any>>
         grammal_symbol_attributes_stack;
     // for start symbol
     grammal_symbol_attributes_stack.emplace_back();
     size_t next_position = 0;
 
-    std::map<std::string, std::any> final_attributes;
+    std::unordered_map<std::string, std::any> final_attributes;
     if (!dynamic_cast<const LL_grammar &>(cfg).parse(
             token_names,
             [this, &span, &result_attribute_names, &final_attributes,
