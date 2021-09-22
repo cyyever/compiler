@@ -8,7 +8,6 @@
 #include "operator.hpp"
 #include "semantic_analysis/l_attributed_sdd.hpp"
 #include "three_address_code_sdd.hpp"
-#include <any>
 #include <fmt/format.h>
 
 using namespace cyy::computation;
@@ -119,5 +118,10 @@ namespace cyy::compiler {
                       std::any_cast<token>(*arguments[0]).lexeme));
               return name;
             }});
+  }
+  std::optional<std::map<std::string, std::any>> three_address_code_SDD::run(
+      token_span span,
+      const std::unordered_set<std::string> &result_attribute_names) const {
+    return sdd->run(span, result_attribute_names);
   }
 } // namespace cyy::compiler

@@ -10,7 +10,7 @@
 
 #include "operator.hpp"
 #include "symbol_table/symbol_table.hpp"
-#include <cyy/computation/lang/symbol.hpp>
+#include <fmt/format.h>
 #include <memory>
 
 namespace cyy::compiler::IR::three_address_code {
@@ -31,16 +31,6 @@ namespace cyy::compiler::IR::three_address_code {
   using name_ptr = std::shared_ptr<name>;
   using address_ptr = std::shared_ptr<address>;
 
-  /*
-  struct temporary_name : public name {
-    using name::name;
-    static std::string generate_new_temporary_name() {
-      static size_t index = 0;
-      return std::string("t_") + std::to_string(index++);
-    }
-  };
-  */
-
   class instruction {
   public:
     instruction() = default;
@@ -57,6 +47,15 @@ namespace cyy::compiler::IR::three_address_code {
     static_assert(std::is_same_v<operator_type, binary_arithmetic_operator> ||
                   std::is_same_v<operator_type, binary_logical_operator>);
 
+    std::string to_string() const override {
+      if constexpr (std::is_same_v<operator_type, binary_arithmetic_operator>) {
+        if (op == binary_arithmetic_operator::addition) {
+          return fmt::format("{} = {} + {}", result->lexeme, left->lexeme,
+                             right->lexeme);
+        }
+      }
+      return "";
+    }
     operator_type op;
     name_ptr result;
     address_ptr left;
@@ -71,6 +70,15 @@ namespace cyy::compiler::IR::three_address_code {
   struct unary_assignment_instruction : public instruction {
     static_assert(std::is_same_v<operator_type, unary_arithmetic_operator> ||
                   std::is_same_v<operator_type, unary_logical_operator>);
+
+    std::string to_string() const override {
+      if constexpr (std::is_same_v<operator_type, unary_arithmetic_operator>) {
+        if (op == unary_arithmetic_operator::minus) {
+          return fmt::format("{} = minus {}", result->lexeme, operand->lexeme);
+        }
+      }
+      return "";
+    }
 
     operator_type op;
     name_ptr result;
@@ -87,7 +95,7 @@ namespace cyy::compiler::IR::three_address_code {
     ~copy_instruction() override = default;
 
     std::string to_string() const override {
-      return result->lexeme + "=" + operand->lexeme;
+      return result->lexeme + " = " + operand->lexeme;
     }
     name_ptr result;
     address_ptr operand;
