@@ -18,11 +18,13 @@ TEST_CASE("three address code") {
 
   SUBCASE("translation") {
     std::vector<token> tokens;
+    /*
     tokens.emplace_back(static_cast<symbol_type>(common_token::id), "a");
     tokens.emplace_back('=', "=");
     tokens.emplace_back(static_cast<symbol_type>(common_token::id), "b");
     tokens.emplace_back('+', "+");
     tokens.emplace_back('-', "-");
+    */
     tokens.emplace_back(static_cast<symbol_type>(common_token::id), "c");
 
     REQUIRE(sdd.run(tokens));
