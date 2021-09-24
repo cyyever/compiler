@@ -30,9 +30,9 @@ TEST_CASE("run") {
       SDD::semantic_rule{"$0.val",
                          {"$1.val", "$3.val"},
                          [](const auto &arguments) -> std::optional<std::any> {
-                           auto E_val = std::any_cast<int>(*(arguments[0]));
-                           auto T_val = std::any_cast<int>(*(arguments[1]));
-                           return std::make_any<int>(E_val + T_val);
+                           auto E_val = std::any_cast<int>(arguments[0]);
+                           auto T_val = std::any_cast<int>(arguments[1]);
+                           return std::make_any<int>(*E_val + *T_val);
                          }});
 
   production_vector.emplace_back("E", CFG_production::body_type{"T"});
@@ -44,9 +44,9 @@ TEST_CASE("run") {
       SDD::semantic_rule{"$0.val",
                          {"$1.val", "$3.val"},
                          [](const auto &arguments) -> std::optional<std::any> {
-                           auto T_val = std::any_cast<int>(*(arguments[0]));
-                           auto F_val = std::any_cast<int>(*(arguments[1]));
-                           return std::make_any<int>(T_val * F_val);
+                           auto T_val = std::any_cast<int>(arguments[0]);
+                           auto F_val = std::any_cast<int>(arguments[1]);
+                           return std::make_any<int>(*T_val * (*F_val));
                          }});
 
   production_vector.emplace_back("T", CFG_production::body_type{"F"});

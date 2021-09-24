@@ -8,10 +8,12 @@
 
 #pragma once
 
+#include <memory>
+
+#include <fmt/format.h>
+
 #include "operator.hpp"
 #include "symbol_table/symbol_table.hpp"
-#include <fmt/format.h>
-#include <memory>
 
 namespace cyy::compiler::IR::three_address_code {
   struct address {
@@ -21,7 +23,7 @@ namespace cyy::compiler::IR::three_address_code {
 
   struct name : public address {
     explicit name(symbol_table::symbol_entry_ptr entry_)
-        : address(entry->lexeme), entry{std::move(entry_)} {}
+        : address(entry_->lexeme), entry{entry_} {}
     symbol_table::symbol_entry_ptr entry;
   };
 
@@ -49,7 +51,7 @@ namespace cyy::compiler::IR::three_address_code {
 
     std::string to_string() const override {
       if constexpr (std::is_same_v<operator_type, binary_arithmetic_operator>) {
-        if (op == binary_arithmetic_operator::addition) {
+        if (op == binary_arithmetic_operator::plus) {
           return fmt::format("{} = {} + {}", result->lexeme, left->lexeme,
                              right->lexeme);
         }

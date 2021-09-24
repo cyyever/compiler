@@ -2,13 +2,14 @@
  * \file l_attributed_sdd.cpp
  *
  */
+#include "l_attributed_sdd.hpp"
+
 #include <algorithm>
 #include <cassert>
 #include <functional>
 #include <set>
 
 #include "../exception.hpp"
-#include "l_attributed_sdd.hpp"
 
 namespace cyy::compiler {
 

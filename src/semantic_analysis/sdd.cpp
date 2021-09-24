@@ -5,6 +5,8 @@
  * \date 2018-03-04
  */
 
+#include "sdd.hpp"
+
 #include <algorithm>
 #include <cassert>
 #include <ranges>
@@ -12,7 +14,6 @@
 #include <cyy/computation/util.hpp>
 
 #include "exception.hpp"
-#include "sdd.hpp"
 
 namespace cyy::compiler {
 

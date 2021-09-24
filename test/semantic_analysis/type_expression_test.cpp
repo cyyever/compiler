@@ -5,9 +5,8 @@
  * \author cyy
  * \date 2019-03-03
  */
-#include <doctest/doctest.h>
-
 #include <cyy/computation/lang/common_tokens.hpp>
+#include <doctest/doctest.h>
 
 #include "exception.hpp"
 #include "semantic_analysis/l_attributed_sdd.hpp"

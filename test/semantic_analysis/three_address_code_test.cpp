@@ -3,9 +3,8 @@
  *
  * \brief
  */
-#include <doctest/doctest.h>
-
 #include <cyy/computation/lang/common_tokens.hpp>
+#include <doctest/doctest.h>
 
 #include "exception.hpp"
 #include "semantic_analysis/three_address_code_sdd.hpp"
@@ -18,15 +17,17 @@ TEST_CASE("three address code") {
 
   SUBCASE("translation") {
     std::vector<token> tokens;
-    /*
     tokens.emplace_back(static_cast<symbol_type>(common_token::id), "a");
     tokens.emplace_back('=', "=");
     tokens.emplace_back(static_cast<symbol_type>(common_token::id), "b");
     tokens.emplace_back('+', "+");
     tokens.emplace_back('-', "-");
-    */
     tokens.emplace_back(static_cast<symbol_type>(common_token::id), "c");
 
     REQUIRE(sdd.run(tokens));
+    REQUIRE(!sdd.instruction_sequence.empty());
+    for (auto const &instruction : sdd.instruction_sequence) {
+      std::cout << instruction->to_string() << std::endl;
+    }
   }
 }

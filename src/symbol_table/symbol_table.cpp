@@ -6,6 +6,7 @@
  */
 
 #include "symbol_table.hpp"
+
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -56,8 +57,8 @@ namespace cyy::compiler {
     symbol_entry e;
     e.lexeme = lexeme;
 
-    auto has_symbol = add_symbol(std::move(e));
-    assert(!has_symbol);
+    auto inserted_symbol = add_symbol(std::move(e));
+    assert(inserted_symbol);
     return get_symbol(lexeme);
   }
 

@@ -5,13 +5,14 @@
  * \author cyy
  * \date 2018-10-28
  */
+#include "s_attributed_sdd.hpp"
+
 #include <algorithm>
 #include <cassert>
 #include <functional>
 #include <set>
 
 #include "exception.hpp"
-#include "s_attributed_sdd.hpp"
 
 namespace cyy::compiler {
 

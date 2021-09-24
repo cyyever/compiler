@@ -7,6 +7,7 @@
  */
 
 #include "type_expression.hpp"
+
 #include <cassert>
 
 namespace cyy::compiler::type_expression {

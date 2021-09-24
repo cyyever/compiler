@@ -5,10 +5,10 @@
  * \author cyy
  * \date 2018-10-28
  */
-#include <doctest/doctest.h>
 #include <utility>
 
 #include <cyy/computation/lang/common_tokens.hpp>
+#include <doctest/doctest.h>
 
 #include "../../src/lexical_analysis/lexical_analyzer.hpp"
 

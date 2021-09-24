@@ -16,8 +16,8 @@ namespace cyy::compiler {
   };
 
   enum class binary_arithmetic_operator : int {
-    addition = 100,
-    subtraction = 101,
+    plus= 100,
+    minus= 101,
     multiplication = 102,
   };
 
