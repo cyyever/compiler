@@ -4,6 +4,7 @@
  * \brief
  */
 #include <cyy/computation/lang/common_tokens.hpp>
+#include <cyy/computation/context_free_lang/common_grammar.hpp>
 
 #include "operator.hpp"
 #include "semantic_analysis/l_attributed_sdd.hpp"
@@ -13,6 +14,9 @@
 namespace cyy::compiler {
   three_address_code_SDD::three_address_code_SDD() {
 
+    auto production_set=cyy::computation::get_expression_productions();
+       production_set[ "S"].emplace(CFG_production::body_type{
+                 static_cast<CFG::terminal_type>(common_token::id), '=', "E"});
     std::vector<CFG_production> production_vector;
 
     production_vector.emplace_back(
