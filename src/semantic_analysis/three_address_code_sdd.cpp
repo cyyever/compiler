@@ -25,13 +25,6 @@ namespace cyy::compiler {
         std::make_unique<SLR_grammar>("common_tokens", "S", production_set);
     sdd = std::make_unique<S_attributed_SDD>(*grammar);
 
-    std::map<char, binary_arithmetic_operator> binary_arithmetic_ops;
-    binary_arithmetic_ops['+'] = binary_arithmetic_operator::plus;
-    binary_arithmetic_ops['-'] = binary_arithmetic_operator::minus;
-    binary_arithmetic_ops['*'] = binary_arithmetic_operator::multiplication;
-    binary_arithmetic_ops['/'] = binary_arithmetic_operator::division;
-    std::map<char, unary_arithmetic_operator> unary_arithmetic_ops;
-    unary_arithmetic_ops['-'] = unary_arithmetic_operator::minus;
     for (auto const &[head, bodies] : grammar->get_productions()) {
       for (auto const &body : bodies) {
         if (head == "S") {
@@ -91,6 +84,12 @@ namespace cyy::compiler {
         if (body.size() == 3) {
           if (body[1].is_terminal()) {
 
+            std::map<char, binary_arithmetic_operator> binary_arithmetic_ops;
+            binary_arithmetic_ops['+'] = binary_arithmetic_operator::plus;
+            binary_arithmetic_ops['-'] = binary_arithmetic_operator::minus;
+            binary_arithmetic_ops['*'] =
+                binary_arithmetic_operator::multiplication;
+            binary_arithmetic_ops['/'] = binary_arithmetic_operator::division;
             auto it = binary_arithmetic_ops.find(body[1].get_terminal());
             if (it != binary_arithmetic_ops.end()) {
               sdd->add_synthesized_attribute(
@@ -99,14 +98,37 @@ namespace cyy::compiler {
             }
           }
         }
+        if (head == "L" && body.size() == 4) {
+          std::map<char, binary_logical_operator> binary_logical_ops;
+          binary_logical_ops['|'] = binary_logical_operator::OR;
+          binary_logical_ops['&'] = binary_logical_operator::AND;
+
+          auto it = binary_logical_ops.find(body[1].get_terminal());
+          if (it != binary_logical_ops.end()) {
+            sdd->add_synthesized_attribute(
+                {head, body}, generate_binary_assignment_rule(it->second));
+            continue;
+          }
+        }
 
         if (body.size() == 2) {
           if (body[0].is_terminal()) {
+            std::map<char, unary_arithmetic_operator> unary_arithmetic_ops;
+            unary_arithmetic_ops['-'] = unary_arithmetic_operator::minus;
+            std::map<char, unary_logical_operator> unary_logical_ops;
+            unary_logical_ops['!'] = unary_logical_operator::negation;
 
             auto it = unary_arithmetic_ops.find(body[0].get_terminal());
             if (it != unary_arithmetic_ops.end()) {
               sdd->add_synthesized_attribute(
                   {head, body}, generate_unary_assignment_rule(it->second));
+              continue;
+            }
+
+            auto it2 = unary_logical_ops.find(body[0].get_terminal());
+            if (it2 != unary_logical_ops.end()) {
+              sdd->add_synthesized_attribute(
+                  {head, body}, generate_unary_assignment_rule(it2->second));
               continue;
             }
           }
