@@ -103,51 +103,24 @@ namespace cyy::compiler::IR::three_address_code {
     address_ptr operand;
   };
 
-  class unconditional_jump_instruction : public instruction {
-  public:
-    unconditional_jump_instruction(std::string_view target_label_)
-        : target_label{target_label_} {}
-    ~unconditional_jump_instruction() override = default;
-
-  private:
+  struct unconditional_jump_instruction : public instruction {
     std::string target_label;
   };
 
   template <bool negative_if>
-  class conditional_jump_instruction : public instruction {
-  public:
-    conditional_jump_instruction(address_ptr operand_,
-                                 std::string_view target_label_)
-        : operand{std::move(operand_)}, target_label{target_label_} {}
-    ~conditional_jump_instruction() override = default;
-
-  protected:
+  struct conditional_jump_instruction : public instruction {
     address_ptr operand;
     std::string target_label;
   };
 
-  class relational_operation_and_conditional_jump_instruction
+  struct relational_operation_and_conditional_jump_instruction
       : public instruction {
-  public:
-    relational_operation_and_conditional_jump_instruction(
-        relational_operator op_, address_ptr left_, address_ptr right_,
-        std::string_view target_label_)
-        : op(op_), left(std::move(left_)),
-          right(std::move(right_)), target_label{target_label_} {}
-    ~relational_operation_and_conditional_jump_instruction() override = default;
-
-  protected:
     relational_operator op;
     address_ptr left;
     address_ptr right;
     std::string target_label;
   };
-  class param_instruction : public instruction {
-  public:
-    param_instruction(address_ptr param_) : param(std::move(param_)) {}
-    ~param_instruction() override = default;
-
-  private:
+  struct param_instruction : public instruction {
     address_ptr param;
   };
 
@@ -183,7 +156,7 @@ namespace cyy::compiler::IR::three_address_code {
 
   class return_with_value_instruction : public return_instruction {
   public:
-    return_with_value_instruction(address_ptr value_)
+    explicit return_with_value_instruction(address_ptr value_)
         : value(std::move(value_)) {}
     ~return_with_value_instruction() override = default;
 

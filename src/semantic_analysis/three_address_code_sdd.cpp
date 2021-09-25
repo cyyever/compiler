@@ -30,6 +30,8 @@ namespace cyy::compiler {
     binary_arithmetic_ops['-'] = binary_arithmetic_operator::minus;
     binary_arithmetic_ops['*'] = binary_arithmetic_operator::multiplication;
     binary_arithmetic_ops['/'] = binary_arithmetic_operator::division;
+    std::map<char, unary_arithmetic_operator> unary_arithmetic_ops;
+    unary_arithmetic_ops['-'] = unary_arithmetic_operator::minus;
     for (auto const &[head, bodies] : grammar->get_productions()) {
       for (auto const &body : bodies) {
         if (head == "S") {
@@ -87,43 +89,28 @@ namespace cyy::compiler {
           continue;
         }
         if (body.size() == 3) {
-          auto it = binary_arithmetic_ops.find(body[1].get_terminal());
-          if (it != binary_arithmetic_ops.end()) {
-            sdd->add_synthesized_attribute(
-                {head, body}, generate_binary_assignment_rule(it->second));
-            continue;
+          if (body[1].is_terminal()) {
+
+            auto it = binary_arithmetic_ops.find(body[1].get_terminal());
+            if (it != binary_arithmetic_ops.end()) {
+              sdd->add_synthesized_attribute(
+                  {head, body}, generate_binary_assignment_rule(it->second));
+              continue;
+            }
           }
         }
-      }
-    }
 
-    for (auto const &body : grammar->get_bodies("T")) {
-      if (body[0] == '-') {
-        sdd->add_synthesized_attribute(
-            {"T", body},
-            SDD::semantic_rule{
-                "$0.addr",
-                {"$2.addr"},
-                [this](const auto &arguments) -> std::optional<std::any> {
-                  auto result_name =
-                      std::make_shared<IR::three_address_code::name>(
-                          table->create_temporary_symbol(
-                              fmt::format("tmp_{}", tmp_name_index++)));
-                  auto operand =
-                      std::any_cast<IR::three_address_code::address_ptr>(
-                          *arguments[0]);
-                  auto instruction = std::make_shared<
-                      IR::three_address_code::
-                          unary_arithmetic_assignment_instruction>();
-                  instruction->op =
-                      cyy::compiler::unary_arithmetic_operator::minus;
-                  instruction->result = result_name;
-                  instruction->operand = operand;
-                  instruction_sequence.emplace_back(instruction);
-                  return std::dynamic_pointer_cast<
-                      IR::three_address_code::address>(result_name);
-                }});
-        continue;
+        if (body.size() == 2) {
+          if (body[0].is_terminal()) {
+
+            auto it = unary_arithmetic_ops.find(body[0].get_terminal());
+            if (it != unary_arithmetic_ops.end()) {
+              sdd->add_synthesized_attribute(
+                  {head, body}, generate_unary_assignment_rule(it->second));
+              continue;
+            }
+          }
+        }
       }
     }
   }

@@ -52,6 +52,32 @@ namespace cyy::compiler {
                 result_name);
           }};
     }
+    template <typename operator_type>
+    auto generate_unary_assignment_rule(operator_type op) {
+
+      return SDD::semantic_rule{
+          "$0.addr",
+          {"$2.addr"},
+          [this, op](const auto &arguments) -> std::optional<std::any> {
+            auto result_name = std::make_shared<IR::three_address_code::name>(
+                table->create_temporary_symbol(
+                    fmt::format("tmp_{}", tmp_name_index++)));
+            auto operand = std::any_cast<IR::three_address_code::address_ptr>(
+                *arguments[0]);
+            if constexpr (std::is_same_v<operator_type,
+                                         unary_arithmetic_operator>) {
+              auto instruction = std::make_shared<
+                  IR::three_address_code::
+                      unary_arithmetic_assignment_instruction>();
+              instruction->op = op;
+              instruction->result = result_name;
+              instruction->operand = operand;
+              instruction_sequence.emplace_back(instruction);
+            }
+            return std::dynamic_pointer_cast<IR::three_address_code::address>(
+                result_name);
+          }};
+    }
 
   private:
     std::unique_ptr<S_attributed_SDD> sdd;
