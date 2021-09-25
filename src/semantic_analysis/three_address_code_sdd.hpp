@@ -24,26 +24,33 @@ namespace cyy::compiler {
 
   private:
     template <typename operator_type>
-    std::optional<std::any> generate_binary_assignment_instruction(
-        operator_type op, const std::vector<const std::any *> &arguments) {
-      auto left =
-          std::any_cast<IR::three_address_code::address_ptr>(*arguments[0]);
-      auto right =
-          std::any_cast<IR::three_address_code::address_ptr>(*arguments[1]);
-      auto result_name = std::make_shared<IR::three_address_code::name>(
-          table->create_temporary_symbol(
-              fmt::format("tmp_{}", tmp_name_index++)));
-      if constexpr (std::is_same_v<operator_type, binary_arithmetic_operator>) {
-        auto instruction = std::make_shared<
-            IR::three_address_code::binary_arithmetic_assignment_instruction>();
-        instruction->op = op;
-        instruction->result = result_name;
-        instruction->left = left;
-        instruction->right = right;
-        instruction_sequence.emplace_back(instruction);
-      }
-      return std::dynamic_pointer_cast<IR::three_address_code::address>(
-          result_name);
+    auto generate_binary_assignment_rule(operator_type op) {
+
+      return SDD::semantic_rule{
+          "$0.addr",
+          {"$1.addr", "$3.addr"},
+          [this, op](const auto &arguments) -> std::optional<std::any> {
+            auto left = std::any_cast<IR::three_address_code::address_ptr>(
+                *arguments[0]);
+            auto right = std::any_cast<IR::three_address_code::address_ptr>(
+                *arguments[1]);
+            auto result_name = std::make_shared<IR::three_address_code::name>(
+                table->create_temporary_symbol(
+                    fmt::format("tmp_{}", tmp_name_index++)));
+            if constexpr (std::is_same_v<operator_type,
+                                         binary_arithmetic_operator>) {
+              auto instruction = std::make_shared<
+                  IR::three_address_code::
+                      binary_arithmetic_assignment_instruction>();
+              instruction->op = op;
+              instruction->result = result_name;
+              instruction->left = left;
+              instruction->right = right;
+              instruction_sequence.emplace_back(instruction);
+            }
+            return std::dynamic_pointer_cast<IR::three_address_code::address>(
+                result_name);
+          }};
     }
 
   private:

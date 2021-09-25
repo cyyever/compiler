@@ -32,7 +32,8 @@ namespace cyy::compiler {
 
     std::optional<std::unordered_map<std::string, std::any>>
     run(token_span span,
-        const std::unordered_set<std::string> &result_attribute_names) const;
+        const std::unordered_set<std::string> &result_attribute_names = {})
+        const;
 
     struct semantic_rule {
       std::optional<grammar_symbol_attribute_name> result_attribute;
@@ -41,9 +42,7 @@ namespace cyy::compiler {
           const std::vector<const std::any *> &)>;
       semantic_action_type action;
       static inline semantic_action_type copy_action{
-          [](const auto &arguments) -> std::optional<std::any> {
-            return *arguments.at(0);
-          }};
+          [](const auto &arguments) { return *arguments.at(0); }};
     };
 
   protected:

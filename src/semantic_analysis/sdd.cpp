@@ -148,21 +148,22 @@ namespace cyy::compiler {
       std::cerr << "span is empty" << std::endl;
       return {};
     }
-    if (result_attribute_names.empty()) {
-      std::cerr << "result_attribute_names is empty" << std::endl;
-      return {};
-    }
 
     auto result_attribute_opt = _run(span, result_attribute_names);
-
-    if (result_attribute_opt.has_value() &&
-        result_attribute_opt.value().size() != result_attribute_names.size()) {
-      for (auto const &name : result_attribute_names) {
-        if (result_attribute_opt.value().count(name) == 0) {
-          std::cerr << "no result attribute " << name << std::endl;
-        }
-      }
+    if (!result_attribute_opt.has_value()) {
+      std::cerr << "failed to run sdd" << std::endl;
       return {};
+    }
+    if (!result_attribute_names.empty()) {
+      if (result_attribute_opt.value().size() !=
+          result_attribute_names.size()) {
+        for (auto const &name : result_attribute_names) {
+          if (result_attribute_opt.value().count(name) == 0) {
+            std::cerr << "no result attribute " << name << std::endl;
+          }
+        }
+        return {};
+      }
     }
     return result_attribute_opt;
   }
