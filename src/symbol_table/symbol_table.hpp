@@ -32,7 +32,6 @@ namespace cyy::compiler {
       std::shared_ptr<type_expression::expression> type;
       std::string lexeme;
       size_t relative_address{};
-      size_t width{};
       auto operator<=>(const symbol_entry &rhs) const {
         return relative_address <=> rhs.relative_address;
       }
@@ -75,7 +74,7 @@ namespace cyy::compiler {
         e->relative_address += offset;
       }
     }
-    size_t get_next_relative_address() const {return next_relative_address;}
+    size_t get_next_relative_address() const { return next_relative_address; }
     void clear() {
       symbols.clear();
       types.clear();

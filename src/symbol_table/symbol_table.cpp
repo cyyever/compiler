@@ -24,8 +24,12 @@ namespace cyy::compiler {
   }
   bool symbol_table::add_symbol(symbol_entry e) {
     auto lexeme = e.lexeme;
-    auto next_address = std::max(next_relative_address,
-                                 e.relative_address + e.type->get_width());
+    size_t width = 0;
+    if (e.type) {
+      width = e.type->get_width();
+    }
+    auto next_address =
+        std::max(next_relative_address, e.relative_address + width);
     auto has_insertion =
         symbols.emplace(lexeme, std::make_shared<symbol_entry>(std::move(e)))
             .second;
