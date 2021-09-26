@@ -110,12 +110,15 @@ namespace cyy::compiler::type_expression {
     size_t element_number;
   };
 
+  class symbol_table;
   class record_type : public expression {
   public:
     explicit record_type(
         std::vector<std::pair<std::string, std::shared_ptr<expression>>>
-            field_types_)
-        : field_types(std::move(field_types_)) {}
+            field_types_,
+        std::shared_ptr<symbol_table> associated_symbol_table_ = {})
+        : field_types(std::move(field_types_)), associated_symbol_table{
+                                                    associated_symbol_table_} {}
     ~record_type() override = default;
 
     bool _equivalent_with(const expression &rhs) const override;
@@ -133,6 +136,7 @@ namespace cyy::compiler::type_expression {
   protected:
     std::vector<std::pair<std::string, std::shared_ptr<expression>>>
         field_types;
+    std::shared_ptr<symbol_table> associated_symbol_table;
 
   private:
     mutable size_t total_width{0};
