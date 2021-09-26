@@ -9,6 +9,7 @@
 namespace cyy::compiler {
   enum class unary_arithmetic_operator {
     minus = 0,
+    plus= 1,
   };
 
   enum class unary_logical_operator {

@@ -115,6 +115,7 @@ namespace cyy::compiler {
           if (body[0].is_terminal()) {
             std::map<char, unary_arithmetic_operator> unary_arithmetic_ops;
             unary_arithmetic_ops['-'] = unary_arithmetic_operator::minus;
+            unary_arithmetic_ops['+'] = unary_arithmetic_operator::plus;
             std::map<char, unary_logical_operator> unary_logical_ops;
             unary_logical_ops['!'] = unary_logical_operator::negation;
 
