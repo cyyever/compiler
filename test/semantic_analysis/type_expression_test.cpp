@@ -164,9 +164,6 @@ TEST_CASE("types and storage layout") {
                 std::any_cast<std::shared_ptr<type_expression::expression>>(
                     *(arguments.at(1)));
             e.relative_address = table->get_next_relative_address();
-            e.associated_symbol_table =
-                std::any_cast<std::shared_ptr<symbol_table>>(
-                    *(arguments.at(2)));
             if (!table->add_symbol(e)) {
               throw std::runtime_error("add symbol failed");
             }
@@ -176,7 +173,6 @@ TEST_CASE("types and storage layout") {
             if (type_name_ptr) {
               symbol_table::type_entry t;
               t.type = type_name_ptr;
-              t.associated_symbol_table = e.associated_symbol_table;
               table->add_type(t);
             }
             return std::make_any<std::shared_ptr<symbol_table>>(table);
@@ -250,10 +246,9 @@ TEST_CASE("types and storage layout") {
             "$0.type",
             {"$3.symbol_table"},
             [](const auto &arguments) -> std::optional<std::any> {
-              auto sorted_entries =
-                  std::any_cast<std::shared_ptr<symbol_table>>(
-                      *(arguments.at(0)))
-                      ->get_ordered_symbol_list();
+              auto table = std::any_cast<std::shared_ptr<symbol_table>>(
+                  *(arguments.at(0)));
+              auto sorted_entries = table->get_ordered_symbol_list();
               std::vector<std::pair<
                   std::string, std::shared_ptr<type_expression::expression>>>
                   field_types;
@@ -263,7 +258,10 @@ TEST_CASE("types and storage layout") {
 
               return std::make_any<
                   std::shared_ptr<type_expression::expression>>(
-                  std::make_shared<type_expression::record_type>(field_types));
+                  std::make_shared<type_expression::record_type>(field_types,
+                                                                 table)
+
+              );
             }});
 
     std::vector<token> tokens;
@@ -395,7 +393,7 @@ TEST_CASE("types and storage layout") {
               }
               auto class_type = std::make_shared<type_expression::type_name>(
                   class_name, std::make_shared<type_expression::class_type>(
-                                  parent_class, field_types));
+                                  parent_class, field_types, table));
 
               return std::make_any<
                   std::shared_ptr<type_expression::expression>>(class_type);

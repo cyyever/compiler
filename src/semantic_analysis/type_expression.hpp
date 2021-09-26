@@ -16,6 +16,9 @@
 
 #include "exception.hpp"
 
+namespace cyy::compiler {
+  class symbol_table;
+}
 namespace cyy::compiler::type_expression {
   class expression {
   public:
@@ -110,7 +113,6 @@ namespace cyy::compiler::type_expression {
     size_t element_number;
   };
 
-  class symbol_table;
   class record_type : public expression {
   public:
     explicit record_type(
@@ -132,6 +134,7 @@ namespace cyy::compiler::type_expression {
       }
       return total_width;
     }
+    auto get_symbol_table() const { return associated_symbol_table; }
 
   protected:
     std::vector<std::pair<std::string, std::shared_ptr<expression>>>
@@ -146,8 +149,9 @@ namespace cyy::compiler::type_expression {
   public:
     class_type(std::shared_ptr<expression> parent_class_,
                std::vector<std::pair<std::string, std::shared_ptr<expression>>>
-                   field_types_)
-        : record_type(std::move(field_types_)),
+                   field_types_,
+               std::shared_ptr<symbol_table> associated_symbol_table_ = {})
+        : record_type(std::move(field_types_), associated_symbol_table_),
           parent_class(std::move(parent_class_))
 
     {
