@@ -74,15 +74,6 @@ TEST_CASE("types and storage layout") {
       SDD::semantic_rule{
           "$0.type", {"$2.type"}, SDD::semantic_rule::copy_action});
 
-  sdd.add_synthesized_attribute(
-      production_vector[2],
-      SDD::semantic_rule{"$0.associated_symbol_table",
-                         {},
-                         [](const auto &) -> std::optional<std::any> {
-                           return std::make_any<std::shared_ptr<symbol_table>>(
-                               nullptr);
-                         }});
-
   sdd.add_inherited_attribute(
       production_vector[2],
       SDD::semantic_rule{
@@ -154,12 +145,12 @@ TEST_CASE("types and storage layout") {
       production_vector[0],
       SDD::semantic_rule{
           "$4.symbol_table",
-          {"$0.symbol_table", "$1.type", "$1.associated_symbol_table", "$2"},
+          {"$0.symbol_table", "$1.type", "$2"},
           [](const auto &arguments) -> std::optional<std::any> {
             auto table = std::any_cast<std::shared_ptr<symbol_table>>(
                 *(arguments.at(0)));
             symbol_table::symbol_entry e;
-            e.lexeme = std::any_cast<token>(*(arguments.at(3))).lexeme;
+            e.lexeme = std::any_cast<token>(*(arguments.at(2))).lexeme;
             e.type =
                 std::any_cast<std::shared_ptr<type_expression::expression>>(
                     *(arguments.at(1)));
@@ -229,15 +220,6 @@ TEST_CASE("types and storage layout") {
             "$3.symbol_table", {}, [](const auto &) -> std::optional<std::any> {
               return std::make_any<std::shared_ptr<symbol_table>>(
                   std::make_shared<symbol_table>());
-            }});
-
-    sdd.add_synthesized_attribute(
-        production_vector[3],
-        SDD::semantic_rule{
-            "$0.associated_symbol_table",
-            {"$3.symbol_table"},
-            [](const auto &arguments) -> std::optional<std::any> {
-              return *arguments.at(0);
             }});
 
     sdd.add_synthesized_attribute(
@@ -339,15 +321,6 @@ TEST_CASE("types and storage layout") {
             "$5.symbol_table", {}, [](const auto &) -> std::optional<std::any> {
               return std::make_any<std::shared_ptr<symbol_table>>(
                   std::make_shared<symbol_table>());
-            }});
-
-    sdd.add_synthesized_attribute(
-        production_vector[8],
-        SDD::semantic_rule{
-            "$0.associated_symbol_table",
-            {"$5.symbol_table"},
-            [](const auto &arguments) -> std::optional<std::any> {
-              return *arguments.at(0);
             }});
 
     sdd.add_synthesized_attribute(
