@@ -57,15 +57,15 @@ namespace cyy::compiler::type_expression {
     if (!ptr) {
       return false;
     }
-    if (parent_class_type) {
-      if (!ptr->parent_class_type) {
+    if (parent_class) {
+      if (!ptr->parent_class) {
         return false;
       }
-      if (!parent_class_type->equivalent_with(*(ptr->parent_class_type))) {
+      if (!parent_class->equivalent_with(*(ptr->parent_class))) {
         return false;
       }
     } else {
-      if (ptr->parent_class_type) {
+      if (ptr->parent_class) {
         return false;
       }
     }

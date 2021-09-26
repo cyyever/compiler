@@ -22,6 +22,7 @@ namespace cyy::compiler::type_expression {
     expression() = default;
     virtual ~expression() = default;
     bool equivalent_with(const expression &rhs) const;
+    virtual size_t get_width() const { return 0; }
 
   private:
     virtual bool _equivalent_with(const expression &rhs) const = 0;
@@ -35,10 +36,24 @@ namespace cyy::compiler::type_expression {
       INT,
       FLOAT,
     };
-    basic_type(type_enum type_) : type(type_) {}
+    explicit basic_type(type_enum type_) : type(type_) {}
     ~basic_type() override = default;
 
     bool _equivalent_with(const expression &rhs) const override;
+    size_t get_width() const override {
+      switch (type) {
+
+        case type_enum::BOOL:
+          return 1;
+        case type_enum::CHAR:
+          return 1;
+        case type_enum::INT:
+          return 4;
+        case type_enum::FLOAT:
+          return 8;
+      }
+      return 0;
+    }
 
   private:
     type_enum type;
@@ -47,7 +62,8 @@ namespace cyy::compiler::type_expression {
   class type_name : public expression {
   public:
     type_name(std::string name_, std::shared_ptr<expression> named_type_)
-        : name(std::move(name_)), named_type(named_type_) {}
+        : name(std::move(name_)),
+          named_type(std::move(std::move(named_type_))) {}
     ~type_name() override = default;
 
     const std::string &get_name() const { return name; }
@@ -56,6 +72,7 @@ namespace cyy::compiler::type_expression {
 
     static bool is_type_name(const expression &type_expr);
     static void make_stand_for_self();
+    size_t get_width() const override { return named_type->get_width(); }
 
   private:
     std::string name;
@@ -72,6 +89,9 @@ namespace cyy::compiler::type_expression {
     ~array_type() override = default;
 
     bool _equivalent_with(const expression &rhs) const override;
+    size_t get_width() const override {
+      return element_number * element_type->get_width();
+    }
 
   private:
     std::shared_ptr<expression> element_type;
@@ -88,40 +108,62 @@ namespace cyy::compiler::type_expression {
 
     bool _equivalent_with(const expression &rhs) const override;
     static bool is_record_type(const expression &type_expr);
+    size_t get_width() const override {
+      if (total_width != 0) {
+        return total_width;
+      }
+      for (auto const &[_, field_type] : field_types) {
+        total_width += field_type->get_width();
+      }
+      return total_width;
+    }
 
-  private:
+  protected:
     std::vector<std::pair<std::string, std::shared_ptr<expression>>>
         field_types;
+
+  private:
+    mutable size_t total_width{0};
   };
 
-  class class_type : public expression {
+  class class_type : public record_type {
   public:
-    class_type(std::shared_ptr<expression> parent_class_type_,
+    class_type(std::shared_ptr<class_type> parent_class_,
                std::vector<std::pair<std::string, std::shared_ptr<expression>>>
                    field_types_)
-        : parent_class_type(std::move(parent_class_type_)),
-          field_types(std::move(field_types_)) {
-      if (parent_class_type && !is_class_type(*parent_class_type)) {
-        throw exception::not_class_type("parent class");
-      }
-    }
+        : record_type(std::move(field_types_)),
+          parent_class(std::move(parent_class_)) {}
+
+    /*
+{
+if (parent_class_type && !is_class_type(*parent_class_type)) {
+  throw exception::not_class_type("parent class");
+}
+}
+*/
     ~class_type() override = default;
 
     bool _equivalent_with(const expression &rhs) const override;
 
     static bool is_class_type(const expression &type_expr);
+    size_t get_width() const override {
+      size_t width = record_type::get_width();
+      if (parent_class) {
+        width += parent_class->get_width();
+      }
+      return width;
+    }
 
   private:
-    std::shared_ptr<expression> parent_class_type;
-    std::vector<std::pair<std::string, std::shared_ptr<expression>>>
-        field_types;
+    std::shared_ptr<class_type> parent_class;
   };
 
   class function_type : public expression {
   public:
     function_type(std::shared_ptr<expression> from_type_,
                   std::shared_ptr<expression> to_type_)
-        : from_type(from_type_), to_type(to_type_) {}
+        : from_type(std::move(std::move(from_type_))),
+          to_type(std::move(std::move(to_type_))) {}
     ~function_type() override = default;
 
     bool _equivalent_with(const expression &rhs) const override;
@@ -135,10 +177,15 @@ namespace cyy::compiler::type_expression {
   public:
     Cartesian_product_type(std::shared_ptr<expression> first_type_,
                            std::shared_ptr<expression> second_type_)
-        : first_type(first_type_), second_type(second_type_) {}
+        : first_type(std::move(std::move(first_type_))),
+          second_type(std::move(std::move(second_type_))) {}
     ~Cartesian_product_type() override = default;
 
     bool _equivalent_with(const expression &rhs) const override;
+
+    size_t get_width() const override {
+      return first_type->get_width() + second_type->get_width();
+    }
 
   private:
     std::shared_ptr<expression> first_type;

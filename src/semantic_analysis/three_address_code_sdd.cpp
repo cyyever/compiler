@@ -144,7 +144,7 @@ namespace cyy::compiler {
       table = std::make_shared<symbol_table>();
     }
     instruction_sequence.clear();
-    tmp_name_index = 0;
+    tmp_name_index = 1;
     return sdd->run(span, {}).has_value();
   }
 } // namespace cyy::compiler

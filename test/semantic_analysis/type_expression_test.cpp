@@ -500,7 +500,7 @@ TEST_CASE("types and storage layout") {
                   std::any_cast<token>(*arguments.at(1)).lexeme;
               auto const &parent_class_name =
                   std::any_cast<std::string>(*(arguments.at(2)));
-              std::shared_ptr<cyy::compiler::type_expression::expression>
+              std::shared_ptr<cyy::compiler::type_expression::class_type>
                   parent_class;
               std::shared_ptr<cyy::compiler::symbol_table>
                   parent_class_symbol_table;
@@ -514,7 +514,9 @@ TEST_CASE("types and storage layout") {
                   throw cyy::compiler::exception::no_parent_class(
                       parent_class_name);
                 }
-                parent_class = parent_class_opt->type;
+                parent_class = std::dynamic_pointer_cast<
+                    cyy::compiler::type_expression::class_type>(
+                    parent_class_opt->type);
                 parent_class_symbol_table =
                     parent_class_opt->associated_symbol_table;
                 size_t total_width = 0;
