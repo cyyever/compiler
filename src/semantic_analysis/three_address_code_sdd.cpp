@@ -19,7 +19,7 @@ namespace cyy::compiler {
   three_address_code_SDD::three_address_code_SDD() {
 
     auto id = static_cast<CFG::terminal_type>(common_token::id);
-    grammar = get_example_grammar();
+    grammar = get_expression_grammar();
     sdd = std::make_unique<S_attributed_SDD>(*grammar);
 
     for (auto const &[head, bodies] : grammar->get_productions()) {

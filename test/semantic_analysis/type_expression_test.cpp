@@ -67,7 +67,6 @@ TEST_CASE("types and storage layout") {
       production_vector[0],
       SDD::semantic_rule{"$1.symbol_table",
                          {"$0.symbol_table"},
-
                          SDD::semantic_rule::copy_action});
 
   sdd.add_synthesized_attribute(
@@ -140,13 +139,6 @@ TEST_CASE("types and storage layout") {
   sdd.add_inherited_attribute(
       production_vector[11],
       SDD::semantic_rule{
-          "$1.offset", {}, [](const auto &) -> std::optional<std::any> {
-            return std::make_any<size_t>(0);
-          }});
-
-  sdd.add_inherited_attribute(
-      production_vector[11],
-      SDD::semantic_rule{
           "$1.symbol_table", {}, [](const auto &) -> std::optional<std::any> {
             return std::make_any<std::shared_ptr<symbol_table>>(
                 std::make_shared<symbol_table>());
@@ -162,20 +154,19 @@ TEST_CASE("types and storage layout") {
       production_vector[0],
       SDD::semantic_rule{
           "$4.symbol_table",
-          {"$0.symbol_table", "$0.offset", "$1.type",
-           "$1.associated_symbol_table", "$2"},
+          {"$0.symbol_table", "$1.type", "$1.associated_symbol_table", "$2"},
           [](const auto &arguments) -> std::optional<std::any> {
-            symbol_table::symbol_entry e;
-            e.lexeme = std::any_cast<token>(*(arguments.at(4))).lexeme;
-            e.type =
-                std::any_cast<std::shared_ptr<type_expression::expression>>(
-                    *(arguments.at(2)));
-            e.relative_address = std::any_cast<size_t>(*(arguments.at(1)));
-            e.associated_symbol_table =
-                std::any_cast<std::shared_ptr<symbol_table>>(
-                    *(arguments.at(3)));
             auto table = std::any_cast<std::shared_ptr<symbol_table>>(
                 *(arguments.at(0)));
+            symbol_table::symbol_entry e;
+            e.lexeme = std::any_cast<token>(*(arguments.at(3))).lexeme;
+            e.type =
+                std::any_cast<std::shared_ptr<type_expression::expression>>(
+                    *(arguments.at(1)));
+            e.relative_address = table->get_next_relative_address();
+            e.associated_symbol_table =
+                std::any_cast<std::shared_ptr<symbol_table>>(
+                    *(arguments.at(2)));
             if (!table->add_symbol(e)) {
               throw std::runtime_error("add symbol failed");
             }
@@ -191,21 +182,6 @@ TEST_CASE("types and storage layout") {
             return std::make_any<std::shared_ptr<symbol_table>>(table);
           }});
 
-  sdd.add_inherited_attribute(
-      production_vector[0],
-      SDD::semantic_rule{"$4.offset",
-                         {"$0.offset", "$1.type"},
-                         [](const auto &arguments) -> std::optional<std::any> {
-                           return std::make_any<size_t>(
-                               std::any_cast<size_t>(*(arguments.at(0))) +
-                               std::any_cast<std::shared_ptr<
-
-                                   type_expression::expression>>(
-                                   *(arguments.at(1)))
-                                   ->get_width()
-
-                           );
-                         }});
   SUBCASE("types and widths") {
     std::vector<token> tokens;
     tokens.emplace_back(static_cast<symbol_type>(common_token::INT), "int");
@@ -257,13 +233,6 @@ TEST_CASE("types and storage layout") {
             "$3.symbol_table", {}, [](const auto &) -> std::optional<std::any> {
               return std::make_any<std::shared_ptr<symbol_table>>(
                   std::make_shared<symbol_table>());
-            }});
-
-    sdd.add_inherited_attribute(
-        production_vector[3],
-        SDD::semantic_rule{
-            "$3.offset", {}, [](const auto &) -> std::optional<std::any> {
-              return std::make_any<size_t>(0);
             }});
 
     sdd.add_synthesized_attribute(
@@ -371,13 +340,6 @@ TEST_CASE("types and storage layout") {
             "$5.symbol_table", {}, [](const auto &) -> std::optional<std::any> {
               return std::make_any<std::shared_ptr<symbol_table>>(
                   std::make_shared<symbol_table>());
-            }});
-
-    sdd.add_inherited_attribute(
-        production_vector[8],
-        SDD::semantic_rule{
-            "$5.offset", {}, [](const auto &) -> std::optional<std::any> {
-              return std::make_any<size_t>(0);
             }});
 
     sdd.add_synthesized_attribute(
