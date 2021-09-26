@@ -11,18 +11,15 @@
 #include <cyy/computation/lang/common_tokens.hpp>
 #include <fmt/format.h>
 
+#include "example_grammar/grammar.hpp"
 #include "operator.hpp"
 #include "semantic_analysis/l_attributed_sdd.hpp"
 
 namespace cyy::compiler {
   three_address_code_SDD::three_address_code_SDD() {
 
-    auto production_set = cyy::computation::get_expression_productions();
     auto id = static_cast<CFG::terminal_type>(common_token::id);
-    production_set["S"].emplace(CFG_production::body_type{id, '=', "E"});
-
-    grammar =
-        std::make_unique<SLR_grammar>("common_tokens", "S", production_set);
+    grammar = get_example_grammar();
     sdd = std::make_unique<S_attributed_SDD>(*grammar);
 
     for (auto const &[head, bodies] : grammar->get_productions()) {
