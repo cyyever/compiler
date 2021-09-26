@@ -63,27 +63,12 @@ TEST_CASE("types and storage layout") {
 
   LL_grammar grammar("common_tokens", "P", productions);
   L_attributed_SDD sdd(grammar);
-  sdd.add_inherited_attribute(
-      production_vector[0],
-      SDD::semantic_rule{"$1.symbol_table",
-                         {"$0.symbol_table"},
-
-                         SDD::semantic_rule::copy_action});
+  auto table = std::make_shared<cyy::compiler::symbol_table>();
 
   sdd.add_synthesized_attribute(
       production_vector[2],
       SDD::semantic_rule{
           "$0.type", {"$2.type"}, SDD::semantic_rule::copy_action});
-
-  sdd.add_synthesized_attribute(
-      production_vector[2],
-      SDD::semantic_rule{
-          "$0.associated_symbol_table",
-          {},
-          [](const auto &) -> std::optional<std::any> {
-            return std::make_any<std::shared_ptr<cyy::compiler::symbol_table>>(
-                nullptr);
-          }});
 
   sdd.add_synthesized_attribute(
       production_vector[2],
@@ -201,38 +186,19 @@ TEST_CASE("types and storage layout") {
           }});
 
   sdd.add_inherited_attribute(
-      production_vector[11],
-      SDD::semantic_rule{
-          "$1.symbol_table", {}, [](const auto &) -> std::optional<std::any> {
-            return std::make_any<std::shared_ptr<symbol_table>>(
-                std::make_shared<symbol_table>());
-          }});
-
-  sdd.add_synthesized_attribute(
-      production_vector[11],
-      SDD::semantic_rule{"$0.symbol_table",
-                         {"$1.symbol_table"},
-                         SDD::semantic_rule::copy_action});
-
-  sdd.add_inherited_attribute(
       production_vector[0],
       SDD::semantic_rule{
-          "$4.symbol_table",
-          {"$0.symbol_table", "$0.offset", "$1.type", "$1.width",
-           "$1.associated_symbol_table", "$2"},
-          [](const auto &arguments) -> std::optional<std::any> {
+          {},
+          {"$0.offset", "$1.type", "$1.width", "$2"},
+          [&table](const auto &arguments) -> std::optional<std::any> {
             symbol_table::symbol_entry e;
-            e.lexeme = std::any_cast<token>(*(arguments.at(5))).lexeme;
+            e.lexeme = std::any_cast<token>(*(arguments.at(3))).lexeme;
             e.type =
                 std::any_cast<std::shared_ptr<type_expression::expression>>(
-                    *(arguments.at(2)));
-            e.relative_address = std::any_cast<size_t>(*(arguments.at(1)));
-            e.width = std::any_cast<size_t>(*(arguments.at(3)));
-            e.associated_symbol_table =
-                std::any_cast<std::shared_ptr<symbol_table>>(
-                    *(arguments.at(4)));
-            auto table = std::any_cast<std::shared_ptr<symbol_table>>(
-                *(arguments.at(0)));
+                    *(arguments.at(1)));
+            e.relative_address = std::any_cast<size_t>(*(arguments.at(0)));
+            e.width = std::any_cast<size_t>(*(arguments.at(2)));
+            e.associated_symbol_table = table;
             if (!table->add_symbol(e)) {
               throw std::runtime_error("add symbol failed");
             }
@@ -245,7 +211,7 @@ TEST_CASE("types and storage layout") {
               t.associated_symbol_table = e.associated_symbol_table;
               table->add_type(t);
             }
-            return std::make_any<std::shared_ptr<symbol_table>>(table);
+            return std::any{};
           }});
 
   sdd.add_inherited_attribute(
@@ -268,6 +234,7 @@ TEST_CASE("types and storage layout") {
     tokens.emplace_back(']', "]");
     tokens.emplace_back(static_cast<symbol_type>(common_token::id), "a");
     tokens.emplace_back(';', ";");
+    table = std::make_shared<cyy::compiler::symbol_table>();
 
     auto attributes = sdd.run(tokens, {"T.width", "T.type"});
     REQUIRE(attributes);
@@ -294,11 +261,10 @@ TEST_CASE("types and storage layout") {
     tokens.emplace_back(static_cast<symbol_type>(common_token::FLOAT), "float");
     tokens.emplace_back(static_cast<symbol_type>(common_token::id), "x");
     tokens.emplace_back(';', ";");
+    table = std::make_shared<cyy::compiler::symbol_table>();
 
-    auto attributes = sdd.run(tokens, {"P.symbol_table"});
+    auto attributes = sdd.run(tokens, {});
     REQUIRE(attributes);
-    auto const &table = std::any_cast<std::shared_ptr<symbol_table>>(
-        attributes.value()["P.symbol_table"]);
     REQUIRE(table->get_symbol("x"));
     REQUIRE(table->get_symbol("x")->type->equivalent_with(
         cyy::compiler::type_expression::basic_type(
@@ -307,13 +273,6 @@ TEST_CASE("types and storage layout") {
   }
 
   SUBCASE("records") {
-    sdd.add_inherited_attribute(
-        production_vector[3],
-        SDD::semantic_rule{
-            "$3.symbol_table", {}, [](const auto &) -> std::optional<std::any> {
-              return std::make_any<std::shared_ptr<symbol_table>>(
-                  std::make_shared<symbol_table>());
-            }});
 
     sdd.add_inherited_attribute(
         production_vector[3],
@@ -334,22 +293,10 @@ TEST_CASE("types and storage layout") {
     sdd.add_synthesized_attribute(
         production_vector[3],
         SDD::semantic_rule{
-            "$0.associated_symbol_table",
-            {"$3.symbol_table"},
-            [](const auto &arguments) -> std::optional<std::any> {
-              return *arguments.at(0);
-            }});
-
-    sdd.add_synthesized_attribute(
-        production_vector[3],
-        SDD::semantic_rule{
             "$0.type",
-            {"$3.symbol_table"},
-            [](const auto &arguments) -> std::optional<std::any> {
-              auto sorted_entries =
-                  std::any_cast<std::shared_ptr<symbol_table>>(
-                      *(arguments.at(0)))
-                      ->get_ordered_symbol_list();
+            {},
+            [&table](const auto &arguments) -> std::optional<std::any> {
+              auto sorted_entries = table->get_ordered_symbol_list();
               std::vector<std::pair<
                   std::string,
                   std::shared_ptr<cyy::compiler::type_expression::expression>>>
@@ -382,11 +329,9 @@ TEST_CASE("types and storage layout") {
     tokens.emplace_back(static_cast<symbol_type>(common_token::id), "q");
     tokens.emplace_back(';', ";");
 
-    auto attributes = sdd.run(tokens, {"P.symbol_table"});
+    table = std::make_shared<cyy::compiler::symbol_table>();
+    auto attributes = sdd.run(tokens, {});
     REQUIRE(attributes);
-
-    auto const table = std::any_cast<std::shared_ptr<symbol_table>>(
-        attributes.value()["P.symbol_table"]);
 
     auto e = table->get_symbol("q");
     REQUIRE(e);
@@ -473,12 +418,10 @@ TEST_CASE("types and storage layout") {
         production_vector[8],
         SDD::semantic_rule{
             "$0.type",
-            {"$0.symbol_table", "$2", "$3.class_name", "$5.symbol_table"},
-            [](const auto &arguments) -> std::optional<std::any> {
+            {"$2", "$3.class_name"},
+            [&table](const auto &arguments) -> std::optional<std::any> {
               std::vector<symbol_table::symbol_entry> sorted_entries;
 
-              auto table = std::any_cast<std::shared_ptr<symbol_table>>(
-                  *arguments.at(3));
               for (const auto &e : table->get_symbol_view()) {
                 sorted_entries.push_back(e);
               }
@@ -497,28 +440,19 @@ TEST_CASE("types and storage layout") {
               }
 
               auto const &class_name =
-                  std::any_cast<token>(*arguments.at(1)).lexeme;
+                  std::any_cast<token>(*arguments.at(0)).lexeme;
               auto const &parent_class_name =
-                  std::any_cast<std::string>(*(arguments.at(2)));
+                  std::any_cast<std::string>(*(arguments.at(1)));
               std::shared_ptr<cyy::compiler::type_expression::expression>
                   parent_class;
-              std::shared_ptr<cyy::compiler::symbol_table>
-                  parent_class_symbol_table;
               if (!parent_class_name.empty()) {
-                auto const &scope_symbol_table =
-                    std::any_cast<std::shared_ptr<symbol_table>>(
-                        *arguments.at(0));
-                auto parent_class_opt =
-                    scope_symbol_table->get_type(parent_class_name);
+                auto parent_class_opt = table->get_type(parent_class_name);
                 if (!parent_class_opt) {
                   throw cyy::compiler::exception::no_parent_class(
                       parent_class_name);
                 }
                 parent_class = parent_class_opt->type;
-                parent_class_symbol_table =
-                    parent_class_opt->associated_symbol_table;
                 table->add_relative_address_offset(parent_class->get_width());
-                table->set_prev_table(parent_class_symbol_table);
               }
               auto class_type = std::make_shared<
                   cyy::compiler::type_expression::type_name>(
@@ -557,11 +491,9 @@ TEST_CASE("types and storage layout") {
     tokens.emplace_back(static_cast<symbol_type>(common_token::id), "q");
     tokens.emplace_back(';', ";");
 
-    auto attributes = sdd.run(tokens, {"P.symbol_table"});
+    table = std::make_shared<cyy::compiler::symbol_table>();
+    auto attributes = sdd.run(tokens, {});
     REQUIRE(attributes);
-
-    auto table = std::any_cast<std::shared_ptr<symbol_table>>(
-        attributes.value()["P.symbol_table"]);
 
     auto e = table->get_symbol("q");
     REQUIRE(e);
@@ -596,11 +528,11 @@ TEST_CASE("types and storage layout") {
     tokens.emplace_back(static_cast<symbol_type>(common_token::id), "p");
     tokens.emplace_back(';', ";");
 
-    attributes = sdd.run(tokens, {"P.symbol_table"});
+    table = std::make_shared<cyy::compiler::symbol_table>();
+    /*
+    attributes = sdd.run(tokens, {});
     REQUIRE(attributes);
 
-    table = std::any_cast<std::shared_ptr<symbol_table>>(
-        attributes.value()["P.symbol_table"]);
 
     e = table->get_symbol("p");
     REQUIRE(e);
@@ -616,5 +548,6 @@ TEST_CASE("types and storage layout") {
         cyy::compiler::type_expression::basic_type(
             cyy::compiler::type_expression::basic_type::type_enum::INT)));
     REQUIRE(e->associated_symbol_table->get_symbol("y")->relative_address == 4);
+    */
   }
 }

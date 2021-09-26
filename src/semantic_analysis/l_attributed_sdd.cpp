@@ -167,19 +167,23 @@ namespace cyy::compiler {
                   }
 
                   auto result_value_opt = rule.action(argument_values);
-                  assert(rule.result_attribute);
-                  if (!result_value_opt) {
-                    throw exception::unexisted_grammar_symbol_attribute(
-                        rule.result_attribute->get_name());
+                  if (rule.result_attribute) {
+
+                    if (!result_value_opt) {
+                      throw exception::unexisted_grammar_symbol_attribute(
+                          rule.result_attribute->get_name());
+                    }
+                    auto attribute_full_name =
+                        rule.result_attribute.value().get_full_name(production);
+                    if (result_attribute_names.count(attribute_full_name) !=
+                        0) {
+                      final_attributes.insert_or_assign(
+                          attribute_full_name, result_value_opt.value());
+                    }
+                    grammal_symbol_attributes_stack
+                        .back()[attribute_full_name] =
+                        std::move(result_value_opt.value());
                   }
-                  auto attribute_full_name =
-                      rule.result_attribute.value().get_full_name(production);
-                  if (result_attribute_names.count(attribute_full_name) != 0) {
-                    final_attributes.insert_or_assign(attribute_full_name,
-                                                      result_value_opt.value());
-                  }
-                  grammal_symbol_attributes_stack.back()[attribute_full_name] =
-                      std::move(result_value_opt.value());
                 }
               }
 
@@ -213,23 +217,24 @@ namespace cyy::compiler {
                     }
 
                     auto result_value_opt = rule.action(argument_values);
-                    assert(rule.result_attribute);
-                    if (!result_value_opt) {
-                      throw exception::unexisted_grammar_symbol_attribute(
-                          rule.result_attribute->get_name());
+                    if (rule.result_attribute) {
+
+                      if (!result_value_opt) {
+                        throw exception::unexisted_grammar_symbol_attribute(
+                            rule.result_attribute->get_name());
+                      }
+                      auto attribute_full_name =
+                          rule.result_attribute.value().get_full_name(
+                              production);
+                      if (result_attribute_names.count(attribute_full_name) !=
+                          0) {
+                        final_attributes.insert_or_assign(
+                            attribute_full_name, result_value_opt.value());
+                      }
+                      grammal_symbol_attributes_stack
+                          [stack_size - 1 - body_size][attribute_full_name] =
+                              std::move(result_value_opt.value());
                     }
-                    auto attribute_full_name =
-                        rule.result_attribute.value().get_full_name(production);
-                    if (result_attribute_names.count(attribute_full_name) !=
-                        0) {
-                      final_attributes.insert_or_assign(
-                          attribute_full_name, result_value_opt.value());
-                    }
-                    grammal_symbol_attributes_stack[stack_size - 1 - body_size]
-                                                   [attribute_full_name] =
-                                                       std::move(
-                                                           result_value_opt
-                                                               .value());
                   }
                 }
                 grammal_symbol_attributes_stack.resize(stack_size - body_size);

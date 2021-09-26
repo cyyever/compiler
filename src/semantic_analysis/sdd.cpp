@@ -37,19 +37,23 @@ namespace cyy::compiler {
   void SDD::add_inherited_attribute(const CFG_production &production,
                                     semantic_rule rule) {
     check_semantic_rule(production, rule);
+    /*
     if (!rule.result_attribute) {
       throw exception::no_inherited_grammar_symbol_attribute(
           "no result_attribute");
     }
+    */
 
-    const auto &result_attribute_name = rule.result_attribute.value();
-    if (result_attribute_name.get_index() == 0) {
-      throw exception::no_inherited_grammar_symbol_attribute(
-          result_attribute_name.get_name());
+    if (rule.result_attribute) {
+      const auto &result_attribute_name = rule.result_attribute.value();
+      if (result_attribute_name.get_index() == 0) {
+        throw exception::no_inherited_grammar_symbol_attribute(
+            result_attribute_name.get_name());
+      }
+
+      inherited_attributes.insert(
+          rule.result_attribute->get_full_name(production));
     }
-
-    inherited_attributes.insert(
-        rule.result_attribute->get_full_name(production));
     all_rules[production].emplace_back(std::move(rule));
     new_rule_flag = true;
   }
