@@ -25,7 +25,7 @@ namespace cyy::compiler::type_expression {
     return ptr && ptr->type == type;
   }
 
-  const std::shared_ptr<expression> &type_name::get_expression() const {
+  const std::shared_ptr<expression> &type_name::get_type() const {
     return named_type;
   }
 
@@ -36,9 +36,9 @@ namespace cyy::compiler::type_expression {
     }
 
     if (ptr) {
-      return get_expression()->equivalent_with(*ptr->get_expression());
+      return get_type()->equivalent_with(*ptr->get_type());
     }
-    return get_expression()->equivalent_with(rhs);
+    return get_type()->equivalent_with(rhs);
   }
   bool type_name::is_type_name(const expression &type_expr) {
     return dynamic_cast<const type_name *>(&type_expr) != nullptr;
@@ -87,7 +87,7 @@ namespace cyy::compiler::type_expression {
   bool class_type::is_class_type(const expression &type_expr) {
     auto type_name_ptr = dynamic_cast<const type_name *>(&type_expr);
     if (type_name_ptr) {
-      return is_class_type(*type_name_ptr->get_expression());
+      return is_class_type(*type_name_ptr->get_type());
     }
     return dynamic_cast<const class_type *>(&type_expr) != nullptr;
   }

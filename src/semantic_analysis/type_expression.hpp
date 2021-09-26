@@ -40,7 +40,11 @@ namespace cyy::compiler::type_expression {
     ~basic_type() override = default;
 
     bool _equivalent_with(const expression &rhs) const override;
+    void set_width(size_t width_) { width = width_; }
     size_t get_width() const override {
+      if (width != 0) {
+        return width;
+      }
       switch (type) {
 
         case type_enum::BOOL:
@@ -57,17 +61,25 @@ namespace cyy::compiler::type_expression {
 
   private:
     type_enum type;
+    size_t width = 0;
   };
 
   class type_name : public expression {
   public:
-    type_name(std::string name_, std::shared_ptr<expression> named_type_)
-        : name(std::move(name_)),
-          named_type(std::move(std::move(named_type_))) {}
+    type_name(std::string name_, const std::shared_ptr<expression> &named_type_)
+        : name(std::move(name_)) {
+
+      auto type_name_ptr = std::dynamic_pointer_cast<type_name>(named_type_);
+      if (type_name_ptr) {
+        named_type = type_name_ptr->get_type();
+      } else {
+        named_type = named_type_;
+      }
+    }
     ~type_name() override = default;
 
     const std::string &get_name() const { return name; }
-    const std::shared_ptr<expression> &get_expression() const;
+    const std::shared_ptr<expression> &get_type() const;
     bool _equivalent_with(const expression &rhs) const override;
 
     static bool is_type_name(const expression &type_expr);
@@ -128,19 +140,17 @@ namespace cyy::compiler::type_expression {
 
   class class_type : public record_type {
   public:
-    class_type(std::shared_ptr<class_type> parent_class_,
+    class_type(std::shared_ptr<expression> parent_class_,
                std::vector<std::pair<std::string, std::shared_ptr<expression>>>
                    field_types_)
         : record_type(std::move(field_types_)),
-          parent_class(std::move(parent_class_)) {}
+          parent_class(std::move(parent_class_))
 
-    /*
-{
-if (parent_class_type && !is_class_type(*parent_class_type)) {
-  throw exception::not_class_type("parent class");
-}
-}
-*/
+    {
+      if (parent_class && !is_class_type(*parent_class)) {
+        throw exception::not_class_type("parent class");
+      }
+    }
     ~class_type() override = default;
 
     bool _equivalent_with(const expression &rhs) const override;
@@ -155,7 +165,7 @@ if (parent_class_type && !is_class_type(*parent_class_type)) {
     }
 
   private:
-    std::shared_ptr<class_type> parent_class;
+    std::shared_ptr<expression> parent_class;
   };
 
   class function_type : public expression {
