@@ -25,9 +25,7 @@ namespace cyy::compiler {
   using namespace cyy::computation;
   class symbol_table {
   public:
-    struct entry {
-      std::shared_ptr<symbol_table> associated_symbol_table;
-    };
+    struct entry {};
     struct symbol_entry : public entry {
       std::shared_ptr<type_expression::expression> type;
       std::string lexeme;

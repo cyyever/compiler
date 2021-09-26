@@ -290,25 +290,26 @@ TEST_CASE("types and storage layout") {
 
     auto e = table->get_symbol("q");
     REQUIRE(e);
+    REQUIRE(e->type);
 
-    REQUIRE(e->associated_symbol_table);
-    REQUIRE(
-        e->associated_symbol_table->get_symbol("tag")->type->equivalent_with(
-            type_expression::basic_type(
-                type_expression::basic_type::type_enum::INT)));
-    REQUIRE(e->associated_symbol_table->get_symbol("tag")->relative_address ==
-            0);
-    REQUIRE(e->associated_symbol_table->get_symbol("x"));
-    REQUIRE(e->associated_symbol_table->get_symbol("x")->type->equivalent_with(
+    auto associated_symbol_table =
+        std::dynamic_pointer_cast<type_expression::record_type>(e->type)
+            ->get_symbol_table();
+    REQUIRE(associated_symbol_table);
+    REQUIRE(associated_symbol_table->get_symbol("tag")->type->equivalent_with(
+        type_expression::basic_type(
+            type_expression::basic_type::type_enum::INT)));
+    REQUIRE(associated_symbol_table->get_symbol("tag")->relative_address == 0);
+    REQUIRE(associated_symbol_table->get_symbol("x"));
+    REQUIRE(associated_symbol_table->get_symbol("x")->type->equivalent_with(
         type_expression::basic_type(
             type_expression::basic_type::type_enum::FLOAT)));
-    REQUIRE(e->associated_symbol_table->get_symbol("x")->relative_address == 4);
-    REQUIRE(e->associated_symbol_table->get_symbol("y"));
-    REQUIRE(e->associated_symbol_table->get_symbol("y")->type->equivalent_with(
+    REQUIRE(associated_symbol_table->get_symbol("x")->relative_address == 4);
+    REQUIRE(associated_symbol_table->get_symbol("y"));
+    REQUIRE(associated_symbol_table->get_symbol("y")->type->equivalent_with(
         type_expression::basic_type(
             type_expression::basic_type::type_enum::FLOAT)));
-    REQUIRE(e->associated_symbol_table->get_symbol("y")->relative_address ==
-            12);
+    REQUIRE(associated_symbol_table->get_symbol("y")->relative_address == 12);
 
     std::vector<
         std::pair<std::string, std::shared_ptr<type_expression::expression>>>
@@ -368,7 +369,7 @@ TEST_CASE("types and storage layout") {
                   std::any_cast<token>(*arguments.at(1)).lexeme;
               auto const &parent_class_name =
                   std::any_cast<std::string>(*(arguments.at(2)));
-              std::shared_ptr<type_expression::expression> parent_class;
+              std::shared_ptr<type_expression::class_type> parent_class;
               std::shared_ptr<symbol_table> parent_class_symbol_table;
               if (!parent_class_name.empty()) {
                 auto const &scope_symbol_table =
@@ -380,9 +381,12 @@ TEST_CASE("types and storage layout") {
                   throw cyy::compiler::exception::no_parent_class(
                       parent_class_name);
                 }
-                parent_class = parent_class_opt->type;
-                parent_class_symbol_table =
-                    parent_class_opt->associated_symbol_table;
+                parent_class =
+                    std::dynamic_pointer_cast<type_expression::class_type>(
+                        std::dynamic_pointer_cast<type_expression::type_name>(
+                            parent_class_opt->type)
+                            ->get_type());
+                parent_class_symbol_table = parent_class->get_symbol_table();
                 size_t total_width = 0;
                 for (const auto &e :
                      parent_class_symbol_table->get_symbol_view()) {
@@ -433,12 +437,20 @@ TEST_CASE("types and storage layout") {
 
     auto e = table->get_symbol("q");
     REQUIRE(e);
-    REQUIRE(e->associated_symbol_table);
-    REQUIRE(e->associated_symbol_table->get_symbol("x"));
-    REQUIRE(e->associated_symbol_table->get_symbol("x")->type->equivalent_with(
+    auto associated_symbol_table =
+        std::dynamic_pointer_cast<type_expression::class_type>(
+
+            std::dynamic_pointer_cast<type_expression::type_name>(e->type)
+                ->get_type()
+
+                )
+            ->get_symbol_table();
+    REQUIRE(associated_symbol_table);
+    REQUIRE(associated_symbol_table->get_symbol("x"));
+    REQUIRE(associated_symbol_table->get_symbol("x")->type->equivalent_with(
         type_expression::basic_type(
             type_expression::basic_type::type_enum::INT)));
-    REQUIRE(e->associated_symbol_table->get_symbol("x")->relative_address == 0);
+    REQUIRE(associated_symbol_table->get_symbol("x")->relative_address == 0);
 
     std::vector<
         std::pair<std::string, std::shared_ptr<type_expression::expression>>>
@@ -470,17 +482,25 @@ TEST_CASE("types and storage layout") {
 
     e = table->get_symbol("p");
     REQUIRE(e);
-    REQUIRE(e->associated_symbol_table);
-    REQUIRE(e->associated_symbol_table->get_symbol("x"));
-    REQUIRE(e->associated_symbol_table->get_symbol("x")->type->equivalent_with(
-        type_expression::basic_type(
-            type_expression::basic_type::type_enum::INT)));
-    REQUIRE(e->associated_symbol_table->get_symbol("x")->relative_address == 0);
+    associated_symbol_table =
+        std::dynamic_pointer_cast<type_expression::class_type>(
 
-    REQUIRE(e->associated_symbol_table->get_symbol("y"));
-    REQUIRE(e->associated_symbol_table->get_symbol("y")->type->equivalent_with(
+            std::dynamic_pointer_cast<type_expression::type_name>(e->type)
+                ->get_type()
+
+                )
+            ->get_symbol_table();
+    REQUIRE(associated_symbol_table);
+    REQUIRE(associated_symbol_table->get_symbol("x"));
+    REQUIRE(associated_symbol_table->get_symbol("x")->type->equivalent_with(
         type_expression::basic_type(
             type_expression::basic_type::type_enum::INT)));
-    REQUIRE(e->associated_symbol_table->get_symbol("y")->relative_address == 4);
+    REQUIRE(associated_symbol_table->get_symbol("x")->relative_address == 0);
+
+    REQUIRE(associated_symbol_table->get_symbol("y"));
+    REQUIRE(associated_symbol_table->get_symbol("y")->type->equivalent_with(
+        type_expression::basic_type(
+            type_expression::basic_type::type_enum::INT)));
+    REQUIRE(associated_symbol_table->get_symbol("y")->relative_address == 4);
   }
 }

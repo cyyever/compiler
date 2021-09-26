@@ -134,7 +134,9 @@ namespace cyy::compiler::type_expression {
       }
       return total_width;
     }
-    auto get_symbol_table() const { return associated_symbol_table; }
+    std::shared_ptr<symbol_table> get_symbol_table() const {
+      return associated_symbol_table;
+    }
 
   protected:
     std::vector<std::pair<std::string, std::shared_ptr<expression>>>
