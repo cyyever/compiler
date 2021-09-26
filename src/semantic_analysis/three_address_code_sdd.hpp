@@ -3,7 +3,7 @@
  *
  * \brief
  */
-
+#pragma once
 #include <cyy/computation/context_free_lang/slr_grammar.hpp>
 
 #include "intermediate_representation/three_address_code.hpp"
@@ -82,7 +82,7 @@ namespace cyy::compiler {
   private:
     std::unique_ptr<S_attributed_SDD> sdd;
     std::shared_ptr<symbol_table> table;
-    std::unique_ptr<SLR_grammar> grammar;
+    std::shared_ptr<SLR_grammar> grammar;
     size_t tmp_name_index{1};
   };
 
