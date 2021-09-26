@@ -75,10 +75,17 @@ namespace cyy::compiler {
         e->relative_address += offset;
       }
     }
+    size_t get_next_relative_address() const {return next_relative_address;}
+    void clear() {
+      symbols.clear();
+      types.clear();
+      next_relative_address = 0;
+    }
 
   private:
     std::unordered_map<std::string, symbol_entry_ptr> symbols;
     std::unordered_map<std::string, std::shared_ptr<type_entry>> types;
     std::shared_ptr<symbol_table> prev_table;
+    size_t next_relative_address = 0;
   };
 } // namespace cyy::compiler
