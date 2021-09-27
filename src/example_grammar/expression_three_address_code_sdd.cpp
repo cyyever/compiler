@@ -22,6 +22,38 @@ namespace cyy::compiler::example_grammar {
       for (auto const &body : bodies) {
         if (head == "statement") {
           if (body.size() == 4) {
+            if (body[0] == "array") {
+
+              sdd->add_synthesized_attribute(
+                  {head, body},
+                  SDD::semantic_rule{
+                      {},
+                      {"$1.array", "$1.addr", "$3.addr"},
+                      [this](const auto &arguments) -> std::optional<std::any> {
+                        auto array_entry =
+                            std::any_cast<symbol_table::symbol_entry_ptr>(
+                                *arguments[0]);
+                        auto index =
+                            std::any_cast<IR::three_address_code::address_ptr>(
+                                *arguments[1]);
+                        auto operand =
+                            std::any_cast<IR::three_address_code::address_ptr>(
+                                *arguments[2]);
+
+                        auto instruction =
+                            std::make_shared<IR::three_address_code::
+                                                 copy_to_array_instruction>();
+                        instruction->result_array =
+                            std::make_shared<IR::three_address_code::name>(
+                                array_entry);
+                        instruction->index = index;
+                        instruction->operand = operand;
+                        instruction_sequence.emplace_back(instruction);
+                        return std::any();
+                      }});
+
+              continue;
+            }
             sdd->add_synthesized_attribute(
                 {head, body},
                 SDD::semantic_rule{

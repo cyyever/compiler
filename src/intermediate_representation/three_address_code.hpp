@@ -173,7 +173,7 @@ namespace cyy::compiler::IR::three_address_code {
   struct copy_to_array_instruction : public instruction {
     name_ptr result_array;
     address_ptr index;
-    name_ptr operand;
+    address_ptr operand;
   };
 
   class address_assignment_instruction : public instruction {
