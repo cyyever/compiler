@@ -206,7 +206,7 @@ namespace cyy::compiler::example_grammar {
                         IR::three_address_code::
                             binary_arithmetic_assignment_instruction>();
                     instruction->op = binary_arithmetic_operator::plus;
-                    instruction->result = result_name;
+                    instruction->result = result_name2;
                     instruction->left = prev_dim_size;
                     instruction->right = result_name;
                     instruction_sequence.emplace_back(instruction);
