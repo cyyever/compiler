@@ -30,7 +30,7 @@ namespace cyy::compiler {
 
     virtual ~SDD() = default;
 
-    std::optional<std::unordered_map<std::string, std::any>>
+    [[nodiscard]] std::optional<std::unordered_map<std::string, std::any>>
     run(token_span span,
         const std::unordered_set<std::string> &result_attribute_names = {})
         const;
