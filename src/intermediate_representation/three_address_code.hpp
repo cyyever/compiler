@@ -164,32 +164,16 @@ namespace cyy::compiler::IR::three_address_code {
     address_ptr value;
   };
 
-  class indexed_copy_instruction : public instruction {
-  public:
-    indexed_copy_instruction(name_ptr result_, name_ptr operand_,
-                             address_ptr index_)
-        : result(std::move(result_)), operand(std::move(operand_)),
-          index(index_) {}
-    ~indexed_copy_instruction() override = default;
-
-  private:
+  struct array_copy_instruction : public instruction {
     name_ptr result;
-    name_ptr operand;
+    name_ptr array;
     address_ptr index;
   };
 
-  class result_indexed_copy_instruction : public instruction {
-  public:
-    result_indexed_copy_instruction(name_ptr result_, size_t index_,
-                                    address_ptr operand_)
-        : result(std::move(result_)), index(index_),
-          operand(std::move(operand_)) {}
-    ~result_indexed_copy_instruction() override = default;
-
-  private:
-    name_ptr result;
-    size_t index;
-    address_ptr operand;
+  struct copy_to_array_instruction : public instruction {
+    name_ptr result_array;
+    address_ptr index;
+    name_ptr operand;
   };
 
   class address_assignment_instruction : public instruction {

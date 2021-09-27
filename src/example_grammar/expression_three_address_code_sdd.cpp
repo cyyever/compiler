@@ -97,14 +97,15 @@ namespace cyy::compiler::example_grammar {
                           std::make_shared<IR::three_address_code::name>(
                               table->create_temporary_symbol(
                                   fmt::format("tmp_{}", tmp_name_index++)));
-                      instruction_sequence.emplace_back(
-                          std::make_shared<
-                              IR::three_address_code::indexed_copy_instruction>(
 
-                              result_name,
-                              std::make_shared<IR::three_address_code::name>(
-                                  array_entry),
-                              index));
+                      auto instruction = std::make_shared<
+                          IR::three_address_code::array_copy_instruction>();
+                      instruction->result = result_name;
+                      instruction->array =
+                          std::make_shared<IR::three_address_code::name>(
+                              array_entry);
+                      instruction->index = index;
+                      instruction_sequence.emplace_back(instruction);
                       return result_name;
                     }});
             continue;
