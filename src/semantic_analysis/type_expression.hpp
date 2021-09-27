@@ -118,13 +118,13 @@ namespace cyy::compiler::type_expression {
     explicit record_type(
         std::vector<std::pair<std::string, std::shared_ptr<expression>>>
             field_types_,
-        std::shared_ptr<symbol_table> associated_symbol_table_ = {})
-        : field_types(std::move(field_types_)), associated_symbol_table{
-                                                    associated_symbol_table_} {}
+        std::shared_ptr<symbol_table> associated_symbol_table_ = {});
+    explicit record_type(
+        std::shared_ptr<symbol_table> associated_symbol_table_);
     ~record_type() override = default;
 
     bool _equivalent_with(const expression &rhs) const override;
-    static bool is_record_type(const expression &type_expr);
+    /* static bool is_record_type(const expression &type_expr); */
     size_t get_width() const override {
       if (total_width != 0) {
         return total_width;
@@ -151,9 +151,18 @@ namespace cyy::compiler::type_expression {
   public:
     class_type(std::shared_ptr<expression> parent_class_,
                std::vector<std::pair<std::string, std::shared_ptr<expression>>>
-                   field_types_,
-               std::shared_ptr<symbol_table> associated_symbol_table_ = {})
-        : record_type(std::move(field_types_), associated_symbol_table_),
+                   field_types_)
+        : record_type(std::move(field_types_)),
+          parent_class(std::move(parent_class_))
+
+    {
+      if (parent_class && !is_class_type(*parent_class)) {
+        throw exception::not_class_type("parent class");
+      }
+    }
+    class_type(std::shared_ptr<expression> parent_class_,
+               std::shared_ptr<symbol_table> associated_symbol_table_)
+        : record_type(associated_symbol_table_),
           parent_class(std::move(parent_class_))
 
     {

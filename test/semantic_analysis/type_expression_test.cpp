@@ -230,20 +230,10 @@ TEST_CASE("types and storage layout") {
             [](const auto &arguments) -> std::optional<std::any> {
               auto table = std::any_cast<std::shared_ptr<symbol_table>>(
                   *(arguments.at(0)));
-              auto sorted_entries = table->get_ordered_symbol_list();
-              std::vector<std::pair<
-                  std::string, std::shared_ptr<type_expression::expression>>>
-                  field_types;
-              for (auto const &entry : sorted_entries) {
-                field_types.emplace_back(entry.lexeme, entry.type);
-              }
 
               return std::make_any<
                   std::shared_ptr<type_expression::expression>>(
-                  std::make_shared<type_expression::record_type>(field_types,
-                                                                 table)
-
-              );
+                  std::make_shared<type_expression::record_type>(table));
             }});
 
     std::vector<token> tokens;
@@ -331,12 +321,6 @@ TEST_CASE("types and storage layout") {
             [](const auto &arguments) -> std::optional<std::any> {
               auto table = std::any_cast<std::shared_ptr<symbol_table>>(
                   *arguments.at(3));
-              std::vector<std::pair<
-                  std::string, std::shared_ptr<type_expression::expression>>>
-                  field_types;
-              for (auto const &entry : table->get_ordered_symbol_list()) {
-                field_types.emplace_back(entry.lexeme, entry.type);
-              }
 
               auto const &class_name =
                   std::any_cast<token>(*arguments.at(1)).lexeme;
@@ -370,7 +354,7 @@ TEST_CASE("types and storage layout") {
               }
               auto class_type = std::make_shared<type_expression::type_name>(
                   class_name, std::make_shared<type_expression::class_type>(
-                                  parent_class, field_types, table));
+                                  parent_class, table));
 
               return std::make_any<
                   std::shared_ptr<type_expression::expression>>(class_type);

@@ -10,6 +10,8 @@
 
 #include <cassert>
 
+#include "symbol_table/symbol_table.hpp"
+
 namespace cyy::compiler::type_expression {
 
   bool expression::equivalent_with(const expression &rhs) const {
@@ -111,13 +113,23 @@ namespace cyy::compiler::type_expression {
     }
     return true;
   }
+  record_type::record_type(
+      std::vector<std::pair<std::string, std::shared_ptr<expression>>>
+          field_types_,
+      std::shared_ptr<symbol_table> associated_symbol_table_
 
-  bool record_type::is_record_type(const expression &type_expr) {
-    auto type_name_ptr = dynamic_cast<const type_name *>(&type_expr);
-    if (type_name_ptr) {
-      return is_record_type(*type_name_ptr);
+      )
+      : field_types(std::move(field_types_)), associated_symbol_table{
+                                                  associated_symbol_table_} {}
+
+  record_type::record_type(
+      std::shared_ptr<symbol_table> associated_symbol_table_)
+      : associated_symbol_table{associated_symbol_table_} {
+
+    auto sorted_entries = associated_symbol_table->get_ordered_symbol_list();
+    for (auto const &entry : sorted_entries) {
+      field_types.emplace_back(entry.lexeme, entry.type);
     }
-    return dynamic_cast<const record_type *>(&type_expr) != nullptr;
   }
 
   bool function_type::_equivalent_with(const expression &rhs) const {
