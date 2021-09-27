@@ -68,6 +68,8 @@ namespace cyy::compiler::example_grammar {
     auto id = static_cast<CFG::terminal_type>(common_token::id);
     production_set["statement"].emplace(
         CFG_production::body_type{id, '=', "E", ';'});
+    production_set["statement"].emplace(
+        CFG_production::body_type{"array", '=', "E", ';'});
     production_set["statement"].emplace(CFG_production::body_type{"E", ';'});
 
     production_set["statements"].emplace(
