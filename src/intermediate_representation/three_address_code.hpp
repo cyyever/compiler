@@ -166,7 +166,8 @@ namespace cyy::compiler::IR::three_address_code {
 
   class indexed_copy_instruction : public instruction {
   public:
-    indexed_copy_instruction(name_ptr result_, name_ptr operand_, size_t index_)
+    indexed_copy_instruction(name_ptr result_, name_ptr operand_,
+                             address_ptr index_)
         : result(std::move(result_)), operand(std::move(operand_)),
           index(index_) {}
     ~indexed_copy_instruction() override = default;
@@ -174,7 +175,7 @@ namespace cyy::compiler::IR::three_address_code {
   private:
     name_ptr result;
     name_ptr operand;
-    size_t index;
+    address_ptr index;
   };
 
   class result_indexed_copy_instruction : public instruction {

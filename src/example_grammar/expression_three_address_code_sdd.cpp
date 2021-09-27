@@ -79,6 +79,36 @@ namespace cyy::compiler::example_grammar {
                     }});
             continue;
           }
+          if (body[0] == "array") {
+            sdd->add_synthesized_attribute(
+                {head, body},
+                SDD::semantic_rule{
+                    "$0.addr",
+                    {"$1.array", "$1.addr"},
+                    [this](const auto &arguments) -> std::optional<std::any> {
+                      auto array_entry =
+                          std::any_cast<symbol_table::symbol_entry_ptr>(
+                              *arguments[0]);
+
+                      auto index =
+                          std::any_cast<IR::three_address_code::address_ptr>(
+                              *arguments[1]);
+                      auto result_name =
+                          std::make_shared<IR::three_address_code::name>(
+                              table->create_temporary_symbol(
+                                  fmt::format("tmp_{}", tmp_name_index++)));
+                      instruction_sequence.emplace_back(
+                          std::make_shared<
+                              IR::three_address_code::indexed_copy_instruction>(
+
+                              result_name,
+                              std::make_shared<IR::three_address_code::name>(
+                                  array_entry),
+                              index));
+                      return result_name;
+                    }});
+            continue;
+          }
 
           if (body[0].is_nonterminal()) {
             sdd->add_synthesized_attribute(
