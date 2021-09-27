@@ -51,10 +51,23 @@ namespace cyy::compiler::IR::three_address_code {
 
     std::string to_string() const override {
       if constexpr (std::is_same_v<operator_type, binary_arithmetic_operator>) {
-        if (op == binary_arithmetic_operator::plus) {
-          return fmt::format("{} = {} + {}", result->lexeme, left->lexeme,
-                             right->lexeme);
+        char op_char = ' ';
+        switch (op) {
+          case binary_arithmetic_operator::plus:
+            op_char = '+';
+            break;
+          case binary_arithmetic_operator::multiplication:
+            op_char = '*';
+            break;
+          case binary_arithmetic_operator::minus:
+            op_char = '-';
+            break;
+          case binary_arithmetic_operator::division:
+            op_char = '/';
+            break;
         }
+        return fmt::format("{} = {} {} {}", result->lexeme, left->lexeme,
+                           op_char, right->lexeme);
       }
       return "";
     }
@@ -169,7 +182,8 @@ namespace cyy::compiler::IR::three_address_code {
     name_ptr array;
     address_ptr index;
     std::string to_string() const override {
-      return result->lexeme + " = " + array->lexeme + "[" + index->lexeme + "]";
+      return result->lexeme + " = " + array->lexeme + " [ " + index->lexeme +
+             " ] ";
     }
   };
 
@@ -178,8 +192,8 @@ namespace cyy::compiler::IR::three_address_code {
     address_ptr index;
     address_ptr operand;
     std::string to_string() const override {
-      return result_array->lexeme + "[" + index->lexeme +
-             "] = " + operand->lexeme;
+      return result_array->lexeme + " [ " + index->lexeme +
+             " ] = " + operand->lexeme;
     }
   };
 

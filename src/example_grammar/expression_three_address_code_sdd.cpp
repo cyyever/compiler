@@ -76,7 +76,7 @@ namespace cyy::compiler::example_grammar {
           continue;
         }
         if (head == "array") {
-          if (body[0] == "id") {
+          if (body[0] == id) {
             sdd->add_synthesized_attribute(
                 {head, body},
                 SDD::semantic_rule{
@@ -134,37 +134,86 @@ namespace cyy::compiler::example_grammar {
                           std::make_shared<IR::three_address_code::constant>(
                               std::to_string(element_type->get_width()));
                       instruction_sequence.emplace_back(instruction);
-                      return result_name;
+                      return std::dynamic_pointer_cast<
+                          IR::three_address_code::address>(result_name);
                     }});
-            sdd->add_synthesized_attribute(
-                {head, body},
-                SDD::semantic_rule{
-                    {"$0.array"},
-                    {"$1.array", "$1.addr", "$3.addr"},
-                    [this](const auto &arguments) -> std::optional<std::any> {
-                      auto array_entry =
-                          std::any_cast<symbol_table::symbol_entry_ptr>(
-                              *arguments[0]);
-                      auto index =
-                          std::any_cast<IR::three_address_code::address_ptr>(
-                              *arguments[1]);
-                      auto operand =
-                          std::any_cast<IR::three_address_code::address_ptr>(
-                              *arguments[2]);
-
-                      auto instruction = std::make_shared<
-                          IR::three_address_code::copy_to_array_instruction>();
-                      instruction->result_array =
-                          std::make_shared<IR::three_address_code::name>(
-                              array_entry);
-                      instruction->index = index;
-                      instruction->operand = operand;
-                      instruction_sequence.emplace_back(instruction);
-                      return std::any();
-                    }});
-
             continue;
           }
+          sdd->add_synthesized_attribute(
+              {head, body},
+              SDD::semantic_rule{
+                  {"$0.array"}, {"$1.array"}, SDD::semantic_rule::copy_action});
+
+          sdd->add_synthesized_attribute(
+              {head, body},
+              SDD::semantic_rule{
+                  {"$0.element_type"},
+                  {"$1.element_type"},
+                  [this](const auto &arguments) -> std::optional<std::any> {
+                    return std::dynamic_pointer_cast<
+                               cyy::compiler::type_expression::array_type>(
+                               std::any_cast<std::shared_ptr<
+                                   cyy::compiler::type_expression::expression>>(
+                                   *arguments[0]))
+                        ->element_type;
+                  }});
+
+          sdd->add_synthesized_attribute(
+              {head, body},
+              SDD::semantic_rule{
+                  {"$0.addr"},
+                  {"$1.addr", "$1.element_type", "$3.addr"},
+                  [this](const auto &arguments) -> std::optional<std::any> {
+                    auto prev_dim_size =
+                        std::any_cast<IR::three_address_code::address_ptr>(
+                            *arguments[0]);
+
+                    auto element_type =
+                        std::dynamic_pointer_cast<
+                            cyy::compiler::type_expression::array_type>(
+                            std::any_cast<std::shared_ptr<
+                                cyy::compiler::type_expression::expression>>(
+                                *arguments[1]))
+                            ->element_type;
+
+                    auto index =
+                        std::any_cast<IR::three_address_code::address_ptr>(
+                            *arguments[2]);
+
+                    auto result_name =
+                        std::make_shared<IR::three_address_code::name>(
+                            table->create_temporary_symbol(
+                                fmt::format("tmp_{}", tmp_name_index++)));
+
+                    auto instruction = std::make_shared<
+                        IR::three_address_code::
+                            binary_arithmetic_assignment_instruction>();
+                    instruction->op =
+                        binary_arithmetic_operator::multiplication;
+                    instruction->result = result_name;
+                    instruction->left = index;
+                    instruction->right =
+                        std::make_shared<IR::three_address_code::constant>(
+                            std::to_string(element_type->get_width()));
+                    instruction_sequence.emplace_back(instruction);
+
+                    auto result_name2 =
+                        std::make_shared<IR::three_address_code::name>(
+                            table->create_temporary_symbol(
+                                fmt::format("tmp_{}", tmp_name_index++)));
+
+                    instruction = std::make_shared<
+                        IR::three_address_code::
+                            binary_arithmetic_assignment_instruction>();
+                    instruction->op = binary_arithmetic_operator::plus;
+                    instruction->result = result_name;
+                    instruction->left = prev_dim_size;
+                    instruction->right = result_name;
+                    instruction_sequence.emplace_back(instruction);
+                    return std::dynamic_pointer_cast<
+                        IR::three_address_code::address>(result_name2);
+                  }});
+          continue;
         }
         if (body.empty()) {
           continue;
@@ -228,7 +277,8 @@ namespace cyy::compiler::example_grammar {
                               array_entry);
                       instruction->index = index;
                       instruction_sequence.emplace_back(instruction);
-                      return result_name;
+                      return std::dynamic_pointer_cast<
+                          IR::three_address_code::address>(result_name);
                     }});
             continue;
           }
