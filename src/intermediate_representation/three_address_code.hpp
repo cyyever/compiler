@@ -168,12 +168,19 @@ namespace cyy::compiler::IR::three_address_code {
     name_ptr result;
     name_ptr array;
     address_ptr index;
+    std::string to_string() const override {
+      return result->lexeme + " = " + array->lexeme + "[" + index->lexeme + "]";
+    }
   };
 
   struct copy_to_array_instruction : public instruction {
     name_ptr result_array;
     address_ptr index;
     address_ptr operand;
+    std::string to_string() const override {
+      return result_array->lexeme + "[" + index->lexeme +
+             "] = " + operand->lexeme;
+    }
   };
 
   class address_assignment_instruction : public instruction {

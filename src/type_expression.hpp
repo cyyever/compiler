@@ -108,7 +108,6 @@ namespace cyy::compiler::type_expression {
       return element_number * element_type->get_width();
     }
 
-  private:
     std::shared_ptr<expression> element_type;
     size_t element_number;
   };
