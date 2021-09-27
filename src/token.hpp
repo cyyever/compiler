@@ -23,6 +23,7 @@ struct token {
   token_attribute attribute{};
 };
 
+
 using token_istream = std::basic_istream<token>;
 using token_span = std::span<token>;
 } // namespace cyy::compiler

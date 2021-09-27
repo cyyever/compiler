@@ -66,10 +66,15 @@ namespace cyy::compiler::example_grammar {
     }
     auto production_set = cyy::computation::get_expression_productions();
     auto id = static_cast<CFG::terminal_type>(common_token::id);
-    production_set["S"].emplace(CFG_production::body_type{id, '=', "E"});
+    production_set["statement"].emplace(
+        CFG_production::body_type{id, '=', "E", ';'});
+    production_set["statement"].emplace(CFG_production::body_type{"E", ';'});
 
-    grammar =
-        std::make_shared<SLR_grammar>("common_tokens", "S", production_set);
+    production_set["statements"].emplace(
+        CFG_production::body_type{"statement", "statements"});
+    production_set["statements"].emplace();
+    grammar = std::make_shared<SLR_grammar>("common_tokens", "statements",
+                                            production_set);
 
     return grammar;
   }

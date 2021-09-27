@@ -15,29 +15,37 @@ namespace cyy::compiler::example_grammar {
       : grammar(get_expression_grammar()) {
 
     auto id = static_cast<CFG::terminal_type>(common_token::id);
+    auto number = static_cast<CFG::terminal_type>(common_token::number);
     sdd = std::make_unique<S_attributed_SDD>(*grammar);
 
     for (auto const &[head, bodies] : grammar->get_productions()) {
       for (auto const &body : bodies) {
-        if (head == "S") {
-          sdd->add_synthesized_attribute(
-              {"S", body},
-              SDD::semantic_rule{
-                  {}, {"$1", "$3.addr"}, [this](const auto &arguments) {
-                    auto name = std::make_shared<IR::three_address_code::name>(
-                        table->create_and_get_symbol(
-                            std::any_cast<token>(*arguments[0]).lexeme));
-                    auto address =
-                        std::any_cast<IR::three_address_code::address_ptr>(
-                            *arguments[1]);
+        if (head == "statement") {
+          if (body.size() == 4) {
+            sdd->add_synthesized_attribute(
+                {head, body},
+                SDD::semantic_rule{
+                    {}, {"$1", "$3.addr"}, [this](const auto &arguments) {
+                      auto name =
+                          std::make_shared<IR::three_address_code::name>(
+                              table->create_and_get_symbol(
+                                  std::any_cast<token>(*arguments[0]).lexeme));
+                      auto address =
+                          std::any_cast<IR::three_address_code::address_ptr>(
+                              *arguments[1]);
 
-                    instruction_sequence.emplace_back(
-                        std::make_shared<
-                            IR::three_address_code::copy_instruction>(name,
-                                                                      address));
-                    return std::optional<std::any>{};
-                  }});
-          break;
+                      instruction_sequence.emplace_back(
+                          std::make_shared<
+                              IR::three_address_code::copy_instruction>(
+                              name, address));
+                      return std::optional<std::any>{};
+                    }});
+            continue;
+          }
+          continue;
+        }
+        if (body.empty()) {
+          continue;
         }
         if (body.size() == 1) {
           if (body[0] == id) {
@@ -53,6 +61,21 @@ namespace cyy::compiler::example_grammar {
                                   std::any_cast<token>(*arguments[0]).lexeme));
                       return std::dynamic_pointer_cast<
                           IR::three_address_code::address>(name);
+                    }});
+            continue;
+          }
+          if (body[0] == number) {
+            sdd->add_synthesized_attribute(
+                {head, body},
+                SDD::semantic_rule{
+                    "$0.addr",
+                    {"$1"},
+                    [this](const auto &arguments) -> std::optional<std::any> {
+                      auto constant =
+                          std::make_shared<IR::three_address_code::constant>(
+                              std::any_cast<token>(*arguments[0]).lexeme);
+                      return std::dynamic_pointer_cast<
+                          IR::three_address_code::address>(constant);
                     }});
             continue;
           }
