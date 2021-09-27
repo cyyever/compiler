@@ -1,20 +1,18 @@
 /*!
- * \file three_address_code_sdd.cpp
+ * \file expression_three_address_code_sdd.cpp
  *
  * \brief
  */
 #include "expression_three_address_code_sdd.hpp"
 
-
 #include <cyy/computation/lang/common_tokens.hpp>
-#include <fmt/format.h>
 
 #include "grammar.hpp"
 #include "operator.hpp"
-#include "semantic_analysis/l_attributed_sdd.hpp"
 
 namespace cyy::compiler::example_grammar {
-  expression_three_address_code_SDD::expression_three_address_code_SDD():grammar(get_expression_grammar()) {
+  expression_three_address_code_SDD::expression_three_address_code_SDD()
+      : grammar(get_expression_grammar()) {
 
     auto id = static_cast<CFG::terminal_type>(common_token::id);
     sdd = std::make_unique<S_attributed_SDD>(*grammar);
