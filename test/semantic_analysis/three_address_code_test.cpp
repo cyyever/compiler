@@ -8,7 +8,7 @@
 
 #include "exception.hpp"
 #include "semantic_analysis/three_address_code_sdd.hpp"
-#include "semantic_analysis/type_expression.hpp"
+#include "type_expression.hpp"
 
 using namespace cyy::computation;
 using namespace cyy::compiler;

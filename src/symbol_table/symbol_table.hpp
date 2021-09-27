@@ -18,8 +18,8 @@
 
 #include <cyy/computation/lang/symbol.hpp>
 
-#include "semantic_analysis/type_expression.hpp"
 #include "token.hpp"
+#include "type_expression.hpp"
 
 namespace cyy::compiler {
   using namespace cyy::computation;
