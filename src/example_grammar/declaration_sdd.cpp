@@ -247,13 +247,8 @@ namespace cyy::compiler::example_grammar {
                   "$0.type",
                   {"$2", "$4.type"},
                   [](const auto &arguments) -> std::optional<std::any> {
-                    size_t element_number = 0;
-
-                    for (auto c :
-                         std::any_cast<token>(*(arguments.at(0))).lexeme) {
-                      element_number =
-                          element_number * 10 + static_cast<size_t>(c - '0');
-                    }
+                    size_t element_number = std::stoll(
+                        std::any_cast<token>(*(arguments.at(0))).lexeme);
 
                     return std::make_any<
                         std::shared_ptr<type_expression::expression>>(
