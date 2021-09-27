@@ -11,11 +11,11 @@
 #include "symbol_table/symbol_table.hpp"
 #include "token.hpp"
 
-namespace cyy::compiler {
+namespace cyy::compiler::example_grammar {
 
-  class three_address_code_SDD {
+  class expression_three_address_code_SDD {
   public:
-    three_address_code_SDD();
+    expression_three_address_code_SDD();
     bool run(token_span span, std::shared_ptr<symbol_table> table_ = {});
 
   public:
@@ -86,4 +86,4 @@ namespace cyy::compiler {
     size_t tmp_name_index{1};
   };
 
-} // namespace cyy::compiler
+} // namespace cyy::compiler::example_grammar

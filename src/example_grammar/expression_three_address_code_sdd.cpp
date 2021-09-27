@@ -3,7 +3,7 @@
  *
  * \brief
  */
-#include "three_address_code_sdd.hpp"
+#include "expression_three_address_code_sdd.hpp"
 
 #include <cassert>
 
@@ -15,8 +15,8 @@
 #include "operator.hpp"
 #include "semantic_analysis/l_attributed_sdd.hpp"
 
-namespace cyy::compiler {
-  three_address_code_SDD::three_address_code_SDD() {
+namespace cyy::compiler::example_grammar {
+  expression_three_address_code_SDD::expression_three_address_code_SDD() {
 
     auto id = static_cast<CFG::terminal_type>(common_token::id);
     grammar = get_expression_grammar();
@@ -135,8 +135,9 @@ namespace cyy::compiler {
     }
   }
 
-  bool three_address_code_SDD::run(token_span span,
-                                   std::shared_ptr<symbol_table> table_) {
+  bool
+  expression_three_address_code_SDD::run(token_span span,
+                                         std::shared_ptr<symbol_table> table_) {
     table = table_;
     if (!table) {
       table = std::make_shared<symbol_table>();
@@ -145,4 +146,4 @@ namespace cyy::compiler {
     tmp_name_index = 1;
     return sdd->run(span, {}).has_value();
   }
-} // namespace cyy::compiler
+} // namespace cyy::compiler::example_grammar

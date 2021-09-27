@@ -6,15 +6,15 @@
 #include <cyy/computation/lang/common_tokens.hpp>
 #include <doctest/doctest.h>
 
+#include "example_grammar/expression_three_address_code_sdd.hpp"
 #include "exception.hpp"
-#include "semantic_analysis/three_address_code_sdd.hpp"
 #include "type_expression.hpp"
 
 using namespace cyy::computation;
 using namespace cyy::compiler;
 
 TEST_CASE("three address code") {
-  three_address_code_SDD sdd;
+  example_grammar::expression_three_address_code_SDD sdd;
 
   SUBCASE("expression") {
     std::vector<token> tokens;

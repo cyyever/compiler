@@ -117,14 +117,12 @@ namespace cyy::compiler::type_expression {
   public:
     explicit record_type(
         std::vector<std::pair<std::string, std::shared_ptr<expression>>>
-            field_types_,
-        std::shared_ptr<symbol_table> associated_symbol_table_ = {});
+            field_types_);
     explicit record_type(
         std::shared_ptr<symbol_table> associated_symbol_table_);
     ~record_type() override = default;
 
     bool _equivalent_with(const expression &rhs) const override;
-    /* static bool is_record_type(const expression &type_expr); */
     size_t get_width() const override {
       if (total_width != 0) {
         return total_width;

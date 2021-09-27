@@ -115,12 +115,8 @@ namespace cyy::compiler::type_expression {
   }
   record_type::record_type(
       std::vector<std::pair<std::string, std::shared_ptr<expression>>>
-          field_types_,
-      std::shared_ptr<symbol_table> associated_symbol_table_
-
-      )
-      : field_types(std::move(field_types_)), associated_symbol_table{
-                                                  associated_symbol_table_} {}
+          field_types_)
+      : field_types(std::move(field_types_)) {}
 
   record_type::record_type(
       std::shared_ptr<symbol_table> associated_symbol_table_)
