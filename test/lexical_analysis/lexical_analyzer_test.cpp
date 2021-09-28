@@ -15,7 +15,7 @@ using namespace cyy::computation;
 using namespace cyy::compiler;
 
 TEST_CASE("scan") {
-  auto analyzer = example_grammar::get_lexical_analyzer();
+  auto analyzer = example_grammar::get_lexical_analyzer(false);
 
   std::vector<std::pair<std::string, symbol_type>> tokens;
   tokens.emplace_back("position", static_cast<symbol_type>(common_token::id));

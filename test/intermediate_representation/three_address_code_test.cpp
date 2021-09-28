@@ -8,6 +8,7 @@
 
 #include "example_grammar/declaration_sdd.hpp"
 #include "example_grammar/expression_three_address_code_sdd.hpp"
+#include "example_grammar/lexical_analyzer.hpp"
 #include "exception.hpp"
 #include "type_expression.hpp"
 
@@ -17,36 +18,16 @@ using namespace cyy::compiler;
 TEST_CASE("three address code") {
   example_grammar::expression_three_address_code_SDD sdd;
   example_grammar::declaration_SDD declaration_sdd;
+  auto analyzer = example_grammar::get_lexical_analyzer();
 
   SUBCASE("expression") {
+    analyzer->set_source_code("int a;int b;int c;");
 
-    std::vector<token> declaration_tokens;
-    declaration_tokens.emplace_back(static_cast<symbol_type>(common_token::INT),
-                                    "int");
-    declaration_tokens.emplace_back(static_cast<symbol_type>(common_token::id),
-                                    "a");
-    declaration_tokens.emplace_back(';', ";");
-    declaration_tokens.emplace_back(static_cast<symbol_type>(common_token::INT),
-                                    "int");
-    declaration_tokens.emplace_back(static_cast<symbol_type>(common_token::id),
-                                    "b");
-    declaration_tokens.emplace_back(';', ";");
-    declaration_tokens.emplace_back(static_cast<symbol_type>(common_token::INT),
-                                    "int");
-    declaration_tokens.emplace_back(static_cast<symbol_type>(common_token::id),
-                                    "c");
-    declaration_tokens.emplace_back(';', ";");
-
+    auto declaration_tokens = analyzer->scan_all();
     auto table = declaration_sdd.run(declaration_tokens);
 
-    std::vector<token> tokens;
-    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "a");
-    tokens.emplace_back('=', "=");
-    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "b");
-    tokens.emplace_back('+', "+");
-    tokens.emplace_back('-', "-");
-    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "c");
-    tokens.emplace_back(';', ";");
+    analyzer->set_source_code("a=b+-c;");
+    auto tokens = analyzer->scan_all();
 
     REQUIRE(sdd.run(tokens, table));
     REQUIRE(!sdd.instruction_sequence.empty());

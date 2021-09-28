@@ -80,17 +80,21 @@ namespace cyy::compiler {
     }
 
     if (!cur_token.lexeme.empty()) {
-      if (final_state_set.size() == 1) {
-        cur_token.name = pattern_final_states[*final_state_set.begin()];
-        return cur_token;
-      }
       // resolve conflicts
       for (auto s : final_state_set) {
         auto name = pattern_final_states[s];
+        if (ignored_patterns.contains(name)) {
+          continue;
+        }
         if (keywords.contains(name)) {
           cur_token.name = name;
           return cur_token;
         }
+        if (final_state_set.size() == 1) {
+          cur_token.name = name;
+          return cur_token;
+        }
+        break;
       }
       std::cerr << "can't resolve conflicts for patterns" << std::endl;
     }

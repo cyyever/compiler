@@ -28,6 +28,12 @@ namespace cyy::compiler::example_grammar {
     }
 
     analyzer->add_keyword(static_cast<symbol_type>(common_token::INT), U"int");
+    analyzer->add_keyword(static_cast<symbol_type>(common_token::CLASS),
+                          U"class");
+    analyzer->add_keyword(static_cast<symbol_type>(common_token::record),
+                          U"record");
+    analyzer->add_keyword(static_cast<symbol_type>(common_token::FLOAT),
+                          U"float");
     analyzer->add_pattern(static_cast<symbol_type>(common_token::id),
                           U"[a-zA-Z_][a-zA-Z_0-9]*");
     analyzer->add_pattern(static_cast<symbol_type>(common_token::number),

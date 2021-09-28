@@ -28,14 +28,19 @@ namespace cyy::compiler {
     explicit lexical_analyzer(const ALPHABET_ptr &alphabet_)
         : alphabet(alphabet_) {}
 
-    void add_keyword(const symbol_type &token_name, symbol_string pattern) {
-      add_pattern(token_name, pattern);
-      keywords.insert(token_name);
-    }
     void add_pattern(const symbol_type &token_name, symbol_string pattern) {
       patterns.emplace(token_name, std::move(pattern));
       nfa_opt.reset();
       reset_input();
+    }
+    void add_keyword(const symbol_type &token_name, symbol_string pattern) {
+      add_pattern(token_name, pattern);
+      keywords.insert(token_name);
+    }
+    void add_ignored_pattern(const symbol_type &token_name,
+                             symbol_string pattern) {
+      add_pattern(token_name, pattern);
+      ignored_patterns.insert(token_name);
     }
 
     void set_source_code(std::string code) {
@@ -70,6 +75,7 @@ namespace cyy::compiler {
     ALPHABET_ptr alphabet;
     std::unordered_map<symbol_type, symbol_string> patterns;
     std::unordered_set<symbol_type> keywords;
+    std::unordered_set<symbol_type> ignored_patterns;
     token_attribute last_attribute;
     std::string source_code;
     std::string_view last_view;
