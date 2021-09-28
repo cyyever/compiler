@@ -84,7 +84,7 @@ namespace cyy::compiler {
       for (auto s : final_state_set) {
         auto name = pattern_final_states[s];
         if (ignored_patterns.contains(name)) {
-          continue;
+          return scan();
         }
         if (keywords.contains(name)) {
           cur_token.name = name;
@@ -96,7 +96,8 @@ namespace cyy::compiler {
         }
         break;
       }
-      std::cerr << "can't resolve conflicts for patterns" << std::endl;
+      std::cerr << "can't resolve conflicts for lexeme:" << cur_token.lexeme
+                << std::endl;
     }
     return {};
   }

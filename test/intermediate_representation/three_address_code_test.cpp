@@ -36,66 +36,16 @@ TEST_CASE("three address code") {
     }
   }
   SUBCASE("array reference1") {
-
-    std::vector<token> declaration_tokens;
-    declaration_tokens.emplace_back(static_cast<symbol_type>(common_token::INT),
-                                    "int");
-    declaration_tokens.emplace_back(static_cast<symbol_type>(common_token::id),
-                                    "i");
-    declaration_tokens.emplace_back(';', ";");
-    declaration_tokens.emplace_back(static_cast<symbol_type>(common_token::INT),
-                                    "int");
-    declaration_tokens.emplace_back(static_cast<symbol_type>(common_token::id),
-                                    "j");
-    declaration_tokens.emplace_back(';', ";");
-    declaration_tokens.emplace_back(static_cast<symbol_type>(common_token::INT),
-                                    "int");
-    declaration_tokens.emplace_back('[', "[");
-    declaration_tokens.emplace_back(
-        static_cast<symbol_type>(common_token::number), "2");
-    declaration_tokens.emplace_back(']', "]");
-    declaration_tokens.emplace_back('[', "[");
-    declaration_tokens.emplace_back(
-        static_cast<symbol_type>(common_token::number), "3");
-    declaration_tokens.emplace_back(']', "]");
-    declaration_tokens.emplace_back(static_cast<symbol_type>(common_token::id),
-                                    "a");
-    declaration_tokens.emplace_back(';', ";");
-    declaration_tokens.emplace_back(static_cast<symbol_type>(common_token::INT),
-                                    "int");
-    declaration_tokens.emplace_back(static_cast<symbol_type>(common_token::id),
-                                    "c");
-    declaration_tokens.emplace_back(';', ";");
-
+    analyzer->set_source_code("int i;int j;int c;int[2][3] a;");
+    auto declaration_tokens = analyzer->scan_all();
     auto table = declaration_sdd.run(declaration_tokens);
     REQUIRE(table);
     auto e = table->get_symbol("c");
 
     REQUIRE(e);
 
-    std::vector<token> tokens;
-    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "i");
-    tokens.emplace_back('=', "=");
-    tokens.emplace_back(static_cast<symbol_type>(common_token::number), "1");
-    tokens.emplace_back(';', ";");
-    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "j");
-    tokens.emplace_back('=', "=");
-    tokens.emplace_back(static_cast<symbol_type>(common_token::number), "2");
-    tokens.emplace_back(';', ";");
-    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "c");
-    tokens.emplace_back('=', "=");
-    tokens.emplace_back(static_cast<symbol_type>(common_token::number), "3");
-    tokens.emplace_back(';', ";");
-    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "c");
-    tokens.emplace_back('+', "+");
-    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "a");
-    tokens.emplace_back('[', "[");
-    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "i");
-    tokens.emplace_back(']', "]");
-    tokens.emplace_back('[', "[");
-    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "j");
-    tokens.emplace_back(']', "]");
-    tokens.emplace_back(';', ";");
+    analyzer->set_source_code("i=1;j=2;c=3;c+a[i][j];");
+    auto tokens = analyzer->scan_all();
     REQUIRE(sdd.run(tokens, table));
     REQUIRE(!sdd.instruction_sequence.empty());
     for (auto const &instruction : sdd.instruction_sequence) {
