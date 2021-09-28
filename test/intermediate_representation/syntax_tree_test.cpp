@@ -9,6 +9,7 @@
 #include <cyy/computation/lang/common_tokens.hpp>
 #include <doctest/doctest.h>
 
+#include "example_grammar/lexical_analyzer.hpp"
 #include "intermediate_representation/syntax_tree.hpp"
 #include "operator.hpp"
 #include "semantic_analysis/s_attributed_sdd.hpp"
@@ -108,24 +109,10 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
     sdd.add_synthesized_attribute(production_vector[i], std::move(rules[i]));
   }
 
-  std::vector<token> tokens;
-  tokens.emplace_back(id_token, "a");
-  tokens.emplace_back('+', "+");
-  tokens.emplace_back(id_token, "a");
-  tokens.emplace_back('*', "*");
-  tokens.emplace_back('(', "(");
-  tokens.emplace_back(id_token, "b");
-  tokens.emplace_back('-', "-");
-  tokens.emplace_back(id_token, "c");
-  tokens.emplace_back(')', ")");
-  tokens.emplace_back('+', "+");
-  tokens.emplace_back('(', "(");
-  tokens.emplace_back(id_token, "b");
-  tokens.emplace_back('-', "-");
-  tokens.emplace_back(id_token, "c");
-  tokens.emplace_back(')', ")");
-  tokens.emplace_back('*', "*");
-  tokens.emplace_back(id_token, "d");
+  auto analyzer = example_grammar::get_lexical_analyzer();
+  analyzer->set_source_code("a+a*(b-c)+(b-c)*d");
+
+  auto tokens = analyzer->scan_all();
 
   auto attriubtes = sdd.run(tokens, {"E.node"});
   REQUIRE(attriubtes);
