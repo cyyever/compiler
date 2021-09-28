@@ -27,8 +27,8 @@ namespace cyy::compiler::example_grammar {
                           U"[0-9]+");
     analyzer->add_pattern(static_cast<symbol_type>(common_token::whitespace),
                           U"[ \\v\\f\\t\\n\\r\\t]*");
-    for (auto c : "!@#$%^&*()_+|~{}[]") {
-      std::u32string nonterminal;
+    for (auto c : "!%&*()_+|{}[]-=") {
+      std::u32string nonterminal = U"\\";
       nonterminal.push_back(c);
       analyzer->add_pattern(c, nonterminal);
     }

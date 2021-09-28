@@ -5,28 +5,17 @@
  * \author cyy
  * \date 2018-10-28
  */
-#include <utility>
 
 #include <cyy/computation/lang/common_tokens.hpp>
 #include <doctest/doctest.h>
 
-#include "../../src/lexical_analysis/lexical_analyzer.hpp"
+#include "example_grammar/lexical_analyzer.hpp"
 
 using namespace cyy::computation;
 using namespace cyy::compiler;
 
 TEST_CASE("scan") {
-  lexical_analyzer analyzer("common_tokens");
-
-  analyzer.add_pattern(static_cast<symbol_type>(common_token::id),
-                       U"[a-zA-Z_][a-zA-Z_0-9]*");
-  analyzer.add_pattern(static_cast<symbol_type>(common_token::number),
-                       U"[0-9]+");
-  analyzer.add_pattern(static_cast<symbol_type>(common_token::whitespace),
-                       U"[ \\v\\f\\t\\n\\r\\t]*");
-  analyzer.add_pattern('+', U"\\+");
-  analyzer.add_pattern('*', U"\\*");
-  analyzer.add_pattern('=', U"=");
+  auto analyzer = example_grammar::get_lexical_analyzer();
 
   std::vector<std::pair<std::string, symbol_type>> tokens;
   tokens.emplace_back("position", static_cast<symbol_type>(common_token::id));
@@ -48,11 +37,11 @@ TEST_CASE("scan") {
     stmt += lexeme;
   }
 
-  REQUIRE(analyzer.set_source_code(std::istringstream(stmt)));
+  REQUIRE(analyzer->set_source_code(std::istringstream(stmt)));
 
   size_t column_no = 1;
   for (auto const &[lexeme, name] : tokens) {
-    auto res = analyzer.scan();
+    auto res = analyzer->scan();
     REQUIRE(res.has_value());
     auto const &token = res.value();
     REQUIRE_EQ((int)token.name, (int)name);
