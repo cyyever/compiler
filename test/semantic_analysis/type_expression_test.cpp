@@ -9,6 +9,7 @@
 #include <doctest/doctest.h>
 
 #include "example_grammar/declaration_sdd.hpp"
+#include "example_grammar/lexical_analyzer.hpp"
 #include "exception.hpp"
 #include "type_expression.hpp"
 
@@ -17,25 +18,19 @@ using namespace cyy::compiler;
 
 TEST_CASE("types and storage layout") {
 
+  auto analyzer = example_grammar::get_lexical_analyzer();
   example_grammar::declaration_SDD sdd;
 
   SUBCASE("types and widths") {
-    std::vector<token> tokens;
-    tokens.emplace_back(static_cast<symbol_type>(common_token::INT), "int");
-    tokens.emplace_back('[', "[");
-    tokens.emplace_back(static_cast<symbol_type>(common_token::number), "2");
-    tokens.emplace_back(']', "]");
-    tokens.emplace_back('[', "[");
-    tokens.emplace_back(static_cast<symbol_type>(common_token::number), "3");
-    tokens.emplace_back(']', "]");
-    tokens.emplace_back(static_cast<symbol_type>(common_token::id), "a");
-    tokens.emplace_back(';', ";");
+    analyzer->set_source_code("int[2][3]a;");
+    auto tokens = analyzer->scan_all();
 
     auto table = sdd.run(tokens);
     REQUIRE(table);
     auto e = table->get_symbol("a");
 
     REQUIRE(e);
+    REQUIRE(e->type);
     REQUIRE(e->type->get_width() == 24);
     REQUIRE(e->type->equivalent_with(type_expression::array_type(
         std::make_shared<type_expression::array_type>(

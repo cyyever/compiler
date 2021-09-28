@@ -13,6 +13,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <unordered_set>
 
 #include <cyy/computation/lang/alphabet.hpp>
 #include <cyy/computation/regular_lang/nfa.hpp>
@@ -27,20 +28,29 @@ namespace cyy::compiler {
     explicit lexical_analyzer(const ALPHABET_ptr &alphabet_)
         : alphabet(alphabet_) {}
 
+    void add_keyword(const symbol_type &token_name, symbol_string pattern) {
+      add_pattern(token_name, pattern);
+      keywords.insert(token_name);
+    }
     void add_pattern(const symbol_type &token_name, symbol_string pattern) {
       patterns.emplace(token_name, std::move(pattern));
       nfa_opt.reset();
       reset_input();
     }
 
+    void set_source_code(std::string code) {
+      source_code = std::move(code);
+      last_view = source_code;
+      reset_input();
+      return;
+    }
+
     bool set_source_code(const std::istringstream &is) {
-      source_code = is.str();
       if (is.bad() || is.fail()) {
         std::cerr << "read symbol stream failed";
         return false;
       }
-      last_view = source_code;
-      reset_input();
+      set_source_code(is.str());
       return true;
     }
 
@@ -49,8 +59,9 @@ namespace cyy::compiler {
       last_attribute = {};
     }
 
-    //! \brief scan the input stream,return first token
+    //! \brief scan the input stream, return the first token
     std::optional<token> scan();
+    std::vector<token> scan_all();
 
   private:
     void make_NFA();
@@ -58,6 +69,7 @@ namespace cyy::compiler {
   private:
     ALPHABET_ptr alphabet;
     std::unordered_map<symbol_type, symbol_string> patterns;
+    std::unordered_set<symbol_type> keywords;
     token_attribute last_attribute;
     std::string source_code;
     std::string_view last_view;

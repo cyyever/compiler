@@ -21,13 +21,14 @@ namespace cyy::compiler::example_grammar {
     analyzer =
         std::make_shared<cyy::compiler::lexical_analyzer>("common_tokens");
 
+    analyzer->add_keyword(static_cast<symbol_type>(common_token::INT), U"int");
     analyzer->add_pattern(static_cast<symbol_type>(common_token::id),
                           U"[a-zA-Z_][a-zA-Z_0-9]*");
     analyzer->add_pattern(static_cast<symbol_type>(common_token::number),
                           U"[0-9]+");
     analyzer->add_pattern(static_cast<symbol_type>(common_token::whitespace),
                           U"[ \\v\\f\\t\\n\\r\\t]*");
-    for (auto c : "!%&*()_+|{}[]-=") {
+    for (auto c : "!%&*()_+|{}[]-=;") {
       std::u32string nonterminal = U"\\";
       nonterminal.push_back(c);
       analyzer->add_pattern(c, nonterminal);

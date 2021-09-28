@@ -37,7 +37,7 @@ TEST_CASE("scan") {
     stmt += lexeme;
   }
 
-  REQUIRE(analyzer->set_source_code(std::istringstream(stmt)));
+  analyzer->set_source_code(stmt);
 
   size_t column_no = 1;
   for (auto const &[lexeme, name] : tokens) {
