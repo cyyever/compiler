@@ -12,22 +12,26 @@
 
 namespace cyy::compiler::example_grammar {
 
-  std::shared_ptr<cyy::compiler::lexical_analyzer> get_lexical_analyzer() {
+  std::shared_ptr<cyy::compiler::lexical_analyzer>
+  get_lexical_analyzer(bool ignore_whitespace) {
 
-    static std::shared_ptr<cyy::compiler::lexical_analyzer> analyzer;
-    if (analyzer) {
-      return analyzer;
-    }
-    analyzer =
+    std::shared_ptr<cyy::compiler::lexical_analyzer> analyzer =
         std::make_shared<cyy::compiler::lexical_analyzer>("common_tokens");
+    auto whitespace_pattern = U"[ \\v\\f\\t\\n\\r\\t]*";
+    if (ignore_whitespace) {
+      analyzer->add_ignored_pattern(
+          static_cast<symbol_type>(common_token::whitespace),
+          whitespace_pattern);
+    } else {
+      analyzer->add_pattern(static_cast<symbol_type>(common_token::whitespace),
+                            whitespace_pattern);
+    }
 
     analyzer->add_keyword(static_cast<symbol_type>(common_token::INT), U"int");
     analyzer->add_pattern(static_cast<symbol_type>(common_token::id),
                           U"[a-zA-Z_][a-zA-Z_0-9]*");
     analyzer->add_pattern(static_cast<symbol_type>(common_token::number),
                           U"[0-9]+");
-    analyzer->add_pattern(static_cast<symbol_type>(common_token::whitespace),
-                          U"[ \\v\\f\\t\\n\\r\\t]*");
     for (auto c : "!%&*()_+|{}[]-=;") {
       std::u32string nonterminal = U"\\";
       nonterminal.push_back(c);
