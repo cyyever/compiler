@@ -13,7 +13,6 @@
 namespace cyy::compiler::example_grammar {
   declaration_SDD::declaration_SDD() : grammar(get_declaration_grammar()) {
 
-    auto id = static_cast<CFG::terminal_type>(common_token::id);
     sdd = std::make_unique<L_attributed_SDD>(*grammar);
 
     for (auto const &[head, bodies] : grammar->get_productions()) {
