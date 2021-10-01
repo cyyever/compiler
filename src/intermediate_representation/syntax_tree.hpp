@@ -62,7 +62,12 @@ namespace cyy::compiler::syntax_tree {
         : lexeme{std::move(lexeme_)} {}
 
       signature_type get_signature() override {
-      return { static_cast<value_number_type>( lexeme_type::constant),0};
+        signature_type signature;
+        signature.push_back(static_cast<value_number_type>(lexeme_type::constant));
+        for(auto c :lexeme) {
+          signature.push_back(c);
+        }
+        return signature;
     }
     expression_node_ptr make_DAG_node() override {
       return std::make_shared<constant_node>(*this);
