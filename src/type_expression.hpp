@@ -49,7 +49,6 @@ namespace cyy::compiler::type_expression {
         return width;
       }
       switch (type) {
-
         case type_enum::BOOL:
           return 1;
         case type_enum::CHAR:

@@ -58,16 +58,31 @@ namespace cyy::compiler::syntax_tree {
     static inline value_number_method method;
   };
 
+  struct constant_node : public expression_node {
+  public:
+    explicit constant_node(std::string lexeme_)
+        : lexeme{std::move(lexeme_)} {}
+
+      signature_type get_signature() override {
+      return { static_cast<value_number_type>( lexeme_type::constant),0};
+    }
+    expression_node_ptr make_DAG_node() override {
+      return std::make_shared<constant_node>(*this);
+    }
+
+    std::string lexeme;
+  };
+
   class symbol_node : public expression_node {
   public:
     explicit symbol_node(std::shared_ptr<symbol_table::symbol_entry> entry_)
-        : entry{std::move(std::move(entry_))} {}
+        : entry{std::move(entry_)} {}
 
       signature_type get_signature() override {
-      return {reinterpret_cast<size_t>(entry.get())};
+      return { static_cast<value_number_type>( lexeme_type::symbol),reinterpret_cast<value_number_type>(entry.get())};
     }
     expression_node_ptr make_DAG_node() override {
-      return std::make_shared<symbol_node>(entry);
+      return std::make_shared<symbol_node>(*this);
     }
 
   private:
@@ -80,8 +95,7 @@ namespace cyy::compiler::syntax_tree {
     _binary_expression_node(op_type op_,
                            std::shared_ptr<expression_node> left_,
                            std::shared_ptr<expression_node> right_)
-        : op{op_}, left{std::move(std::move(left_))}, right{std::move(
-                                                          std::move(right_))} {}
+        : op{op_}, left{std::move(left_)}, right{ std::move(right_)} {}
 
     expression_node_ptr make_DAG_node() override {
       return std::make_shared<_binary_expression_node<op_type>>(

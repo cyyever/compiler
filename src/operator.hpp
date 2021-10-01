@@ -7,6 +7,11 @@
 
 #pragma once
 namespace cyy::compiler {
+  enum class lexeme_type {
+    symbol = 9,
+    constant= 8,
+  };
+
   enum class unary_arithmetic_operator {
     minus = 0,
     plus= 1,
