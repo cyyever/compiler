@@ -26,24 +26,30 @@ namespace cyy::compiler::type_expression {
     return named_type;
   }
   value_number_method::signature_type type_name::get_signature() const {
-    return get_type()->get_signature();
+    if (!stand_for_self) {
+      return get_type()->get_signature();
+    }
+    value_number_method::signature_type signature;
+    signature.push_back(1);
+    for (auto c : name) {
+      signature.push_back(c);
+    }
+    return signature;
   }
 
   bool type_name::is_type_name(const expression &type_expr) {
     return dynamic_cast<const type_name *>(&type_expr) != nullptr;
   }
 
-  void type_name::make_stand_for_self() { stand_for_self = true; }
-
   value_number_method::signature_type array_type::get_signature() const {
     auto signature = element_type->get_signature();
-    signature.insert(signature.begin(), 1);
+    signature.insert(signature.begin(), 2);
     signature.push_back(element_number);
     return signature;
   }
   value_number_method::signature_type record_type::get_signature() const {
     value_number_method::signature_type signature;
-    signature.push_back(2);
+    signature.push_back(3);
     for (auto const &[_, field_type] : field_types) {
       auto field_signature = field_type->get_signature();
       signature.insert(signature.end(), field_signature.begin(),

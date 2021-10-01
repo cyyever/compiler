@@ -70,8 +70,9 @@ namespace cyy::compiler::type_expression {
 
   class type_name : public expression {
   public:
-    type_name(std::string name_, const std::shared_ptr<expression> &named_type_)
-        : name(std::move(name_)) {
+    type_name(std::string name_, const std::shared_ptr<expression> &named_type_,
+              bool stand_for_self_ = false)
+        : name(std::move(name_)), stand_for_self{stand_for_self_} {
 
       auto type_name_ptr = std::dynamic_pointer_cast<type_name>(named_type_);
       if (type_name_ptr) {
@@ -87,13 +88,12 @@ namespace cyy::compiler::type_expression {
     value_number_method::signature_type get_signature() const override;
 
     static bool is_type_name(const expression &type_expr);
-    static void make_stand_for_self();
     size_t get_width() const override { return named_type->get_width(); }
 
   private:
     std::string name;
     std::shared_ptr<expression> named_type;
-    static inline bool stand_for_self{false};
+    bool stand_for_self{false};
   };
 
   struct array_type : public expression {
