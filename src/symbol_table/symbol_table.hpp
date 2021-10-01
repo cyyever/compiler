@@ -8,9 +8,7 @@
 #pragma once
 
 #include <algorithm>
-#include <functional>
 #include <memory>
-#include <optional>
 #include <ranges>
 #include <string_view>
 #include <unordered_set>
@@ -18,7 +16,6 @@
 
 #include <cyy/computation/lang/symbol.hpp>
 
-#include "token.hpp"
 #include "type_expression.hpp"
 
 namespace cyy::compiler {
