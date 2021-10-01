@@ -35,6 +35,7 @@ namespace cyy::compiler {
     struct type_entry : public entry {
       std::shared_ptr<type_expression::type_name> type;
     };
+    using type_entry_ptr = std::shared_ptr<type_entry>;
 
   public:
     symbol_table() = default;
@@ -45,7 +46,7 @@ namespace cyy::compiler {
     }
 
     bool add_type(type_entry entry);
-    std::shared_ptr<type_entry> get_type(const std::string &type_name) const;
+    type_entry_ptr get_type(const std::string &type_name) const;
     bool add_symbol(symbol_entry e);
     symbol_entry_ptr get_symbol(const std::string &lexeme) const;
     symbol_entry_ptr create_and_get_symbol(const std::string &lexeme);
@@ -78,7 +79,7 @@ namespace cyy::compiler {
 
   private:
     std::unordered_map<std::string, symbol_entry_ptr> symbols;
-    std::unordered_map<std::string, std::shared_ptr<type_entry>> types;
+    std::unordered_map<std::string, type_entry_ptr> types;
     std::shared_ptr<symbol_table> prev_table;
     size_t next_relative_address = 0;
   };

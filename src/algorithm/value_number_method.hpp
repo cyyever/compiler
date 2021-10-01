@@ -1,6 +1,9 @@
 
 #pragma once
 
+#include <cstddef>
+#include <unordered_map>
+#include <cyy/computation/hash.hpp>
 
 namespace cyy::compiler{
   class value_number_method {
@@ -18,7 +21,7 @@ namespace cyy::compiler{
     }
 
     private:
-    std::map<signature_type, value_number_type>
+    std::unordered_map<signature_type, value_number_type>
         value_numbers;
     value_number_type next_value_number{0};
   };

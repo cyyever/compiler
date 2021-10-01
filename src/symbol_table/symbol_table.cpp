@@ -38,7 +38,7 @@ namespace cyy::compiler {
     }
     return has_insertion;
   }
-  std::shared_ptr<symbol_table::symbol_entry>
+  symbol_table::symbol_entry_ptr
   symbol_table::get_symbol(const std::string &lexeme) const {
     auto it = symbols.find(lexeme);
     if (it != symbols.end()) {
@@ -49,7 +49,7 @@ namespace cyy::compiler {
     }
     return {};
   }
-  std::shared_ptr<symbol_table::symbol_entry>
+  symbol_table::symbol_entry_ptr
   symbol_table::create_and_get_symbol(const std::string &lexeme) {
     auto ptr = get_symbol(lexeme);
     if (ptr) {
@@ -78,7 +78,7 @@ namespace cyy::compiler {
     return types.emplace(lexeme, std::make_shared<type_entry>(std::move(t)))
         .second;
   }
-  std::shared_ptr<symbol_table::type_entry>
+  symbol_table::type_entry_ptr
   symbol_table::get_type(const std::string &type_name) const {
     auto it = types.find(type_name);
     if (it != types.end()) {

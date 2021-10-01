@@ -15,75 +15,56 @@
 namespace cyy::compiler::type_expression {
 
   bool expression::equivalent_with(const expression &rhs) const {
-    const auto type_name_ptr = dynamic_cast<const type_name *>(&rhs);
-    if (type_name_ptr && type_name_ptr->_equivalent_with(*this)) {
-      return true;
-    }
-    return this->_equivalent_with(rhs);
+    return get_signature() == rhs.get_signature();
   }
 
-  bool basic_type::_equivalent_with(const expression &rhs) const {
-    auto ptr = dynamic_cast<const basic_type *>(&rhs);
-    return ptr && ptr->type == type;
+  value_number_method::signature_type basic_type::get_signature() const {
+    return {0, static_cast<value_number_method::value_number_type>(type)};
   }
 
   const std::shared_ptr<expression> &type_name::get_type() const {
     return named_type;
   }
-
-  bool type_name::_equivalent_with(const expression &rhs) const {
-    auto ptr = dynamic_cast<const type_name *>(&rhs);
-    if (stand_for_self) {
-      return ptr && ptr->name == name;
-    }
-
-    if (ptr) {
-      return get_type()->equivalent_with(*ptr->get_type());
-    }
-    return get_type()->equivalent_with(rhs);
+  value_number_method::signature_type type_name::get_signature() const {
+    return get_type()->get_signature();
   }
+
   bool type_name::is_type_name(const expression &type_expr) {
     return dynamic_cast<const type_name *>(&type_expr) != nullptr;
   }
 
   void type_name::make_stand_for_self() { stand_for_self = true; }
 
-  bool array_type::_equivalent_with(const expression &rhs) const {
-    auto ptr = dynamic_cast<const array_type *>(&rhs);
-    return ptr && ptr->element_number == element_number &&
-           element_type->equivalent_with(*(ptr->element_type));
+  value_number_method::signature_type array_type::get_signature() const {
+    auto signature = element_type->get_signature();
+    signature.insert(signature.begin(), 1);
+    signature.push_back(element_number);
+    return signature;
+  }
+  value_number_method::signature_type record_type::get_signature() const {
+    value_number_method::signature_type signature;
+    signature.push_back(2);
+    for (auto const &[_, field_type] : field_types) {
+      auto field_signature = field_type->get_signature();
+      signature.insert(signature.end(), field_signature.begin(),
+                       field_signature.end());
+    }
+    return signature;
   }
 
-  bool class_type::_equivalent_with(const expression &rhs) const {
-    auto ptr = dynamic_cast<const class_type *>(&rhs);
-    if (!ptr) {
-      return false;
-    }
+  value_number_method::signature_type class_type::get_signature() const {
+    value_number_method::signature_type signature;
     if (parent_class) {
-      if (!ptr->parent_class) {
-        return false;
-      }
-      if (!parent_class->equivalent_with(*(ptr->parent_class))) {
-        return false;
-      }
+      signature = parent_class->get_signature();
     } else {
-      if (ptr->parent_class) {
-        return false;
-      }
+      signature.push_back(4);
     }
-    if (ptr->field_types.size() != field_types.size()) {
-      return false;
+    for (auto const &[_, field_type] : field_types) {
+      auto field_signature = field_type->get_signature();
+      signature.insert(signature.end(), field_signature.begin(),
+                       field_signature.end());
     }
-    for (size_t i = 0; i < field_types.size(); i++) {
-      if (field_types[i].first != ptr->field_types[i].first) {
-        return false;
-      }
-      if (!field_types[i].second->equivalent_with(
-              *(ptr->field_types[i].second))) {
-        return false;
-      }
-    }
-    return true;
+    return signature;
   }
 
   bool class_type::is_class_type(const expression &type_expr) {
@@ -94,25 +75,6 @@ namespace cyy::compiler::type_expression {
     return dynamic_cast<const class_type *>(&type_expr) != nullptr;
   }
 
-  bool record_type::_equivalent_with(const expression &rhs) const {
-    auto ptr = dynamic_cast<const record_type *>(&rhs);
-    if (!ptr) {
-      return false;
-    }
-    if (ptr->field_types.size() != field_types.size()) {
-      return false;
-    }
-    for (size_t i = 0; i < field_types.size(); i++) {
-      if (field_types[i].first != ptr->field_types[i].first) {
-        return false;
-      }
-      if (!field_types[i].second->equivalent_with(
-              *(ptr->field_types[i].second))) {
-        return false;
-      }
-    }
-    return true;
-  }
   record_type::record_type(
       std::vector<std::pair<std::string, std::shared_ptr<expression>>>
           field_types_)
@@ -128,15 +90,28 @@ namespace cyy::compiler::type_expression {
     }
   }
 
-  bool function_type::_equivalent_with(const expression &rhs) const {
-    auto ptr = dynamic_cast<const function_type *>(&rhs);
-    return ptr && from_type->equivalent_with(*(ptr->from_type)) &&
-           to_type->equivalent_with(*(ptr->to_type));
+  value_number_method::signature_type function_type::get_signature() const {
+    value_number_method::signature_type signature;
+    signature.push_back(5);
+    auto from_signature = from_type->get_signature();
+    signature.insert(signature.end(), from_signature.begin(),
+                     from_signature.end());
+    auto to_signature = to_type->get_signature();
+    signature.insert(signature.end(), to_signature.begin(), to_signature.end());
+    return signature;
   }
 
-  bool Cartesian_product_type::_equivalent_with(const expression &rhs) const {
-    auto ptr = dynamic_cast<const Cartesian_product_type *>(&rhs);
-    return ptr && first_type->equivalent_with(*(ptr->first_type)) &&
-           second_type->equivalent_with(*(ptr->second_type));
+  value_number_method::signature_type
+  Cartesian_product_type::get_signature() const {
+    value_number_method::signature_type signature;
+    signature.push_back(6);
+    auto first_signature = first_type->get_signature();
+    signature.insert(signature.end(), first_signature.begin(),
+                     first_signature.end());
+    auto second_signature = second_type->get_signature();
+    signature.insert(signature.end(), second_signature.begin(),
+                     second_signature.end());
+    return signature;
   }
+
 } // namespace cyy::compiler::type_expression

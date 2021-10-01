@@ -14,6 +14,7 @@
 #include <utility>
 #include <vector>
 
+#include "algorithm/value_number_method.hpp"
 #include "exception.hpp"
 
 namespace cyy::compiler {
@@ -24,11 +25,12 @@ namespace cyy::compiler::type_expression {
   public:
     expression() = default;
     virtual ~expression() = default;
+    virtual value_number_method::signature_type get_signature() const = 0;
     bool equivalent_with(const expression &rhs) const;
     virtual size_t get_width() const { return 0; }
 
-  private:
-    virtual bool _equivalent_with(const expression &rhs) const = 0;
+  protected:
+    static inline value_number_method method;
   };
 
   class basic_type : public expression {
@@ -42,8 +44,8 @@ namespace cyy::compiler::type_expression {
     explicit basic_type(type_enum type_) : type(type_) {}
     ~basic_type() override = default;
 
-    bool _equivalent_with(const expression &rhs) const override;
     void set_width(size_t width_) { width = width_; }
+    value_number_method::signature_type get_signature() const override;
     size_t get_width() const override {
       if (width != 0) {
         return width;
@@ -82,7 +84,7 @@ namespace cyy::compiler::type_expression {
 
     const std::string &get_name() const { return name; }
     const std::shared_ptr<expression> &get_type() const;
-    bool _equivalent_with(const expression &rhs) const override;
+    value_number_method::signature_type get_signature() const override;
 
     static bool is_type_name(const expression &type_expr);
     static void make_stand_for_self();
@@ -94,15 +96,15 @@ namespace cyy::compiler::type_expression {
     static inline bool stand_for_self{false};
   };
 
-  class array_type : public expression {
-  public:
+  struct array_type : public expression {
     array_type(std::shared_ptr<expression> element_type_,
                size_t element_number_)
         : element_type(std::move(element_type_)),
           element_number(element_number_) {}
     ~array_type() override = default;
 
-    bool _equivalent_with(const expression &rhs) const override;
+    value_number_method::signature_type get_signature() const override;
+
     size_t get_width() const override {
       return element_number * element_type->get_width();
     }
@@ -120,7 +122,8 @@ namespace cyy::compiler::type_expression {
         std::shared_ptr<symbol_table> associated_symbol_table_);
     ~record_type() override = default;
 
-    bool _equivalent_with(const expression &rhs) const override;
+    value_number_method::signature_type get_signature() const override;
+
     size_t get_width() const override {
       if (total_width != 0) {
         return total_width;
@@ -167,8 +170,7 @@ namespace cyy::compiler::type_expression {
       }
     }
     ~class_type() override = default;
-
-    bool _equivalent_with(const expression &rhs) const override;
+    value_number_method::signature_type get_signature() const override;
 
     static bool is_class_type(const expression &type_expr);
     size_t get_width() const override {
@@ -191,7 +193,7 @@ namespace cyy::compiler::type_expression {
           to_type(std::move(std::move(to_type_))) {}
     ~function_type() override = default;
 
-    bool _equivalent_with(const expression &rhs) const override;
+    value_number_method::signature_type get_signature() const override;
 
   private:
     std::shared_ptr<expression> from_type;
@@ -206,7 +208,7 @@ namespace cyy::compiler::type_expression {
           second_type(std::move(std::move(second_type_))) {}
     ~Cartesian_product_type() override = default;
 
-    bool _equivalent_with(const expression &rhs) const override;
+    value_number_method::signature_type get_signature() const override;
 
     size_t get_width() const override {
       return first_type->get_width() + second_type->get_width();
