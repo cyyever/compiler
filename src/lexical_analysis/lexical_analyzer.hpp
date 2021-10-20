@@ -15,7 +15,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <cyy/computation/lang/alphabet.hpp>
+#include <cyy/algorithm/alphabet/alphabet.hpp>
 #include <cyy/computation/regular_lang/nfa.hpp>
 
 #include "token.hpp"

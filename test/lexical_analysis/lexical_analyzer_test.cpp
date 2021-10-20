@@ -6,7 +6,7 @@
  * \date 2018-10-28
  */
 
-#include <cyy/computation/lang/common_tokens.hpp>
+#include <cyy/algorithm/alphabet/common_tokens.hpp>
 #include <doctest/doctest.h>
 
 #include "example_grammar/lexical_analyzer.hpp"

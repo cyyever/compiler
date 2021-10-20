@@ -14,12 +14,12 @@
 #include <unordered_set>
 #include <utility>
 
-#include <cyy/computation/lang/symbol.hpp>
+#include <cyy/algorithm/alphabet/symbol.hpp>
 
 #include "type_expression.hpp"
 
 namespace cyy::compiler {
-  using namespace cyy::computation;
+  // using namespace cyy::computation;
   class symbol_table {
   public:
     struct entry {};

@@ -10,7 +10,7 @@
 
 #include "operator.hpp"
 #include "algorithm/value_number_method.hpp"
-#include <cyy/computation/lang/symbol.hpp>
+/* #include <cyy/computation/lang/symbol.hpp> */
 #include <symbol_table/symbol_table.hpp>
 #include <unordered_map>
 #include <utility>

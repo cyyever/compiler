@@ -6,7 +6,7 @@
 
 #include "declaration_sdd.hpp"
 
-#include <cyy/computation/lang/common_tokens.hpp>
+#include <cyy/algorithm/alphabet/common_tokens.hpp>
 
 #include "grammar.hpp"
 

@@ -3,7 +3,6 @@
  *
  * \brief
  */
-#include <cyy/computation/lang/common_tokens.hpp>
 #include <doctest/doctest.h>
 
 #include "example_grammar/declaration_sdd.hpp"

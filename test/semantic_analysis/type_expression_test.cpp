@@ -5,7 +5,7 @@
  * \author cyy
  * \date 2019-03-03
  */
-#include <cyy/computation/lang/common_tokens.hpp>
+#include <cyy/algorithm/alphabet/common_tokens.hpp>
 #include <doctest/doctest.h>
 
 #include "example_grammar/declaration_sdd.hpp"

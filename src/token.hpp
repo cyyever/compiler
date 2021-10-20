@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <cyy/computation/lang/symbol.hpp>
+#include <cyy/algorithm/alphabet/symbol.hpp>
 #include <span>
 
 namespace cyy::compiler {

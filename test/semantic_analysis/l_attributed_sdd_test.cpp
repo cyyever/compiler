@@ -5,8 +5,8 @@
  * \author cyy
  * \date 2018-10-29
  */
+#include <cyy/algorithm/alphabet/common_tokens.hpp>
 #include <cyy/computation/context_free_lang/ll_grammar.hpp>
-#include <cyy/computation/lang/common_tokens.hpp>
 #include <doctest/doctest.h>
 
 #include "../../src/semantic_analysis/l_attributed_sdd.hpp"

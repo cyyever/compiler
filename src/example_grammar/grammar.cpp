@@ -1,7 +1,7 @@
 #include "grammar.hpp"
 
+#include <cyy/algorithm/alphabet/common_tokens.hpp>
 #include <cyy/computation/context_free_lang/common_grammar.hpp>
-#include <cyy/computation/lang/common_tokens.hpp>
 
 namespace cyy::compiler::example_grammar {
   std::shared_ptr<cyy::computation::LL_grammar> get_declaration_grammar() {

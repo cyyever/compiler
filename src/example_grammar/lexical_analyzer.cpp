@@ -8,7 +8,7 @@
 
 #include <string>
 
-#include <cyy/computation/lang/common_tokens.hpp>
+#include <cyy/algorithm/alphabet/common_tokens.hpp>
 
 namespace cyy::compiler::example_grammar {
 

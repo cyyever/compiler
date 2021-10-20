@@ -3,7 +3,7 @@
 
 #include <cstddef>
 #include <unordered_map>
-#include <cyy/computation/hash.hpp>
+#include <cyy/algorithm/hash.hpp>
 
 namespace cyy::compiler{
   class value_number_method {
