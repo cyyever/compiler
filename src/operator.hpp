@@ -9,12 +9,12 @@
 namespace cyy::compiler {
   enum class lexeme_type {
     symbol = 9,
-    constant= 8,
+    constant = 8,
   };
 
   enum class unary_arithmetic_operator {
     minus = 0,
-    plus= 1,
+    plus = 1,
   };
 
   enum class unary_logical_operator {

@@ -101,7 +101,7 @@ namespace cyy::compiler {
     }
     return {};
   }
-  std::vector<token> lexical_analyzer::scan_all() {
+  std::pair<std::vector<token>, bool> lexical_analyzer::scan_all() {
     std::vector<token> tokens;
     while (true) {
       auto token_opt = scan();
@@ -111,7 +111,7 @@ namespace cyy::compiler {
       }
       break;
     }
-    return tokens;
+    return {tokens, true};
   }
 
 } // namespace cyy::compiler

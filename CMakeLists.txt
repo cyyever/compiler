@@ -10,7 +10,9 @@ file(GLOB SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.cpp
 find_package(Boost REQUIRED)
 find_package(fmt REQUIRED)
 find_package(range-v3 REQUIRED)
-find_package(MyAlgorithmLib REQUIRED)
+find_package(CyyAlgorithmLib REQUIRED)
+find_package(CyyNaiveLib REQUIRED)
+find_package(spdlog REQUIRED)
 
 add_library(MyCompilerLib ${SOURCE})
 
@@ -19,7 +21,7 @@ target_include_directories(
                        $<INSTALL_INTERFACE:include>)
 
 find_package(MyComputationLib REQUIRED)
-target_link_libraries(MyCompilerLib PRIVATE MyComputationLib)
+target_link_libraries(MyCompilerLib PRIVATE MyComputationLib CyyAlgorithmLib)
 
 # test
 add_subdirectory(test)

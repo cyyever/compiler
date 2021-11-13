@@ -112,7 +112,8 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
   auto analyzer = example_grammar::get_lexical_analyzer();
   analyzer->set_source_code("a+a*(b-c)+(b-c)*d");
 
-  auto tokens = analyzer->scan_all();
+  auto [tokens, res] = analyzer->scan_all();
+  REQUIRE(res);
 
   auto attriubtes = sdd.run(tokens, {"E.node"});
   REQUIRE(attriubtes);

@@ -11,7 +11,7 @@
 #include <cassert>
 #include <ranges>
 
-#include <cyy/computation/util.hpp>
+#include <cyy/algorithm/graph/dag.hpp>
 
 #include "exception.hpp"
 
@@ -100,7 +100,7 @@ namespace cyy::compiler {
         }
       }
 
-      std::unordered_map<size_t, std::set<size_t>> dependency_graph;
+      cyy::algorithm::DAG<size_t, size_t> dependency_dag;
       for (size_t i = 0; i < rules.size(); i++) {
         auto const &rule = rules[i];
         for (auto const &argument : rule.arguments) {
@@ -120,27 +120,20 @@ namespace cyy::compiler {
             throw exception::grammar_symbol_attribute_dependency_circle(
                 argument.get_name());
           }
-          dependency_graph[it->second].insert(i);
+          dependency_dag.add_edge({it->second, i});
         }
       }
-      if (dependency_graph.empty()) {
+      if (dependency_dag.get_edge_number() == 0) {
         continue;
       }
-      auto [sorted_indexes, remain_dependency] =
-          topological_sort(dependency_graph);
-      if (!remain_dependency.empty()) {
-        throw exception::grammar_symbol_attribute_dependency_circle(
-            rules[remain_dependency.begin()->first]
-                .result_attribute->get_name());
+      auto sorted_indexes_opt = dependency_dag.get_topological_ordering();
+      if (!sorted_indexes_opt.has_value()) {
+        throw exception::grammar_symbol_attribute_dependency_circle("");
       }
-
-      for (auto it = sorted_indexes.begin(); it != sorted_indexes.end(); it++) {
-        auto it2 = std::min_element(it, sorted_indexes.end());
-        if (it == it2) {
-          continue;
-        }
-        std::swap(rules[*it], rules[*it2]);
-        *it2 = *it;
+      auto sorted_rules = std::move(rules);
+      rules.clear();
+      for (auto idx : sorted_indexes_opt.value()) {
+        rules.emplace_back(std::move(sorted_rules[idx]));
       }
     }
   }

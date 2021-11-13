@@ -23,7 +23,8 @@ TEST_CASE("types and storage layout") {
 
   SUBCASE("types and widths") {
     analyzer->set_source_code("int[2][3]a;");
-    auto tokens = analyzer->scan_all();
+    auto [tokens, res] = analyzer->scan_all();
+    REQUIRE(res);
 
     auto table = sdd.run(tokens);
     REQUIRE(table);

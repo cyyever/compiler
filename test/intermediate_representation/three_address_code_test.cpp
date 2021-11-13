@@ -22,11 +22,13 @@ TEST_CASE("three address code") {
   SUBCASE("expression") {
     analyzer->set_source_code("int a;int b;int c;");
 
-    auto declaration_tokens = analyzer->scan_all();
+    auto [declaration_tokens, res] = analyzer->scan_all();
+    REQUIRE(res);
     auto table = declaration_sdd.run(declaration_tokens);
 
     analyzer->set_source_code("a=b+-c;");
-    auto tokens = analyzer->scan_all();
+    auto [tokens, res2] = analyzer->scan_all();
+    REQUIRE(res2);
 
     REQUIRE(sdd.run(tokens, table));
     REQUIRE(!sdd.instruction_sequence.empty());
@@ -36,7 +38,8 @@ TEST_CASE("three address code") {
   }
   SUBCASE("array reference1") {
     analyzer->set_source_code("int i;int j;int c;int[2][3] a;");
-    auto declaration_tokens = analyzer->scan_all();
+    auto [declaration_tokens, res] = analyzer->scan_all();
+    REQUIRE(res);
     auto table = declaration_sdd.run(declaration_tokens);
     REQUIRE(table);
     auto e = table->get_symbol("c");
@@ -44,7 +47,8 @@ TEST_CASE("three address code") {
     REQUIRE(e);
 
     analyzer->set_source_code("i=1;j=2;c=3;c+a[i][j];");
-    auto tokens = analyzer->scan_all();
+    auto [tokens, res2] = analyzer->scan_all();
+    REQUIRE(res2);
     REQUIRE(sdd.run(tokens, table));
     REQUIRE(!sdd.instruction_sequence.empty());
     for (auto const &instruction : sdd.instruction_sequence) {
@@ -55,12 +59,14 @@ TEST_CASE("three address code") {
 
     analyzer->set_source_code(
         "int x;int i;int j;int k;int[10][10] a;int[9][9] b;int[8] c;");
-    auto declaration_tokens = analyzer->scan_all();
+    auto [declaration_tokens, res] = analyzer->scan_all();
+    REQUIRE(res);
     auto table = declaration_sdd.run(declaration_tokens);
     REQUIRE(table);
 
     analyzer->set_source_code("x+a[b[i][j]][c[k]];");
-    auto tokens = analyzer->scan_all();
+    auto [tokens, res2] = analyzer->scan_all();
+    REQUIRE(res2);
 
     REQUIRE(sdd.run(tokens, table));
     REQUIRE(!sdd.instruction_sequence.empty());

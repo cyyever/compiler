@@ -8,12 +8,13 @@
 
 #pragma once
 
-#include "operator.hpp"
 #include "algorithm/value_number_method.hpp"
+#include "operator.hpp"
 /* #include <cyy/computation/lang/symbol.hpp> */
-#include <symbol_table/symbol_table.hpp>
 #include <unordered_map>
 #include <utility>
+
+#include <symbol_table/symbol_table.hpp>
 
 namespace cyy::compiler::syntax_tree {
   using namespace cyy::computation;
@@ -29,7 +30,7 @@ namespace cyy::compiler::syntax_tree {
   class expression_node : public node {
   public:
     using value_number_type = value_number_method::value_number_type;
-    using signature_type=value_number_method::signature_type;
+    using signature_type = value_number_method::signature_type;
     expression_node() = default;
     ~expression_node() override = default;
 
@@ -42,7 +43,7 @@ namespace cyy::compiler::syntax_tree {
       return DAG_nodes.try_emplace(value_number, make_DAG_node()).first->second;
     }
 
-      value_number_type get_value_number() {
+    value_number_type get_value_number() {
       return method.get_value_number(get_signature());
     }
 
@@ -58,16 +59,16 @@ namespace cyy::compiler::syntax_tree {
 
   struct constant_node : public expression_node {
   public:
-    explicit constant_node(std::string lexeme_)
-        : lexeme{std::move(lexeme_)} {}
+    explicit constant_node(std::string lexeme_) : lexeme{std::move(lexeme_)} {}
 
-      signature_type get_signature() override {
-        signature_type signature;
-        signature.push_back(static_cast<value_number_type>(lexeme_type::constant));
-        for(auto c :lexeme) {
-          signature.push_back(c);
-        }
-        return signature;
+    signature_type get_signature() override {
+      signature_type signature;
+      signature.push_back(
+          static_cast<value_number_type>(lexeme_type::constant));
+      for (auto c : lexeme) {
+        signature.push_back(c);
+      }
+      return signature;
     }
     expression_node_ptr make_DAG_node() override {
       return std::make_shared<constant_node>(*this);
@@ -81,8 +82,9 @@ namespace cyy::compiler::syntax_tree {
     explicit symbol_node(std::shared_ptr<symbol_table::symbol_entry> entry_)
         : entry{std::move(entry_)} {}
 
-      signature_type get_signature() override {
-      return { static_cast<value_number_type>( lexeme_type::symbol),reinterpret_cast<value_number_type>(entry.get())};
+    signature_type get_signature() override {
+      return {static_cast<value_number_type>(lexeme_type::symbol),
+              reinterpret_cast<value_number_type>(entry.get())};
     }
     expression_node_ptr make_DAG_node() override {
       return std::make_shared<symbol_node>(*this);
@@ -95,20 +97,18 @@ namespace cyy::compiler::syntax_tree {
   template <typename op_type>
   class _binary_expression_node : public expression_node {
   public:
-    _binary_expression_node(op_type op_,
-                           std::shared_ptr<expression_node> left_,
-                           std::shared_ptr<expression_node> right_)
-        : op{op_}, left{std::move(left_)}, right{ std::move(right_)} {}
+    _binary_expression_node(op_type op_, std::shared_ptr<expression_node> left_,
+                            std::shared_ptr<expression_node> right_)
+        : op{op_}, left{std::move(left_)}, right{std::move(right_)} {}
 
     expression_node_ptr make_DAG_node() override {
       return std::make_shared<_binary_expression_node<op_type>>(
           op, left->common_subexpression_elimination_by_DAG(),
           right->common_subexpression_elimination_by_DAG());
     }
-      signature_type get_signature() override {
-      return {static_cast<size_t>(op),
-                                 left->get_value_number(),
-                                 right->get_value_number()};
+    signature_type get_signature() override {
+      return {static_cast<size_t>(op), left->get_value_number(),
+              right->get_value_number()};
     }
 
   public:
@@ -116,6 +116,7 @@ namespace cyy::compiler::syntax_tree {
     std::shared_ptr<expression_node> left;
     std::shared_ptr<expression_node> right;
   };
-  using binary_arithmetic_node=_binary_expression_node<binary_arithmetic_operator>;
-  using binary_logical_node=_binary_expression_node<binary_logical_operator>;
+  using binary_arithmetic_node =
+      _binary_expression_node<binary_arithmetic_operator>;
+  using binary_logical_node = _binary_expression_node<binary_logical_operator>;
 } // namespace cyy::compiler::syntax_tree

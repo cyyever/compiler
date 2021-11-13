@@ -66,7 +66,7 @@ namespace cyy::compiler {
 
     //! \brief scan the input stream, return the first token
     std::optional<token> scan();
-    std::vector<token> scan_all();
+    std::pair<std::vector<token>, bool> scan_all();
 
   private:
     void make_NFA();
