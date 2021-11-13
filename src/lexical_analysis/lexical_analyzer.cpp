@@ -13,10 +13,10 @@
 
 namespace cyy::compiler {
 
-  void lexical_analyzer::make_NFA() {
-    if (nfa_opt) {
-      return;
-    }
+  cyy::computation::NFA lexical_analyzer::make_NFA() {
+    /* if (nfa_opt) { */
+    /*   return *nfa; */
+    /* } */
 
     if (patterns.empty()) {
       throw std::runtime_error("no pattern");
@@ -38,24 +38,57 @@ namespace cyy::compiler {
     }
     assert(nfa.get_final_states().size() == patterns.size());
     nfa_opt = std::move(nfa);
+    return nfa;
+  }
+  bool lexical_analyzer::make_DFA() {
+    auto nfa = make_NFA();
+    auto [dfa, state_mapping] = nfa.to_DFA_with_mapping();
+    auto old_pattern_final_states = std::move(pattern_final_states);
+    for (auto final_state : dfa.get_final_states()) {
+      auto const &original_final_states = state_mapping.right.at(final_state);
+      assert(!original_final_states.empty());
+      size_t kw_cnt = 0;
+      if (original_final_states.size() > 1) {
+        for (auto original_final_state : original_final_states) {
+          auto pattern = old_pattern_final_states[original_final_state];
+          if (keywords.contains(pattern)) {
+            kw_cnt++;
+            pattern_final_states[final_state] = pattern;
+          }
+        }
+        if (kw_cnt != 1) {
+          std::cerr << "can't resolve conflicts for patterns" << std::endl;
+          return false;
+        }
+      } else {
+        pattern_final_states[final_state] =
+            old_pattern_final_states[*original_final_states.begin()];
+      }
+    }
+    dfa_opt = std::move(dfa);
+    return true;
   }
 
   std::optional<token> lexical_analyzer::scan() {
-    make_NFA();
+    if (!make_DFA()) {
+      return {};
+    }
 
-    auto cur_state_set = nfa_opt->get_start_set();
-    decltype(cur_state_set) final_state_set;
+    auto cur_state = dfa_opt->get_start_state();
+    decltype(cur_state) final_state;
     auto cur_view = last_view;
     auto cur_attribute = last_attribute;
-
     token cur_token;
     cur_token.attribute = cur_attribute;
     bool next_is_newline = false;
     while (!cur_view.empty()) {
       auto c = cur_view.front();
+      auto cur_state_opt =
+          dfa_opt->go(cur_state, static_cast<cyy::computation::symbol_type>(c));
+      if (!cur_state_opt.has_value()) {
+        break;
+      }
       cur_view.remove_prefix(1);
-      cur_state_set = nfa_opt->go(
-          cur_state_set, static_cast<cyy::computation::symbol_type>(c));
       if (next_is_newline) {
         cur_attribute.line_no++;
         cur_attribute.column_no = 1;
@@ -63,41 +96,36 @@ namespace cyy::compiler {
         cur_attribute.column_no++;
       }
       next_is_newline = (c == '\n');
+      /* if(cur_state_opt.boost::bimaps::relation::hash_value()) */
 
-      if (cur_state_set.empty()) {
-        break;
-      }
+      /* if (cur_state.empty()) { */
+      /*   break; */
+      /* } */
 
-      if (nfa_opt->contain_final_state(cur_state_set)) {
-        final_state_set = nfa_opt->final_state_intersection(cur_state_set);
-        if (!final_state_set.empty()) {
-          last_attribute = cur_attribute;
-          cur_token.lexeme.append(last_view.data(),
-                                  last_view.size() - cur_view.size());
-          last_view = cur_view;
-        }
+      if (dfa_opt->is_final_state(cur_state)) {
+        final_state = cur_state;
+        /* final_state = dfa_opt->final_state_intersection(cur_state); */
+        /* if (!final_state.empty()) { */
+        cur_token.lexeme.append(last_view.data(),
+                                last_view.size() - cur_view.size());
+        last_attribute = cur_attribute;
+        last_view = cur_view;
+        /* } */
       }
     }
 
     if (!cur_token.lexeme.empty()) {
       // resolve conflicts
-      for (auto s : final_state_set) {
-        auto name = pattern_final_states[s];
-        if (ignored_patterns.contains(name)) {
-          return scan();
-        }
-        if (keywords.contains(name)) {
-          cur_token.name = name;
-          return cur_token;
-        }
-        if (final_state_set.size() == 1) {
-          cur_token.name = name;
-          return cur_token;
-        }
-        break;
+      cur_token.name = pattern_final_states[final_state];
+      if (ignored_patterns.contains(cur_token.name)) {
+        return scan();
       }
-      std::cerr << "can't resolve conflicts for lexeme:" << cur_token.lexeme
-                << std::endl;
+      return cur_token;
+      /* } */
+      /* break; */
+      /* std::cerr << "can't resolve conflicts for lexeme:" << cur_token.lexeme
+       */
+      /*   << std::endl; */
     }
     return {};
   }

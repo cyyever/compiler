@@ -43,7 +43,7 @@ namespace cyy::compiler {
       ignored_patterns.insert(token_name);
     }
 
-    void set_source_code(std::string code) {
+    void set_source_code(std::string_view code) {
       source_code = std::move(code);
       last_view = source_code;
       reset_input();
@@ -69,7 +69,8 @@ namespace cyy::compiler {
     std::pair<std::vector<token>, bool> scan_all();
 
   private:
-    void make_NFA();
+    NFA make_NFA();
+    bool make_DFA();
 
   private:
     ALPHABET_ptr alphabet;
@@ -80,6 +81,7 @@ namespace cyy::compiler {
     std::string source_code;
     std::string_view last_view;
     std::optional<NFA> nfa_opt;
+    std::optional<DFA> dfa_opt;
     std::unordered_map<NFA::state_type, symbol_type> pattern_final_states;
   };
 
