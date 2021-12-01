@@ -6,9 +6,9 @@
  * \date 2018-10-29
  */
 
-#include "../../src/semantic_analysis/s_attributed_sdd.hpp"
-#include <cyy/computation/contex_free_lang/slr_grammar.hpp>
-#include <cyy/computation/lang/common_tokens.hpp>
+#include "semantic_analysis/s_attributed_sdd.hpp"
+#include <cyy/computation/context_free_lang/slr_grammar.hpp>
+#include <cyy/algorithm/alphabet/common_tokens.hpp>
 #include <memory>
 #include <mutex>
 
@@ -99,10 +99,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
                 '0');
           }});
 
-      std::map<CFG::nonterminal_type, std::vector<CFG_production::body_type>>
-          productions;
+        cyy::computation::CFG::production_set_type productions;
       for (auto const &p : production_vector) {
-        productions[p.get_head()].emplace_back(p.get_body());
+        productions[p.get_head()].emplace(p.get_body());
       }
 
       static SLR_grammar grammar("common_tokens", "L", productions);

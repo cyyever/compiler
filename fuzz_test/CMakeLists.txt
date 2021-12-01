@@ -1,16 +1,14 @@
-find_package(libFuzzer)
-if(NOT libFuzzer_FOUND)
-  return()
-endif()
+file(GLOB test_sources ${CMAKE_CURRENT_SOURCE_DIR}/*/*.cpp)
 
-FILE(GLOB test_sources 
-  ${CMAKE_CURRENT_SOURCE_DIR}/*/*.cpp
-  )
-
-FOREACH(test_source ${test_sources})
-  GET_FILENAME_COMPONENT(test_prog ${test_source} NAME_WE)
-  ADD_EXECUTABLE(${test_prog} ${test_source})
-  TARGET_LINK_LIBRARIES(${test_prog} PRIVATE MyComputationLib)
-  TARGET_LINK_LIBRARIES(${test_prog} PRIVATE MyCompilerLib)
+set(ENV{FUZZING_TIMEOUT} 10)
+set(ENV{MAX_FUZZING_TIME} 5)
+foreach(test_source ${test_sources})
+  get_filename_component(test_prog ${test_source} NAME_WE)
+  add_executable(${test_prog} ${test_source})
+  target_include_directories(
+    ${test_prog} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src>
+                        $<INSTALL_INTERFACE:include>)
+  target_link_libraries(${test_prog} PRIVATE MyComputationLib CyyAlgorithmLib
+                                             MyCompilerLib)
   add_fuzzing(TARGET ${test_prog})
-ENDFOREACH()
+endforeach()
