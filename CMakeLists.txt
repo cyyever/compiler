@@ -9,7 +9,6 @@ file(GLOB SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.cpp
 
 find_package(Boost REQUIRED)
 find_package(fmt REQUIRED)
-find_package(range-v3 REQUIRED)
 find_package(CyyAlgorithmLib REQUIRED)
 find_package(CyyNaiveLib REQUIRED)
 find_package(spdlog REQUIRED)
@@ -26,10 +25,7 @@ target_link_libraries(MyCompilerLib PRIVATE MyComputationLib CyyAlgorithmLib)
 # test
 add_subdirectory(test)
 
-option(BUILD_FUZZING "Build fuzzing" OFF)
-if(BUILD_FUZZING)
   add_subdirectory(fuzz_test)
-endif()
 
 # install lib
 install(
