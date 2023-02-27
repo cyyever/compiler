@@ -81,8 +81,9 @@ namespace cyy::compiler {
 
     if (!cur_token.lexeme.empty()) {
       // resolve conflicts
-      for (auto s : final_state_set) {
-        auto name = pattern_final_states[s];
+      if (!final_state_set.empty()) {
+        auto final_state = *final_state_set.begin();
+        auto name = pattern_final_states.at(final_state);
         if (ignored_patterns.contains(name)) {
           return scan();
         }
@@ -94,10 +95,11 @@ namespace cyy::compiler {
           cur_token.name = name;
           return cur_token;
         }
-        break;
+        std::cerr << "can't resolve conflicts for lexeme:" << cur_token.lexeme
+                  << std::endl;
+      } else {
+        std::cerr << "unrecognized lexeme:" << cur_token.lexeme << std::endl;
       }
-      std::cerr << "can't resolve conflicts for lexeme:" << cur_token.lexeme
-                << std::endl;
     }
     return {};
   }
