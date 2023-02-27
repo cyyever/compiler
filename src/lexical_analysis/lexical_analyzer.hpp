@@ -34,12 +34,12 @@ namespace cyy::compiler {
       reset_input();
     }
     void add_keyword(const symbol_type &token_name, symbol_string pattern) {
-      add_pattern(token_name, pattern);
+      add_pattern(token_name, std::move(pattern));
       keywords.insert(token_name);
     }
     void add_ignored_pattern(const symbol_type &token_name,
                              symbol_string pattern) {
-      add_pattern(token_name, pattern);
+      add_pattern(token_name, std::move(pattern));
       ignored_patterns.insert(token_name);
     }
 

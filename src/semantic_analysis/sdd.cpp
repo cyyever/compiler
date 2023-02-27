@@ -22,12 +22,12 @@ namespace cyy::compiler {
     check_semantic_rule(production, rule);
 
     if (rule.result_attribute) {
-      const auto &result_attribute_name = rule.result_attribute.value();
+      const auto &result_attribute_name = *rule.result_attribute;
       if (result_attribute_name.get_index() != 0) {
         throw exception::no_synthesized_grammar_symbol_attribute(
             result_attribute_name.get_name());
       }
-      synthesized_attributes.insert(
+      synthesized_attributes.emplace(
           rule.result_attribute->get_full_name(production));
     }
     all_rules[production].emplace_back(std::move(rule));
@@ -37,21 +37,15 @@ namespace cyy::compiler {
   void SDD::add_inherited_attribute(const CFG_production &production,
                                     semantic_rule rule) {
     check_semantic_rule(production, rule);
-    /*
-    if (!rule.result_attribute) {
-      throw exception::no_inherited_grammar_symbol_attribute(
-          "no result_attribute");
-    }
-    */
 
     if (rule.result_attribute) {
-      const auto &result_attribute_name = rule.result_attribute.value();
+      const auto &result_attribute_name = *rule.result_attribute;
       if (result_attribute_name.get_index() == 0) {
         throw exception::no_inherited_grammar_symbol_attribute(
             result_attribute_name.get_name());
       }
 
-      inherited_attributes.insert(
+      inherited_attributes.emplace(
           rule.result_attribute->get_full_name(production));
     }
     all_rules[production].emplace_back(std::move(rule));
@@ -73,7 +67,7 @@ namespace cyy::compiler {
         }
       }
 
-      const auto &result_attribute_name = rule.result_attribute.value();
+      const auto &result_attribute_name = *rule.result_attribute;
       if (!result_attribute_name.belong_to_nonterminal()) {
         throw exception::invalid_semantic_rule(
             result_attribute_name.get_name());
@@ -132,7 +126,7 @@ namespace cyy::compiler {
       }
       auto sorted_rules = std::move(rules);
       rules.clear();
-      for (auto idx : sorted_indexes_opt.value()) {
+      for (auto idx : *sorted_indexes_opt) {
         rules.emplace_back(std::move(sorted_rules[idx]));
       }
     }
@@ -152,10 +146,9 @@ namespace cyy::compiler {
       return {};
     }
     if (!result_attribute_names.empty()) {
-      if (result_attribute_opt.value().size() !=
-          result_attribute_names.size()) {
+      if (result_attribute_opt->size() != result_attribute_names.size()) {
         for (auto const &name : result_attribute_names) {
-          if (result_attribute_opt.value().count(name) == 0) {
+          if (result_attribute_opt->count(name) == 0) {
             std::cerr << "no result attribute " << name << std::endl;
           }
         }

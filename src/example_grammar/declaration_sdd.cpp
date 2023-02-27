@@ -269,6 +269,6 @@ namespace cyy::compiler::example_grammar {
       return {};
     }
     return std::any_cast<std::shared_ptr<symbol_table>>(
-        attributes_opt.value()["S.symbol_table"]);
+        (*attributes_opt)["S.symbol_table"]);
   }
 } // namespace cyy::compiler::example_grammar

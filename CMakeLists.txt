@@ -8,6 +8,9 @@ file(GLOB SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
 find_package(Boost REQUIRED)
+if(NOT MSVC)
+  find_package(fmt REQUIRED)
+endif()
 find_package(CyyAlgorithmLib REQUIRED)
 find_package(CyyNaiveLib REQUIRED)
 find_package(spdlog REQUIRED)

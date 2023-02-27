@@ -44,7 +44,7 @@ TEST_CASE("scan") {
     auto res = analyzer->scan();
     REQUIRE(res.has_value());
     auto const &token = res.value();
-    REQUIRE_EQ((int)token.name, (int)name);
+    REQUIRE_EQ(static_cast<int>(token.name), static_cast<int>(name));
     REQUIRE_EQ(token.lexeme, lexeme);
     REQUIRE_EQ(token.attribute.line_no, 1);
     REQUIRE_EQ(token.attribute.column_no, column_no);
