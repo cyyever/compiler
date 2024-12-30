@@ -7,9 +7,11 @@
 #pragma once
 
 #include <span>
+#include <iostream>
 
 #include <cyy/algorithm/alphabet/symbol.hpp>
 
+using cyy::algorithm::symbol_type;
 namespace cyy::compiler {
   using namespace cyy::computation;
 
