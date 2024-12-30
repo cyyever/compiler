@@ -14,6 +14,7 @@ namespace cyy::compiler::example_grammar {
 
   std::shared_ptr<cyy::compiler::lexical_analyzer>
   get_lexical_analyzer(bool ignore_whitespace) {
+    using cyy::algorithm::common_token;
 
     std::shared_ptr<cyy::compiler::lexical_analyzer> analyzer =
         std::make_shared<cyy::compiler::lexical_analyzer>("common_tokens");

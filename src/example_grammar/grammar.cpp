@@ -4,6 +4,7 @@
 #include <cyy/computation/context_free_lang/common_grammar.hpp>
 
 namespace cyy::compiler::example_grammar {
+  using cyy::algorithm::common_token;
   std::shared_ptr<cyy::computation::LL_grammar> get_declaration_grammar() {
     using namespace cyy::computation;
     static std::shared_ptr<LL_grammar> grammar;

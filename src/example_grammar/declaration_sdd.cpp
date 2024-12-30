@@ -11,6 +11,7 @@
 #include "grammar.hpp"
 
 namespace cyy::compiler::example_grammar {
+  using cyy::algorithm::common_token;
   declaration_SDD::declaration_SDD() : grammar(get_declaration_grammar()) {
 
     sdd = std::make_unique<L_attributed_SDD>(*grammar);

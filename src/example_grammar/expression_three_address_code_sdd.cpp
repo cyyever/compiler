@@ -13,6 +13,7 @@
 #include "operator.hpp"
 
 namespace cyy::compiler::example_grammar {
+  using cyy::algorithm::common_token;
   expression_three_address_code_SDD::expression_three_address_code_SDD()
       : grammar(get_expression_grammar()) {
 
