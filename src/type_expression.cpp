@@ -9,6 +9,7 @@
 #include "type_expression.hpp"
 
 #include <cassert>
+#include <utility>
 
 #include "symbol_table/symbol_table.hpp"
 
@@ -88,7 +89,7 @@ namespace cyy::compiler::type_expression {
 
   record_type::record_type(
       std::shared_ptr<symbol_table> associated_symbol_table_)
-      : associated_symbol_table{associated_symbol_table_} {
+      : associated_symbol_table{std::move(associated_symbol_table_)} {
 
     auto sorted_entries = associated_symbol_table->get_ordered_symbol_list();
     for (auto const &entry : sorted_entries) {

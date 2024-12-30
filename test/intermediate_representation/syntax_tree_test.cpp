@@ -28,9 +28,9 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
   production_vector.emplace_back("E", CFG_production::body_type{"E", '+', "T"});
 
   rules.emplace_back(SDD::semantic_rule{
-      "$0.node",
-      {"$1.node", "$3.node"},
-      [](const auto &arguments) -> std::optional<std::any> {
+      .result_attribute="$0.node",
+      .arguments={"$1.node", "$3.node"},
+      .action=[](const auto &arguments) -> std::optional<std::any> {
         auto E_val =
             std::any_cast<syntax_tree::expression_node_ptr>(*(arguments[0]));
         auto T_val =
@@ -43,9 +43,9 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
   production_vector.emplace_back("E", CFG_production::body_type{"E", '-', "T"});
 
   rules.emplace_back(SDD::semantic_rule{
-      "$0.node",
-      {"$1.node", "$3.node"},
-      [](const auto &arguments) -> std::optional<std::any> {
+      .result_attribute="$0.node",
+      .arguments={"$1.node", "$3.node"},
+      .action=[](const auto &arguments) -> std::optional<std::any> {
         auto E_val =
             std::any_cast<syntax_tree::expression_node_ptr>(*(arguments[0]));
         auto T_val =
@@ -57,13 +57,13 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
 
   production_vector.emplace_back("E", CFG_production::body_type{"T"});
   rules.emplace_back(SDD::semantic_rule{
-      "$0.node", {"$1.node"}, SDD::semantic_rule::copy_action});
+      .result_attribute="$0.node", .arguments={"$1.node"}, .action=SDD::semantic_rule::copy_action});
 
   production_vector.emplace_back("T", CFG_production::body_type{"T", '*', "F"});
   rules.emplace_back(SDD::semantic_rule{
-      "$0.node",
-      {"$1.node", "$3.node"},
-      [](const auto &arguments) -> std::optional<std::any> {
+      .result_attribute="$0.node",
+      .arguments={"$1.node", "$3.node"},
+      .action=[](const auto &arguments) -> std::optional<std::any> {
         auto T_val =
             std::any_cast<syntax_tree::expression_node_ptr>(*(arguments[0]));
         auto F_val =
@@ -75,19 +75,19 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
 
   production_vector.emplace_back("T", CFG_production::body_type{"F"});
   rules.emplace_back(SDD::semantic_rule{
-      "$0.node", {"$1.node"}, SDD::semantic_rule::copy_action});
+      .result_attribute="$0.node", .arguments={"$1.node"}, .action=SDD::semantic_rule::copy_action});
 
   production_vector.emplace_back("F", CFG_production::body_type{'(', "E", ')'});
 
   rules.emplace_back(SDD::semantic_rule{
-      "$0.node", {"$2.node"}, SDD::semantic_rule::copy_action});
+      .result_attribute="$0.node", .arguments={"$2.node"}, .action=SDD::semantic_rule::copy_action});
 
   auto id_token = static_cast<CFG::terminal_type>(common_token::id);
   production_vector.emplace_back("F", CFG_production::body_type{id_token});
   rules.emplace_back(SDD::semantic_rule{
-      "$0.node",
-      {"$1"},
-      [&table](const auto &arguments) -> std::optional<std::any> {
+      .result_attribute="$0.node",
+      .arguments={"$1"},
+      .action=[&table](const auto &arguments) -> std::optional<std::any> {
         symbol_table::symbol_entry entry;
         entry.lexeme = std::any_cast<token>(*arguments[0]).lexeme;
         table.add_symbol(entry);

@@ -5,6 +5,8 @@
  */
 #include "expression_three_address_code_sdd.hpp"
 
+#include <map>
+
 #include <cyy/algorithm/alphabet/common_tokens.hpp>
 
 #include "grammar.hpp"

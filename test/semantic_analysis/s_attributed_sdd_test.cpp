@@ -22,14 +22,14 @@ TEST_CASE("run") {
   production_vector.emplace_back("L", CFG_production::body_type{"E"});
 
   rules.emplace_back(SDD::semantic_rule{
-      "$0.val", {"$1.val"}, SDD::semantic_rule::copy_action});
+      .result_attribute="$0.val", .arguments={"$1.val"}, .action=SDD::semantic_rule::copy_action});
 
   production_vector.emplace_back("E", CFG_production::body_type{"E", '+', "T"});
 
   rules.emplace_back(
-      SDD::semantic_rule{"$0.val",
-                         {"$1.val", "$3.val"},
-                         [](const auto &arguments) -> std::optional<std::any> {
+      SDD::semantic_rule{.result_attribute="$0.val",
+                         .arguments={"$1.val", "$3.val"},
+                         .action=[](const auto &arguments) -> std::optional<std::any> {
                            auto E_val = std::any_cast<int>(arguments[0]);
                            auto T_val = std::any_cast<int>(arguments[1]);
                            return std::make_any<int>(*E_val + *T_val);
@@ -37,13 +37,13 @@ TEST_CASE("run") {
 
   production_vector.emplace_back("E", CFG_production::body_type{"T"});
   rules.emplace_back(SDD::semantic_rule{
-      "$0.val", {"$1.val"}, SDD::semantic_rule::copy_action});
+      .result_attribute="$0.val", .arguments={"$1.val"}, .action=SDD::semantic_rule::copy_action});
   production_vector.emplace_back("T", CFG_production::body_type{"T", '*', "F"});
 
   rules.emplace_back(
-      SDD::semantic_rule{"$0.val",
-                         {"$1.val", "$3.val"},
-                         [](const auto &arguments) -> std::optional<std::any> {
+      SDD::semantic_rule{.result_attribute="$0.val",
+                         .arguments={"$1.val", "$3.val"},
+                         .action=[](const auto &arguments) -> std::optional<std::any> {
                            auto T_val = std::any_cast<int>(arguments[0]);
                            auto F_val = std::any_cast<int>(arguments[1]);
                            return std::make_any<int>(*T_val * (*F_val));
@@ -51,18 +51,18 @@ TEST_CASE("run") {
 
   production_vector.emplace_back("T", CFG_production::body_type{"F"});
   rules.emplace_back(SDD::semantic_rule{
-      "$0.val", {"$1.val"}, SDD::semantic_rule::copy_action});
+      .result_attribute="$0.val", .arguments={"$1.val"}, .action=SDD::semantic_rule::copy_action});
 
   production_vector.emplace_back("F", CFG_production::body_type{'(', "E", ')'});
 
   rules.emplace_back(SDD::semantic_rule{
-      "$0.val", {"$2.val"}, SDD::semantic_rule::copy_action});
+      .result_attribute="$0.val", .arguments={"$2.val"}, .action=SDD::semantic_rule::copy_action});
 
   auto digit_token = static_cast<CFG::terminal_type>(common_token::digit);
   production_vector.emplace_back("F", CFG_production::body_type{digit_token});
 
   rules.emplace_back(SDD::semantic_rule{
-      "$0.val", {"$1"}, [](const auto &arguments) -> std::optional<std::any> {
+      .result_attribute="$0.val", .arguments={"$1"}, .action=[](const auto &arguments) -> std::optional<std::any> {
         return std::make_any<int>(
             static_cast<char>(std::any_cast<token>(*(arguments[0])).lexeme[0]) -
             '0');
@@ -83,18 +83,18 @@ TEST_CASE("run") {
 
   sdd.add_synthesized_attribute(
       production_vector[0],
-      SDD::semantic_rule{"$0.val_inc",
-                         {"$0.val"},
-                         [](const auto &arguments) -> std::optional<std::any> {
+      SDD::semantic_rule{.result_attribute="$0.val_inc",
+                         .arguments={"$0.val"},
+                         .action=[](const auto &arguments) -> std::optional<std::any> {
                            auto L_val = std::any_cast<int>(*(arguments[0]));
                            return std::make_any<int>(L_val + 1);
                          }});
 
   sdd.add_synthesized_attribute(
       production_vector[0],
-      SDD::semantic_rule{{},
-                         {"$0.val_inc"},
-                         [](const auto &arguments) -> std::optional<std::any> {
+      SDD::semantic_rule{.result_attribute={},
+                         .arguments={"$0.val_inc"},
+                         .action=[](const auto &arguments) -> std::optional<std::any> {
                            auto L_val_inc = std::any_cast<int>(*(arguments[0]));
 
                            std::cout << "in semantic procedure val_inc is "

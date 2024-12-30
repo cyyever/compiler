@@ -21,31 +21,34 @@ namespace cyy::compiler::example_grammar {
           sdd->add_inherited_attribute(
               {head, body},
               SDD::semantic_rule{
-                  "$1.symbol_table", {}, [](const auto &) {
+                  .result_attribute = "$1.symbol_table",
+                  .arguments = {},
+                  .action = [](const auto &) {
                     return std::make_any<std::shared_ptr<symbol_table>>(
                         std::make_shared<symbol_table>());
                   }});
 
           sdd->add_synthesized_attribute(
               {head, body},
-              SDD::semantic_rule{"$0.symbol_table",
-                                 {"$1.symbol_table"},
-                                 SDD::semantic_rule::copy_action});
+              SDD::semantic_rule{.result_attribute = "$0.symbol_table",
+                                 .arguments = {"$1.symbol_table"},
+                                 .action = SDD::semantic_rule::copy_action});
           continue;
         }
         if (head == "declarations" && !body.empty()) {
           sdd->add_inherited_attribute(
               {head, body},
-              SDD::semantic_rule{"$1.symbol_table",
-                                 {"$0.symbol_table"},
-                                 SDD::semantic_rule::copy_action});
+              SDD::semantic_rule{.result_attribute = "$1.symbol_table",
+                                 .arguments = {"$0.symbol_table"},
+                                 .action = SDD::semantic_rule::copy_action});
 
           sdd->add_inherited_attribute(
               {head, body},
               SDD::semantic_rule{
-                  "$4.symbol_table",
-                  {"$0.symbol_table", "$1.type", "$2"},
-                  [](const auto &arguments) -> std::optional<std::any> {
+                  .result_attribute = "$4.symbol_table",
+                  .arguments = {"$0.symbol_table", "$1.type", "$2"},
+                  .action =
+                      [](const auto &arguments) -> std::optional<std::any> {
                     auto table = std::any_cast<std::shared_ptr<symbol_table>>(
                         *(arguments.at(0)));
                     symbol_table::symbol_entry e;
@@ -75,23 +78,24 @@ namespace cyy::compiler::example_grammar {
 
             sdd->add_synthesized_attribute(
                 {head, body},
-                SDD::semantic_rule{
-                    "$0.type", {"$2.type"}, SDD::semantic_rule::copy_action});
+                SDD::semantic_rule{.result_attribute = "$0.type",
+                                   .arguments = {"$2.type"},
+                                   .action = SDD::semantic_rule::copy_action});
 
             sdd->add_inherited_attribute(
                 {head, body},
-                SDD::semantic_rule{"$2.inh_type",
-                                   {"$1.type"},
-                                   SDD::semantic_rule::copy_action});
+                SDD::semantic_rule{.result_attribute = "$2.inh_type",
+                                   .arguments = {"$1.type"},
+                                   .action = SDD::semantic_rule::copy_action});
             continue;
           } else if (body[0] == static_cast<CFG::terminal_type>(
                                     common_token::record)) { // record
             sdd->add_inherited_attribute(
                 {head, body},
                 SDD::semantic_rule{
-                    "$3.symbol_table",
-                    {},
-                    [](const auto &) -> std::optional<std::any> {
+                    .result_attribute = "$3.symbol_table",
+                    .arguments = {},
+                    .action = [](const auto &) -> std::optional<std::any> {
                       return std::make_any<std::shared_ptr<symbol_table>>(
                           std::make_shared<symbol_table>());
                     }});
@@ -99,9 +103,10 @@ namespace cyy::compiler::example_grammar {
             sdd->add_synthesized_attribute(
                 {head, body},
                 SDD::semantic_rule{
-                    "$0.type",
-                    {"$3.symbol_table"},
-                    [](const auto &arguments) -> std::optional<std::any> {
+                    .result_attribute = "$0.type",
+                    .arguments = {"$3.symbol_table"},
+                    .action =
+                        [](const auto &arguments) -> std::optional<std::any> {
                       auto table = std::any_cast<std::shared_ptr<symbol_table>>(
                           *(arguments.at(0)));
 
@@ -116,9 +121,9 @@ namespace cyy::compiler::example_grammar {
             sdd->add_inherited_attribute(
                 {head, body},
                 SDD::semantic_rule{
-                    "$5.symbol_table",
-                    {},
-                    [](const auto &) -> std::optional<std::any> {
+                    .result_attribute = "$5.symbol_table",
+                    .arguments = {},
+                    .action = [](const auto &) -> std::optional<std::any> {
                       return std::make_any<std::shared_ptr<symbol_table>>(
                           std::make_shared<symbol_table>());
                     }});
@@ -126,10 +131,11 @@ namespace cyy::compiler::example_grammar {
             sdd->add_synthesized_attribute(
                 {head, body},
                 SDD::semantic_rule{
-                    "$0.type",
-                    {"$0.symbol_table", "$2", "$3.class_name",
-                     "$5.symbol_table"},
-                    [](const auto &arguments) -> std::optional<std::any> {
+                    .result_attribute = "$0.type",
+                    .arguments = {"$0.symbol_table", "$2", "$3.class_name",
+                                  "$5.symbol_table"},
+                    .action =
+                        [](const auto &arguments) -> std::optional<std::any> {
                       auto table = std::any_cast<std::shared_ptr<symbol_table>>(
                           *arguments.at(3));
 
@@ -182,17 +188,20 @@ namespace cyy::compiler::example_grammar {
           if (body.empty()) {
             sdd->add_synthesized_attribute(
                 {head, body},
-                SDD::semantic_rule{"$0.class_name",
-                                   {},
-                                   [](const auto &) -> std::optional<std::any> {
-                                     return std::make_any<std::string>("");
-                                   }});
+                SDD::semantic_rule{
+                    .result_attribute = "$0.class_name",
+                    .arguments = {},
+                    .action = [](const auto &) -> std::optional<std::any> {
+                      return std::make_any<std::string>("");
+                    }});
             continue;
           }
           sdd->add_synthesized_attribute(
               {head, body},
               SDD::semantic_rule{
-                  "$0.class_name", {"$2"}, [](const auto &arguments) {
+                  .result_attribute = "$0.class_name",
+                  .arguments = {"$2"},
+                  .action = [](const auto &arguments) {
                     return std::make_any<std::string>(
                         std::any_cast<token>(*(arguments.at(0))).lexeme);
                   }});
@@ -203,7 +212,9 @@ namespace cyy::compiler::example_grammar {
             sdd->add_synthesized_attribute(
                 {head, body},
                 SDD::semantic_rule{
-                    "$0.type", {}, [](const auto &) -> std::optional<std::any> {
+                    .result_attribute = "$0.type",
+                    .arguments = {},
+                    .action = [](const auto &) -> std::optional<std::any> {
                       return std::make_any<
                           std::shared_ptr<type_expression::expression>>(
                           std::make_shared<type_expression::basic_type>(
@@ -215,7 +226,9 @@ namespace cyy::compiler::example_grammar {
             sdd->add_synthesized_attribute(
                 {head, body},
                 SDD::semantic_rule{
-                    "$0.type", {}, [](const auto &) -> std::optional<std::any> {
+                    .result_attribute = "$0.type",
+                    .arguments = {},
+                    .action = [](const auto &) -> std::optional<std::any> {
                       return std::make_any<
                           std::shared_ptr<type_expression::expression>>(
                           std::make_shared<type_expression::basic_type>(
@@ -228,24 +241,25 @@ namespace cyy::compiler::example_grammar {
           if (body.empty()) {
             sdd->add_synthesized_attribute(
                 {head, body},
-                SDD::semantic_rule{"$0.type",
-                                   {"$0.inh_type"},
-                                   SDD::semantic_rule::copy_action});
+                SDD::semantic_rule{.result_attribute = "$0.type",
+                                   .arguments = {"$0.inh_type"},
+                                   .action = SDD::semantic_rule::copy_action});
             continue;
           }
 
           sdd->add_inherited_attribute(
               {head, body},
-              SDD::semantic_rule{"$4.inh_type",
-                                 {"$0.inh_type"},
-                                 SDD::semantic_rule::copy_action});
+              SDD::semantic_rule{.result_attribute = "$4.inh_type",
+                                 .arguments = {"$0.inh_type"},
+                                 .action = SDD::semantic_rule::copy_action});
 
           sdd->add_synthesized_attribute(
               {head, body},
               SDD::semantic_rule{
-                  "$0.type",
-                  {"$2", "$4.type"},
-                  [](const auto &arguments) -> std::optional<std::any> {
+                  .result_attribute = "$0.type",
+                  .arguments = {"$2", "$4.type"},
+                  .action =
+                      [](const auto &arguments) -> std::optional<std::any> {
                     size_t element_number = std::stoll(
                         std::any_cast<token>(*(arguments.at(0))).lexeme);
 
