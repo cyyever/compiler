@@ -23,7 +23,7 @@ namespace cyy::compiler {
       new_rule_flag = false;
     }
 
-  cyy::algorithm::symbol_string token_names;
+    cyy::algorithm::symbol_string token_names;
     for (auto const &token : span) {
       token_names.push_back(token.name);
     }
