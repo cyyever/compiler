@@ -7,8 +7,6 @@
 
 #include "constant_table.hpp"
 
-#include <cassert>
-
 namespace cyy::compiler {
   bool constant_table::add_constant(std::string lexeme) {
     entry e;

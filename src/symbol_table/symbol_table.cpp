@@ -9,7 +9,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <iostream>
 
 namespace cyy::compiler {
   bool symbol_table::has_symbol(const std::string &lexeme) const {
@@ -73,9 +72,9 @@ namespace cyy::compiler {
     return get_symbol(lexeme);
   }
 
-  bool symbol_table::add_type(type_entry t) {
-    auto lexeme = t.type->get_name();
-    return types.emplace(lexeme, std::make_shared<type_entry>(std::move(t)))
+  bool symbol_table::add_type(type_entry entry) {
+    auto lexeme = entry.type->get_name();
+    return types.emplace(lexeme, std::make_shared<type_entry>(std::move(entry)))
         .second;
   }
   symbol_table::type_entry_ptr

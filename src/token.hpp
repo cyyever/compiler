@@ -7,13 +7,11 @@
 #pragma once
 
 #include <span>
-#include <iostream>
 
 #include <cyy/algorithm/alphabet/symbol.hpp>
 
-using cyy::algorithm::symbol_type;
 namespace cyy::compiler {
-  using namespace cyy::computation;
+  using cyy::algorithm::symbol_type;
 
   struct token_attribute {
     size_t line_no{1};
@@ -26,6 +24,5 @@ namespace cyy::compiler {
     token_attribute attribute{};
   };
 
-  using token_istream = std::basic_istream<token>;
   using token_span = std::span<token>;
 } // namespace cyy::compiler

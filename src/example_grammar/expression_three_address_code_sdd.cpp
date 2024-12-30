@@ -29,9 +29,10 @@ namespace cyy::compiler::example_grammar {
               sdd->add_synthesized_attribute(
                   {head, body},
                   SDD::semantic_rule{
-                      .result_attribute={},
-                      .arguments={"$1.array", "$1.addr", "$3.addr"},
-                      .action=[this](const auto &arguments) -> std::optional<std::any> {
+                      .result_attribute = {},
+                      .arguments = {"$1.array", "$1.addr", "$3.addr"},
+                      .action = [this](const auto &arguments)
+                          -> std::optional<std::any> {
                         auto array_entry =
                             std::any_cast<symbol_table::symbol_entry_ptr>(
                                 *arguments[0]);
@@ -59,7 +60,9 @@ namespace cyy::compiler::example_grammar {
             sdd->add_synthesized_attribute(
                 {head, body},
                 SDD::semantic_rule{
-                    .result_attribute={}, .arguments={"$1", "$3.addr"}, .action=[this](const auto &arguments) {
+                    .result_attribute = {},
+                    .arguments = {"$1", "$3.addr"},
+                    .action = [this](const auto &arguments) {
                       auto name =
                           std::make_shared<IR::three_address_code::name>(
                               table->create_and_get_symbol(
@@ -83,18 +86,20 @@ namespace cyy::compiler::example_grammar {
             sdd->add_synthesized_attribute(
                 {head, body},
                 SDD::semantic_rule{
-                    .result_attribute={"$0.array"},
-                    .arguments={"$1"},
-                    .action=[this](const auto &arguments) -> std::optional<std::any> {
+                    .result_attribute = {"$0.array"},
+                    .arguments = {"$1"},
+                    .action = [this](const auto &arguments)
+                        -> std::optional<std::any> {
                       return table->get_symbol(
                           std::any_cast<token>(*arguments[0]).lexeme);
                     }});
             sdd->add_synthesized_attribute(
                 {head, body},
                 SDD::semantic_rule{
-                    .result_attribute={"$0.element_type"},
-                    .arguments={"$1"},
-                    .action=[this](const auto &arguments) -> std::optional<std::any> {
+                    .result_attribute = {"$0.element_type"},
+                    .arguments = {"$1"},
+                    .action = [this](const auto &arguments)
+                        -> std::optional<std::any> {
                       auto e = table->get_symbol(
                           std::any_cast<token>(*arguments[0]).lexeme);
                       auto element_type =
@@ -107,9 +112,10 @@ namespace cyy::compiler::example_grammar {
             sdd->add_synthesized_attribute(
                 {head, body},
                 SDD::semantic_rule{
-                    .result_attribute={"$0.addr"},
-                    .arguments={"$1", "$3.addr"},
-                    .action=[this](const auto &arguments) -> std::optional<std::any> {
+                    .result_attribute = {"$0.addr"},
+                    .arguments = {"$1", "$3.addr"},
+                    .action = [this](const auto &arguments)
+                        -> std::optional<std::any> {
                       auto e = table->get_symbol(
                           std::any_cast<token>(*arguments[0]).lexeme);
                       auto element_type =
@@ -144,15 +150,17 @@ namespace cyy::compiler::example_grammar {
           }
           sdd->add_synthesized_attribute(
               {head, body},
-              SDD::semantic_rule{
-                  .result_attribute={"$0.array"}, .arguments={"$1.array"}, .action=SDD::semantic_rule::copy_action});
+              SDD::semantic_rule{.result_attribute = {"$0.array"},
+                                 .arguments = {"$1.array"},
+                                 .action = SDD::semantic_rule::copy_action});
 
           sdd->add_synthesized_attribute(
               {head, body},
               SDD::semantic_rule{
-                  .result_attribute={"$0.element_type"},
-                  .arguments={"$1.element_type"},
-                  .action=[this](const auto &arguments) -> std::optional<std::any> {
+                  .result_attribute = {"$0.element_type"},
+                  .arguments = {"$1.element_type"},
+                  .action =
+                      [this](const auto &arguments) -> std::optional<std::any> {
                     return std::dynamic_pointer_cast<
                                cyy::compiler::type_expression::array_type>(
                                std::any_cast<std::shared_ptr<
@@ -164,9 +172,10 @@ namespace cyy::compiler::example_grammar {
           sdd->add_synthesized_attribute(
               {head, body},
               SDD::semantic_rule{
-                  .result_attribute={"$0.addr"},
-                  .arguments={"$1.addr", "$1.element_type", "$3.addr"},
-                  .action=[this](const auto &arguments) -> std::optional<std::any> {
+                  .result_attribute = {"$0.addr"},
+                  .arguments = {"$1.addr", "$1.element_type", "$3.addr"},
+                  .action =
+                      [this](const auto &arguments) -> std::optional<std::any> {
                     auto prev_dim_size =
                         std::any_cast<IR::three_address_code::address_ptr>(
                             *arguments[0]);
@@ -226,9 +235,10 @@ namespace cyy::compiler::example_grammar {
             sdd->add_synthesized_attribute(
                 {head, body},
                 SDD::semantic_rule{
-                    .result_attribute="$0.addr",
-                    .arguments={"$1"},
-                    .action=[this](const auto &arguments) -> std::optional<std::any> {
+                    .result_attribute = "$0.addr",
+                    .arguments = {"$1"},
+                    .action = [this](const auto &arguments)
+                        -> std::optional<std::any> {
                       auto name =
                           std::make_shared<IR::three_address_code::name>(
                               table->create_and_get_symbol(
@@ -242,9 +252,10 @@ namespace cyy::compiler::example_grammar {
             sdd->add_synthesized_attribute(
                 {head, body},
                 SDD::semantic_rule{
-                    .result_attribute="$0.addr",
-                    .arguments={"$1"},
-                    .action=[this](const auto &arguments) -> std::optional<std::any> {
+                    .result_attribute = "$0.addr",
+                    .arguments = {"$1"},
+                    .action = [this](const auto &arguments)
+                        -> std::optional<std::any> {
                       auto constant =
                           std::make_shared<IR::three_address_code::constant>(
                               std::any_cast<token>(*arguments[0]).lexeme);
@@ -257,9 +268,10 @@ namespace cyy::compiler::example_grammar {
             sdd->add_synthesized_attribute(
                 {head, body},
                 SDD::semantic_rule{
-                    .result_attribute="$0.addr",
-                    .arguments={"$1.array", "$1.addr"},
-                    .action=[this](const auto &arguments) -> std::optional<std::any> {
+                    .result_attribute = "$0.addr",
+                    .arguments = {"$1.array", "$1.addr"},
+                    .action = [this](const auto &arguments)
+                        -> std::optional<std::any> {
                       auto array_entry =
                           std::any_cast<symbol_table::symbol_entry_ptr>(
                               *arguments[0]);
@@ -289,16 +301,18 @@ namespace cyy::compiler::example_grammar {
           if (body[0].is_nonterminal()) {
             sdd->add_synthesized_attribute(
                 {head, body},
-                SDD::semantic_rule{
-                    .result_attribute="$0.addr", .arguments={"$1.addr"}, .action=SDD::semantic_rule::copy_action});
+                SDD::semantic_rule{.result_attribute = "$0.addr",
+                                   .arguments = {"$1.addr"},
+                                   .action = SDD::semantic_rule::copy_action});
             continue;
           }
         }
         if (body[0] == '(') {
           sdd->add_synthesized_attribute(
               {head, body},
-              SDD::semantic_rule{
-                  .result_attribute="$0.addr", .arguments={"$2.addr"}, .action=SDD::semantic_rule::copy_action});
+              SDD::semantic_rule{.result_attribute = "$0.addr",
+                                 .arguments = {"$2.addr"},
+                                 .action = SDD::semantic_rule::copy_action});
           continue;
         }
         if (body.size() == 3) {
