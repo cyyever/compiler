@@ -270,7 +270,7 @@ namespace cyy::compiler {
 
           // head's attribute must be inherited
           if (index == 0) {
-            if (!inherited_attributes.count(
+            if (!inherited_attributes.contains(
                     argument.get_full_name(production))) {
               throw exception::no_inherited_grammar_symbol_attribute(
                   argument.get_name());
