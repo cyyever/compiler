@@ -11,7 +11,6 @@
 
 #include "../../src/semantic_analysis/l_attributed_sdd.hpp"
 
-using namespace cyy::computation;
 using namespace cyy::compiler;
 
 TEST_CASE("run") {
@@ -22,7 +21,8 @@ TEST_CASE("run") {
   production_vector.emplace_back("T'",
                                  CFG_production::body_type{'*', "F", "T'"});
   production_vector.emplace_back("T'", CFG_production::body_type{});
-  auto digit_token = static_cast<CFG::terminal_type>(common_token::digit);
+  auto digit_token =
+      static_cast<CFG::terminal_type>(cyy::algorithm::common_token::digit);
   production_vector.emplace_back("F", CFG_production::body_type{digit_token});
 
   CFG::production_set_type productions;
@@ -35,49 +35,55 @@ TEST_CASE("run") {
 
   sdd.add_inherited_attribute(
       production_vector[0],
-      SDD::semantic_rule{
-          .result_attribute="$2.inh", .arguments={"$1.val"}, .action=SDD::semantic_rule::copy_action});
+      SDD::semantic_rule{.result_attribute = "$2.inh",
+                         .arguments = {"$1.val"},
+                         .action = SDD::semantic_rule::copy_action});
 
   sdd.add_synthesized_attribute(
       production_vector[0],
-      SDD::semantic_rule{
-          .result_attribute="$0.val", .arguments={"$2.syn"}, .action=SDD::semantic_rule::copy_action});
+      SDD::semantic_rule{.result_attribute = "$0.val",
+                         .arguments = {"$2.syn"},
+                         .action = SDD::semantic_rule::copy_action});
 
   sdd.add_inherited_attribute(
       production_vector[0],
-      SDD::semantic_rule{.result_attribute="$2.inh2",
-                         .arguments={"$2.syn"},
-                         .action=[](const auto &arguments) -> std::optional<std::any> {
-                           REQUIRE(std::any_cast<int>(*(arguments[0])) == 15);
-                           return *(arguments[0]);
-                         }});
+      SDD::semantic_rule{
+          .result_attribute = "$2.inh2",
+          .arguments = {"$2.syn"},
+          .action = [](const auto &arguments) -> std::optional<std::any> {
+            REQUIRE(std::any_cast<int>(*(arguments[0])) == 15);
+            return *(arguments[0]);
+          }});
 
   sdd.add_inherited_attribute(
       production_vector[1],
-      SDD::semantic_rule{.result_attribute="$3.inh",
-                         .arguments={"$0.inh", "$2.val"},
-                         .action=[](const auto &arguments) -> std::optional<std::any> {
-                           auto T_inh = std::any_cast<int>(*(arguments[0]));
-                           auto F_val = std::any_cast<int>(*(arguments[1]));
-                           return std::make_any<int>(T_inh * F_val);
-                         }});
+      SDD::semantic_rule{
+          .result_attribute = "$3.inh",
+          .arguments = {"$0.inh", "$2.val"},
+          .action = [](const auto &arguments) -> std::optional<std::any> {
+            auto T_inh = std::any_cast<int>(*(arguments[0]));
+            auto F_val = std::any_cast<int>(*(arguments[1]));
+            return std::make_any<int>(T_inh * F_val);
+          }});
 
   sdd.add_synthesized_attribute(
       production_vector[1],
-      SDD::semantic_rule{
-          .result_attribute="$0.syn", .arguments={"$3.syn"}, .action=SDD::semantic_rule::copy_action});
+      SDD::semantic_rule{.result_attribute = "$0.syn",
+                         .arguments = {"$3.syn"},
+                         .action = SDD::semantic_rule::copy_action});
 
   sdd.add_synthesized_attribute(
       production_vector[2],
-      SDD::semantic_rule{
-          .result_attribute="$0.syn", .arguments={"$0.inh"}, .action=SDD::semantic_rule::copy_action});
+      SDD::semantic_rule{.result_attribute = "$0.syn",
+                         .arguments = {"$0.inh"},
+                         .action = SDD::semantic_rule::copy_action});
 
   sdd.add_synthesized_attribute(
       production_vector[3],
       SDD::semantic_rule{
-          .result_attribute="$0.val",
-          .arguments={"$1"},
-          .action=[](const auto &arguments) -> std::optional<std::any> {
+          .result_attribute = "$0.val",
+          .arguments = {"$1"},
+          .action = [](const auto &arguments) -> std::optional<std::any> {
             return std::make_any<int>(
                 static_cast<char>(
                     std::any_cast<token>(*arguments[0]).lexeme[0]) -

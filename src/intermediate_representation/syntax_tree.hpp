@@ -21,7 +21,6 @@ namespace cyy::compiler::syntax_tree {
 
   class node {
   public:
-    node() = default;
     virtual ~node() = default;
   };
   class expression_node;

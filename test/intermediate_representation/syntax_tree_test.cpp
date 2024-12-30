@@ -82,7 +82,7 @@ TEST_CASE("common_subexpression_elimination_by_DAG") {
   rules.emplace_back(SDD::semantic_rule{
       .result_attribute="$0.node", .arguments={"$2.node"}, .action=SDD::semantic_rule::copy_action});
 
-  auto id_token = static_cast<CFG::terminal_type>(common_token::id);
+  auto id_token = static_cast<CFG::terminal_type>(cyy::algorithm::common_token::id);
   production_vector.emplace_back("F", CFG_production::body_type{id_token});
   rules.emplace_back(SDD::semantic_rule{
       .result_attribute="$0.node",

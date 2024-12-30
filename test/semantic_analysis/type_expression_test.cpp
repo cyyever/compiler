@@ -10,14 +10,13 @@
 
 #include "example_grammar/declaration_sdd.hpp"
 #include "example_grammar/lexical_analyzer.hpp"
-#include "exception.hpp"
 #include "type_expression.hpp"
 
-using namespace cyy::computation;
 using namespace cyy::compiler;
 
 TEST_CASE("types and storage layout") {
 
+  using cyy::algorithm::common_token;
   auto analyzer = example_grammar::get_lexical_analyzer();
   example_grammar::declaration_SDD sdd;
 

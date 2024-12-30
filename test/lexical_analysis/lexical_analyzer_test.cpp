@@ -11,11 +11,11 @@
 
 #include "example_grammar/lexical_analyzer.hpp"
 
-using namespace cyy::computation;
 using namespace cyy::compiler;
 
 TEST_CASE("scan") {
   auto analyzer = example_grammar::get_lexical_analyzer(false);
+  using cyy::algorithm::common_token;
 
   std::vector<std::pair<std::string, symbol_type>> tokens;
   tokens.emplace_back("position", static_cast<symbol_type>(common_token::id));

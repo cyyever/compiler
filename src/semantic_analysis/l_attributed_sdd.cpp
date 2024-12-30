@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <cassert>
 #include <functional>
-#include <set>
+#include <unordered_set>
 
 #include "../exception.hpp"
 
@@ -23,7 +23,7 @@ namespace cyy::compiler {
       new_rule_flag = false;
     }
 
-    symbol_string token_names;
+  cyy::algorithm::symbol_string token_names;
     for (auto const &token : span) {
       token_names.push_back(token.name);
     }
