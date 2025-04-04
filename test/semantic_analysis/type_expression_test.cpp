@@ -5,8 +5,8 @@
  * \author cyy
  * \date 2019-03-03
  */
-#include <cyy/algorithm/alphabet/common_tokens.hpp>
 #include <doctest/doctest.h>
+#include <cyy/algorithm/alphabet/common_tokens.hpp>
 
 #include "example_grammar/declaration_sdd.hpp"
 #include "example_grammar/lexical_analyzer.hpp"
