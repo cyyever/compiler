@@ -4,6 +4,7 @@
  * \brief
  */
 #pragma once
+#include <boost/bimap.hpp>
 #include <cyy/computation/context_free_lang/slr_grammar.hpp>
 
 #include "intermediate_representation/three_address_code.hpp"

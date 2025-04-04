@@ -10,7 +10,7 @@
 
 #include "declaration_sdd.hpp"
 #include "grammar.hpp"
-import std; 
+import std;
 
 namespace cyy::compiler::example_grammar {
   using cyy::algorithm::common_token;

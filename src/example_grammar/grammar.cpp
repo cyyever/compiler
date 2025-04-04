@@ -1,8 +1,14 @@
 
-#include "grammar.hpp"
+/*!
+ * \file grammar.cpp
+ *
+ * \brief
+ */
+#include <boost/bimap.hpp>
 
 #include <cyy/algorithm/alphabet/common_tokens.hpp>
 #include <cyy/computation/context_free_lang/common_grammar.hpp>
+#include "grammar.hpp"
 namespace cyy::compiler::example_grammar {
   using cyy::algorithm::common_token;
   std::shared_ptr<cyy::computation::LL_grammar> get_declaration_grammar() {

@@ -4,10 +4,10 @@
  * \brief
  */
 #include <boost/bimap.hpp>
-#include "expression_three_address_code_sdd.hpp"
 #include <cyy/algorithm/alphabet/common_tokens.hpp>
 
 
+#include "expression_three_address_code_sdd.hpp"
 #include "grammar.hpp"
 #include "operator.hpp"
 
