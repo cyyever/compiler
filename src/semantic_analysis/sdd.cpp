@@ -5,14 +5,13 @@
  * \date 2018-03-04
  */
 
-#include "sdd.hpp"
 
-#include <algorithm>
+#include <boost/bimap.hpp>
 #include <cassert>
-#include <ranges>
 
 #include <cyy/algorithm/graph/dag.hpp>
 
+#include "sdd.hpp"
 #include "exception.hpp"
 
 namespace cyy::compiler {

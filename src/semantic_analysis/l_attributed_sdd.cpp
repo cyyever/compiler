@@ -4,11 +4,6 @@
  */
 #include "l_attributed_sdd.hpp"
 
-#include <algorithm>
-#include <cassert>
-#include <functional>
-#include <unordered_set>
-
 #include "../exception.hpp"
 
 namespace cyy::compiler {

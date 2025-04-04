@@ -1,10 +1,8 @@
 
 #pragma once
 
-#include <cstddef>
-#include <unordered_map>
-
 #include <cyy/algorithm/hash.hpp>
+import std;
 
 namespace cyy::compiler {
   class value_number_method {

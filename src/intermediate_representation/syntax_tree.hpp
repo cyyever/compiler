@@ -11,8 +11,6 @@
 #include "algorithm/value_number_method.hpp"
 #include "operator.hpp"
 /* #include <cyy/computation/lang/symbol.hpp> */
-#include <unordered_map>
-#include <utility>
 
 #include <symbol_table/symbol_table.hpp>
 

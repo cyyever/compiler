@@ -7,15 +7,6 @@
 
 #pragma once
 
-#include <any>
-#include <functional>
-#include <memory>
-#include <optional>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-
 #include <cyy/computation/context_free_lang/cfg.hpp>
 
 #include "grammar_symbol_attribute_name.hpp"

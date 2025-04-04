@@ -36,7 +36,7 @@ namespace cyy::compiler::example_grammar {
                 *arguments[1]);
             auto result_name = std::make_shared<IR::three_address_code::name>(
                 table->create_temporary_symbol(
-                    fmt::format("tmp_{}", tmp_name_index++)));
+                    std::format("tmp_{}", tmp_name_index++)));
             if constexpr (std::is_same_v<operator_type,
                                          binary_arithmetic_operator>) {
               auto instruction = std::make_shared<
@@ -61,7 +61,7 @@ namespace cyy::compiler::example_grammar {
           [this, op](const auto &arguments) -> std::optional<std::any> {
             auto result_name = std::make_shared<IR::three_address_code::name>(
                 table->create_temporary_symbol(
-                    fmt::format("tmp_{}", tmp_name_index++)));
+                    std::format("tmp_{}", tmp_name_index++)));
             auto operand = std::any_cast<IR::three_address_code::address_ptr>(
                 *arguments[0]);
             if constexpr (std::is_same_v<operator_type,

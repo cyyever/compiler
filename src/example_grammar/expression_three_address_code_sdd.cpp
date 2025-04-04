@@ -3,11 +3,10 @@
  *
  * \brief
  */
+#include <boost/bimap.hpp>
 #include "expression_three_address_code_sdd.hpp"
-
-#include <map>
-
 #include <cyy/algorithm/alphabet/common_tokens.hpp>
+
 
 #include "grammar.hpp"
 #include "operator.hpp"
@@ -130,7 +129,7 @@ namespace cyy::compiler::example_grammar {
                       auto result_name =
                           std::make_shared<IR::three_address_code::name>(
                               table->create_temporary_symbol(
-                                  fmt::format("tmp_{}", tmp_name_index++)));
+                                  std::format("tmp_{}", tmp_name_index++)));
 
                       auto instruction = std::make_shared<
                           IR::three_address_code::
@@ -195,7 +194,7 @@ namespace cyy::compiler::example_grammar {
                     auto result_name =
                         std::make_shared<IR::three_address_code::name>(
                             table->create_temporary_symbol(
-                                fmt::format("tmp_{}", tmp_name_index++)));
+                                std::format("tmp_{}", tmp_name_index++)));
 
                     auto instruction = std::make_shared<
                         IR::three_address_code::
@@ -212,7 +211,7 @@ namespace cyy::compiler::example_grammar {
                     auto result_name2 =
                         std::make_shared<IR::three_address_code::name>(
                             table->create_temporary_symbol(
-                                fmt::format("tmp_{}", tmp_name_index++)));
+                                std::format("tmp_{}", tmp_name_index++)));
 
                     instruction = std::make_shared<
                         IR::three_address_code::
@@ -282,7 +281,7 @@ namespace cyy::compiler::example_grammar {
                       auto result_name =
                           std::make_shared<IR::three_address_code::name>(
                               table->create_temporary_symbol(
-                                  fmt::format("tmp_{}", tmp_name_index++)));
+                                  std::format("tmp_{}", tmp_name_index++)));
 
                       auto instruction = std::make_shared<
                           IR::three_address_code::array_copy_instruction>();

@@ -8,9 +8,6 @@
 
 #pragma once
 
-#include <memory>
-
-#include <fmt/format.h>
 
 #include "operator.hpp"
 #include "symbol_table/symbol_table.hpp"
@@ -66,7 +63,7 @@ namespace cyy::compiler::IR::three_address_code {
             op_char = '/';
             break;
         }
-        return fmt::format("{} = {} {} {}", result->lexeme, left->lexeme,
+        return std::format("{} = {} {} {}", result->lexeme, left->lexeme,
                            op_char, right->lexeme);
       }
       return "";
@@ -89,7 +86,7 @@ namespace cyy::compiler::IR::three_address_code {
     std::string to_string() const override {
       if constexpr (std::is_same_v<operator_type, unary_arithmetic_operator>) {
         if (op == unary_arithmetic_operator::minus) {
-          return fmt::format("{} = minus {}", result->lexeme, operand->lexeme);
+          return std::format("{} = minus {}", result->lexeme, operand->lexeme);
         }
       }
       return "";

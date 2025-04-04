@@ -7,9 +7,6 @@
 
 #pragma once
 
-#include <optional>
-#include <string>
-#include <string_view>
 
 #include <cyy/computation/context_free_lang/cfg_production.hpp>
 #include <cyy/computation/formal_grammar/grammar_symbol.hpp>

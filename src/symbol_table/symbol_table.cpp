@@ -5,10 +5,10 @@
  * \date 2018-03-04
  */
 
+#include <boost/bimap.hpp>
+#include <cassert>
 #include "symbol_table.hpp"
 
-#include <algorithm>
-#include <cassert>
 
 namespace cyy::compiler {
   bool symbol_table::has_symbol(const std::string &lexeme) const {

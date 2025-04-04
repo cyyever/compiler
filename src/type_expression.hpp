@@ -8,12 +8,6 @@
 
 #pragma once
 
-#include <memory>
-#include <string>
-#include <unordered_map>
-#include <utility>
-#include <vector>
-
 #include "algorithm/value_number_method.hpp"
 #include "exception.hpp"
 

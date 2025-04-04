@@ -9,7 +9,6 @@
 #include "type_expression.hpp"
 
 #include <cassert>
-#include <utility>
 
 #include "symbol_table/symbol_table.hpp"
 

@@ -7,14 +7,8 @@
 
 #pragma once
 
-#include <iostream>
-#include <optional>
-#include <sstream>
-#include <string>
-#include <string_view>
-#include <unordered_map>
-#include <unordered_set>
 
+#include <boost/bimap.hpp>
 #include <cyy/algorithm/alphabet/alphabet.hpp>
 #include <cyy/computation/regular_lang/nfa.hpp>
 

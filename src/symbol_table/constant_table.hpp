@@ -4,9 +4,7 @@
 
 #pragma once
 
-#include <memory>
-#include <unordered_map>
-#include <utility>
+import std; 
 
 namespace cyy::compiler {
   class constant_table {

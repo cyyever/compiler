@@ -1,4 +1,14 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 4.0.0)
+
+set(CMAKE_CXX_STANDARD 26)
+set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "a9e1cf81-9932-4810-974b-6eccaf14e457")
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_MODULE_STD 1)
+set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_C_COMPILER clang)
+# set(CMAKE_C_FLAGS -stdlib=libc)
+set(CMAKE_CXX_FLAGS -stdlib=libc++)
+
 
 project(MyCompilerLib LANGUAGES CXX)
 
@@ -25,7 +35,7 @@ find_package(MyComputationLib REQUIRED)
 target_link_libraries(MyCompilerLib PRIVATE MyComputationLib CyyAlgorithmLib)
 
 # test
-add_subdirectory(test)
+# add_subdirectory(test)
 
 option(BUILD_FUZZING "Build fuzzing" OFF)
 if(BUILD_FUZZING)

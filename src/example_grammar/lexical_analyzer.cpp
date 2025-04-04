@@ -4,11 +4,10 @@
  * \brief
  */
 
+#include <boost/bimap.hpp>
+#include <cyy/algorithm/alphabet/common_tokens.hpp>
 #include "lexical_analyzer.hpp"
 
-#include <string>
-
-#include <cyy/algorithm/alphabet/common_tokens.hpp>
 
 namespace cyy::compiler::example_grammar {
 

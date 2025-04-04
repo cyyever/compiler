@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <stdexcept>
+import std;
 
 namespace cyy::compiler::exception {
 

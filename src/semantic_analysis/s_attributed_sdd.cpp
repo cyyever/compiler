@@ -7,10 +7,7 @@
  */
 #include "s_attributed_sdd.hpp"
 
-#include <algorithm>
 #include <cassert>
-#include <functional>
-#include <set>
 
 #include "exception.hpp"
 

@@ -7,13 +7,6 @@
 
 #pragma once
 
-#include <algorithm>
-#include <memory>
-#include <ranges>
-#include <string_view>
-#include <unordered_set>
-#include <utility>
-
 #include <cyy/algorithm/alphabet/symbol.hpp>
 
 #include "type_expression.hpp"
