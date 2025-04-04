@@ -35,7 +35,7 @@ find_package(MyComputationLib REQUIRED)
 target_link_libraries(MyCompilerLib PRIVATE MyComputationLib CyyAlgorithmLib)
 
 # test
-# add_subdirectory(test)
+add_subdirectory(test)
 
 option(BUILD_FUZZING "Build fuzzing" OFF)
 if(BUILD_FUZZING)
