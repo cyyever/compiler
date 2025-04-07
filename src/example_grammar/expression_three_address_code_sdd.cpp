@@ -317,7 +317,7 @@ namespace cyy::compiler::example_grammar {
         if (body.size() == 3) {
           if (body[1].is_terminal()) {
 
-            std::map<char, binary_arithmetic_operator> binary_arithmetic_ops;
+            std::unordered_map<char, binary_arithmetic_operator> binary_arithmetic_ops;
             binary_arithmetic_ops['+'] = binary_arithmetic_operator::plus;
             binary_arithmetic_ops['-'] = binary_arithmetic_operator::minus;
             binary_arithmetic_ops['*'] =

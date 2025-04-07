@@ -20,9 +20,9 @@ namespace cyy::compiler {
       std::shared_ptr<type_expression::expression> type;
       std::string lexeme;
       size_t relative_address{};
-      auto operator<=>(const symbol_entry &rhs) const {
-        return relative_address <=> rhs.relative_address;
-      }
+      // auto operator<=>(const symbol_entry &rhs) const {
+      //   return relative_address <=> rhs.relative_address;
+      // }
     };
     using symbol_entry_ptr = std::shared_ptr<symbol_entry>;
     struct type_entry : public entry {
